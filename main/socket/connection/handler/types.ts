@@ -1,0 +1,63 @@
+import { StringGradients } from "antd/lib/progress/progress";
+
+export interface DataHandler {
+  getName(): string;
+  handle(connectionId: string, request: Request): Promise<void>;
+}
+
+export interface Request {
+  functionName: string;
+  payload: unknown;
+}
+
+export interface TriggerRelayPayload {
+  ip: string;
+  port: number;
+  client: string;
+}
+
+export interface TriggerRelayRequest extends Request {
+  payload: TriggerRelayPayload;
+}
+
+export interface CaptureFacePayload {
+  ip: string;
+  port: number;
+  client: string;
+  peopleId: string;
+  faceDirectory: string;
+}
+
+export interface CaptureFaceRequest extends Request {
+  payload: CaptureFacePayload;
+}
+
+export interface Device {
+  ip: string;
+  port: number;
+  rightPlans?: any[];
+}
+
+export interface Expiration {
+  beginTime: string;
+  endTime: string;
+}
+
+export interface People {
+  id: string;
+  name: string;
+  cards: string[];
+  devices: Device[];
+  expiration: Expiration;
+  photo: string;
+}
+
+export interface RecordPeoplesPayload {
+  client: string;
+  peoples: People[];
+  faceDirectory: string;
+}
+
+export interface RecordPeoplesRequest extends Request {
+  payload: RecordPeoplesPayload;
+}
