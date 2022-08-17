@@ -3,7 +3,7 @@ import { Sequelize } from "sequelize";
 import {
   IpcMainChannel,
   IpcRequest,
-  IpcResponse
+  IpcResponse,
 } from "../../shared/ipc/types";
 import connection from "../database/connection";
 import logger from "../../shared/logger";
@@ -26,7 +26,7 @@ export class DatabaseConnectionStatusHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error("DatabaseConnectionStatusHandler error>", e.message);
+      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
 
       const response: IpcResponse = {
         status: "error",
@@ -65,7 +65,7 @@ export class DatabaseTestConnectionHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      log.error("DatabaseTestConnectionHandler error>", e.message);
+      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
 
       const response: IpcResponse = {
         status: "error",
@@ -105,7 +105,7 @@ export class DatabaseUpdateConnectionHandler implements IpcHandler {
         data: "connected",
       });
     } catch (e) {
-      log.error("DatabaseUpdateConnectionHandler error>", e.message);
+      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

@@ -12,7 +12,7 @@ if (isProd) {
   app.setPath("userData", `${app.getPath("userData")} (development)`);
 }
 
-logger.info("userdata>", app.getPath("userData"));
+logger.info("[APP] System: loading user data from", app.getPath("userData"));
 
 (async () => {
   await app.whenReady();

@@ -25,7 +25,7 @@ class Ipc {
         handler.handle(event, request)
       );
 
-      logger.info(`[IPC] Handling channel: ${handler.getName()}`);
+      logger.info(`[IPC Main] Handler: listening channel ${handler.getName()}`);
     });
   }
 

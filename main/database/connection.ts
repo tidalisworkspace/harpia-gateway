@@ -3,8 +3,6 @@ import { Sequelize } from "sequelize";
 import { envname } from "../helpers/environment";
 import Config from "./config";
 
-log.info("Using sequelize options from", envname);
-
 const config = new Config();
 
 class Connection {
@@ -17,6 +15,7 @@ class Connection {
   }
 
   getSequelize(): Sequelize {
+    log.info("[Database] Connection: from", this.env);
     const options = this.config.get(this.env);
     return new Sequelize(options);
   }

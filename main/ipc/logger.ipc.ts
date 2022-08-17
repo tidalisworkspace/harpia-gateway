@@ -1,12 +1,10 @@
 import { IpcMainEvent, shell } from "electron";
-import ipc from ".";
 import {
   IpcMainChannel,
   IpcRequest,
   IpcResponse,
 } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
-import { getMainMenubar } from "../helpers/create-window";
 import { IpcHandler } from "./types";
 
 function getFileSize(): string {
@@ -38,7 +36,7 @@ export class LoggerFileOpenHandler implements IpcHandler {
       }
 
       if (message) {
-        logger.error(message);
+        logger.error(`[IPC Main] Handler [${this.getName()}]: ${message}`);
 
         const response: IpcResponse = {
           status: "error",
@@ -48,7 +46,7 @@ export class LoggerFileOpenHandler implements IpcHandler {
         event.sender.send(request.responseChannel, response);
       }
     } catch (e) {
-      logger.error("LoggerOpenFileHandler error>", e.message);
+      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
 
       const response: IpcResponse = {
         status: "error",
@@ -75,13 +73,13 @@ export class LoggerFileCleanHandle implements IpcHandler {
       const response: IpcResponse = {
         status: clean ? "success" : "error",
         message: "Log limpo",
-        data: getFileSize()
+        data: getFileSize(),
       };
 
       event.sender.send(request.responseChannel, response);
-      event.sender.send("logger_file_size_change", response)
+      event.sender.send("logger_file_size_change", response);
     } catch (e) {
-      logger.error("LoggerCleanFileHandle error> ", e.message);
+      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
 
       const response: IpcResponse = {
         status: "error",
@@ -107,7 +105,7 @@ export class LoggerFileSizeHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error("LoggerFileSizeHandler error>", e.message);
+      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

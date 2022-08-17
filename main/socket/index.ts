@@ -11,7 +11,7 @@ class Socket {
       const parametro = await parametroModel().findOne();
       return parametro?.portaSocket || this.defaultPort;
     } catch (e) {
-      logger.error("[Socket] Error: when trying get port number>", e.message);
+      logger.warn("[Socket] Server: using default port;", e.message);
       return this.defaultPort;
     }
   }
@@ -25,7 +25,9 @@ class Socket {
     server.on("error", (error: Error) =>
       logger.error("[Socket] Error: in connection>", error.message)
     );
-    server.on("listening", () => logger.info(`[Socket] Server: listening at ${port}`));
+    server.on("listening", () =>
+      logger.info(`[Socket] Server: listening at ${port}`)
+    );
 
     server.listen(port, "0.0.0.0");
 

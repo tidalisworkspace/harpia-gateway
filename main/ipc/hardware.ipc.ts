@@ -2,9 +2,11 @@ import { IpcMainEvent } from "electron";
 import {
   IpcMainChannel,
   IpcRequest,
-  IpcResponse
+  IpcResponse,
 } from "../../shared/ipc/types";
-import equipamentoModel, { Equipamento } from "../database/models/equipamento.model";
+import equipamentoModel, {
+  Equipamento,
+} from "../database/models/equipamento.model";
 import logger from "../../shared/logger";
 
 import { IpcHandler } from "./types";
@@ -38,7 +40,7 @@ export class HardwareFindAllHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error("HardwareFindAllHandler error>", e.message);
+      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

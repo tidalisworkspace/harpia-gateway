@@ -18,7 +18,7 @@ export default function (): void {
     "golden_gate.png"
   );
 
-  logger.info("icon>", icon);
+  logger.info("[Window] Icon: using icon from", icon);
 
   mainMenubar = menubar({
     preloadWindow: true,
