@@ -1,11 +1,10 @@
-
 import { deviceClients } from "../../../device-clients";
 import logger from "../../../../shared/logger";
 import { CaptureFaceRequest, DataHandler } from "./types";
 
 export class CaptureFaceHandler implements DataHandler {
   constructor() {
-    logger.info("CaptureFaceHandler initilized");
+    logger.info("[Socket] Handler: capture face initilized");
   }
 
   getName(): string {
@@ -27,14 +26,18 @@ export class CaptureFaceHandler implements DataHandler {
       }
 
       logger.info(
-        `Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
+        `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
       );
 
       const r = await deviceClient.captureFace();
-      logger.info("device client capture response:", r.status, r.statusText);
+      logger.info(
+        "[Socket] device client capture response:",
+        r.status,
+        r.statusText
+      );
     } catch (e) {
       logger.info(
-        `Connection [${connectionId}]: ${this.getName()} get an error: ${
+        `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
           e.message
         }`
       );

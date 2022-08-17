@@ -61,3 +61,53 @@ export interface RecordPeoplesPayload {
 export interface RecordPeoplesRequest extends Request {
   payload: RecordPeoplesPayload;
 }
+
+export interface TimeRange {
+  beginTime: string;
+  endTime: string;
+}
+
+export interface RightPlan {
+  id: string;
+  name: string;
+  devices: Device[];
+  monday?: TimeRange;
+  tuesday?: TimeRange;
+  wednesday?: TimeRange;
+  thursday?: TimeRange;
+  friday?: TimeRange;
+  saturday?: TimeRange;
+  sunday?: TimeRange;
+}
+
+export interface UserRightPayload {
+  client: string;
+  rightPlans: RightPlan[];
+}
+
+export interface UserRightRequest extends Request {
+  payload: UserRightPayload;
+}
+
+export interface People {
+  id: string;
+  devices: Device[];
+}
+
+export interface DeleteUserPayload {
+  client: string;
+  peoples: People[];
+}
+
+export interface DeleteUserRequest extends Request {
+  payload: DeleteUserPayload;
+}
+
+export interface DeleteUserRightPayload {
+  client: string
+  devices: Device[];
+}
+
+export interface DeleteUserRightRequest extends Request {
+  payload: DeleteUserRightPayload;
+}

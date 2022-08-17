@@ -9,7 +9,7 @@ const handler = new Handler();
 
 function handleError(connectionId: string, error: Error) {
   storage.remove(connectionId);
-  logger.error(`Connection [${connectionId}]: error ${error.message}`);
+  logger.error(`[Socket] Connection [${connectionId}]: error ${error.message}`);
 }
 
 function handleClose(connectionId: string) {
@@ -22,12 +22,12 @@ function handleClose(connectionId: string) {
 
   ipcMain.send("socket_connections_change", response);
 
-  logger.info(`Connection [${connectionId}]: closed`);
+  logger.info(`[Socket] Connection [${connectionId}]: closed`);
 }
 
 function handleData(connectionId: string, data: Buffer) {
   logger.info(
-    `Connection [${connectionId}]: received data with ${data.length} length`
+    `[Socket] Connection [${connectionId}]: received data with ${data.length} length`
   );
 
   const message = data
@@ -41,7 +41,7 @@ function handleData(connectionId: string, data: Buffer) {
     handler.resolve(connectionId, json);
   } catch (e) {
     logger.info(
-      `Connection [${connectionId}]: error (when trying parse and resolve) ${e.message}`
+      `[Socket] Connection [${connectionId}]: error (when trying parse and resolve) ${e.message}`
     );
   }
 }
@@ -60,5 +60,5 @@ export function handleConnection(connection: Socket) {
 
   ipcMain.send("socket_connections_change", response);
 
-  logger.info(`Connection [${connectionId}]: connected`);
+  logger.info(`[Socket] Connection [${connectionId}]: connected`);
 }

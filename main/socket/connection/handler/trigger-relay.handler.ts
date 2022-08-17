@@ -1,11 +1,10 @@
-
 import { deviceClients } from "../../../device-clients";
 import logger from "../../../../shared/logger";
 import { DataHandler, TriggerRelayRequest } from "./types";
 
 export class TriggerRelayHandler implements DataHandler {
   constructor() {
-    logger.info("TriggerRelayHandler initilized");
+    logger.info("[Socket] Handler: trigger relay initilized");
   }
 
   getName(): string {
@@ -27,13 +26,13 @@ export class TriggerRelayHandler implements DataHandler {
       }
 
       logger.info(
-        `Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
+        `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
       );
 
-      deviceClient.openDoor();
+      await deviceClient.openDoor();
     } catch (e) {
       logger.info(
-        `Connection [${connectionId}]: ${this.getName()} get an error: ${
+        `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
           e.message
         }`
       );
