@@ -40,9 +40,7 @@ function handleData(connectionId: string, data: Buffer) {
 
     handler.resolve(connectionId, json);
   } catch (e) {
-    logger.info(
-      `[Socket] Connection [${connectionId}]: error (when trying parse and resolve) ${e.message}`
-    );
+    logger.info(`[Socket] Connection [${connectionId}]: error ${e.message}`);
   }
 }
 
