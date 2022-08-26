@@ -1,8 +1,11 @@
 import { format } from "date-fns";
 import DigestFetch from "digest-fetch";
-import parametroModel from "../database/models/parametro.model";
+import streams from "memory-streams";
 import logger from "../../shared/logger";
+import parametroModel from "../database/models/parametro.model";
+import responseUtil from "./ResponseUtil";
 import { DeviceClient, Manufacturer } from "./types";
+import fs from "fs";
 
 export class IntelbrasClient implements DeviceClient {
   private host: string;
@@ -21,7 +24,9 @@ export class IntelbrasClient implements DeviceClient {
       const password = parametro?.senhaIntelbras || "admin123";
       this.httpClient = new DigestFetch(username, password);
     } catch (e) {
-      logger.error(`Device client [${this.getManufacturer()}] error ${e.message}`);
+      logger.error(
+        `Device client [${this.getManufacturer()}] error ${e.message}`
+      );
       this.httpClient = new DigestFetch("admin", "admin123");
     }
 
@@ -34,10 +39,6 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  setTimeZone(): Promise<Response> {
-    throw new Error("Method not implemented.");
-  }
-
   setTime(): Promise<Response> {
     const time = format(new Date(), "yyyy-mm-dd HH:mm:ss");
 
@@ -46,20 +47,95 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  captureFace(): Promise<Response> {
-    throw new Error("Method not implemented.");
+  async captureFace(): Promise<string> {
+    await this.httpClient.fetch(
+      `http://${this.host}/cgi-bin/accessControl.cgi?action=captureCmd&type=1&heartbeat=5&timeout=10`
+    );
+
+    const request = new Promise<Buffer>(async (resolve, reject) => {
+      const timeoutId = setTimeout(
+        () => reject(new Error("capture face timeout")),
+        10 * 1000
+      );
+
+      const response = await this.httpClient.fetch(
+        `http://${this.host}/cgi-bin/snapManager.cgi?action=attachFileProc&Flags[0]=Event&Events=[CitizenPictureCompare]`
+      );
+
+      const bodyStream = new streams.WritableStream();
+
+      const body = await response.body;
+      body.pipe(bodyStream);
+
+      setTimeout(() => {
+        clearTimeout(timeoutId);
+
+        const bodyBuffer = bodyStream.toBuffer();
+
+        resolve(bodyBuffer);
+      }, 3 * 1000);
+    });
+
+    const body = await request;
+    logger.info("response body length:", body.length);
+    const faceBuffer = responseUtil.getContent(body, "<ITBF>");
+
+    return faceBuffer.toString("base64");
   }
 
   saveFace(params: any): Promise<Response> {
-    throw new Error("Method not implemented.");
+    const { id, picture } = params;
+
+    const faceBuffer = fs.readFileSync(picture);
+    const faceBase64 = faceBuffer.toString("base64");
+
+    return this.httpClient.fetch(
+      `http://${this.host}/cgi-bin/AccessFace.cgi?action=insertMulti`,
+      {
+        method: "post",
+        body: {
+          FaceList: [
+            {
+              UserID: id,
+              PhotoData: [faceBase64],
+            },
+          ],
+        },
+      }
+    );
   }
 
   deleteFaces(params: any): Promise<Response> {
-    throw new Error("Method not implemented.");
+    const { ids } = params;
+
+    const userIdParam = ids
+      .map((id, index) => `UserID[${index}]=${id}`)
+      .join("&");
+
+    return this.httpClient.fetch(
+      `http://${this.host}/cgi-bin/FaceInfoManager.cgi?action=remove&${userIdParam}`
+    );
   }
 
   saveCard(params: any): Promise<Response> {
-    throw new Error("Method not implemented.");
+    const { id, number } = params;
+
+    return this.httpClient.fetch(
+      `http://${this.host}/cgi-bin/AccessCard.cgi?action=insertMulti`,
+      {
+        method: "post",
+        body: {
+          CardList: [
+            {
+              UserID: id,
+              CardNo: number,
+              CardType: 0,
+              CardStatus: 0,
+            },
+          ],
+        },
+      }
+    );
   }
 
   deleteCards(params: { ids: string[] }): Promise<Response> {
@@ -94,9 +170,18 @@ export class IntelbrasClient implements DeviceClient {
   }
 
   deleteUsers(params: any): Promise<Response> {
-    throw new Error("Method not implemented.");
+    const { ids } = params;
+
+    const userIdParam = ids
+      .map((id, index) => `UserIDList[${index}]=${id}`)
+      .join("&");
+
+    return this.httpClient.fetch(
+      `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeMulti&${userIdParam}`
+    );
   }
 
+  // travado mandar email
   saveUserRight(params: any): Promise<Response> {
     throw new Error("Method not implemented.");
   }

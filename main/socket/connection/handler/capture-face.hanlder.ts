@@ -1,6 +1,8 @@
 import { deviceClients } from "../../../device-clients";
 import logger from "../../../../shared/logger";
 import { CaptureFaceRequest, DataHandler } from "./types";
+import fs from "fs";
+import path from "path";
 
 export class CaptureFaceHandler implements DataHandler {
   constructor() {
@@ -16,6 +18,8 @@ export class CaptureFaceHandler implements DataHandler {
     request: CaptureFaceRequest
   ): Promise<void> {
     try {
+      const { client, faceDirectory, peopleId } = request.payload;
+
       const deviceClient = await deviceClients.get(
         request.payload.ip,
         request.payload.port
@@ -29,12 +33,10 @@ export class CaptureFaceHandler implements DataHandler {
         `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
       );
 
-      const r = await deviceClient.captureFace();
-      logger.info(
-        "[Socket] device client capture response:",
-        r.status,
-        r.statusText
-      );
+      const faceBase64 = await deviceClient.captureFace();
+      const facePath = path.join(faceDirectory, `${peopleId}.jpg`);
+
+      fs.writeFileSync(facePath, faceBase64, { encoding: "base64" });
     } catch (e) {
       logger.info(
         `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${

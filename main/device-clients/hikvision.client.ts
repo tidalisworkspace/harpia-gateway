@@ -4,6 +4,7 @@ import fs from "fs";
 import parametroModel from "../database/models/parametro.model";
 import logger from "../../shared/logger";
 import { DeviceClient, Manufacturer } from "./types";
+import responseUtil from "./ResponseUtil";
 
 export class HikvisionClient implements DeviceClient {
   private host: string;
@@ -24,7 +25,9 @@ export class HikvisionClient implements DeviceClient {
       logger.info("password:", password);
       this.httpClient = new DigestFetch(username, password);
     } catch (e) {
-      logger.error(`Device client [${this.getManufacturer()}] error ${e.message}`);
+      logger.error(
+        `Device client [${this.getManufacturer()}] error ${e.message}`
+      );
       this.httpClient = new DigestFetch("admin", "admin");
     }
 
@@ -71,14 +74,19 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  captureFace(): Promise<Response> {
-    return this.httpClient.fetch(
+  async captureFace(): Promise<string> {
+    const response = await this.httpClient.fetch(
       `http://${this.host}/ISAPI/AccessControl/CaptureFaceData`,
       {
         method: "post",
         body: '<CaptureFaceDataCond version="2.0" xmlns="http://www.isapi.org/ver20/XMLSchema"><captureInfrared>false</captureInfrared><dataType>binary</dataType></CaptureFaceDataCond>',
       }
     );
+
+    const body = await response.buffer();
+    const faceBuffer = responseUtil.getContent(body, "<HIKV>");
+
+    return faceBuffer.toString("base64");
   }
 
   saveFace(params): Promise<Response> {
@@ -158,17 +166,12 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  setTimeZone(): Promise<Response> {
-    return this.httpClient.fetch(
-      `http://${this.host}/ISAPI/System/time/timeZone`,
-      {
-        method: "put",
-        body: "GMT+3",
-      }
-    );
-  }
+  async setTime(): Promise<Response> {
+    await this.httpClient.fetch(`http://${this.host}/ISAPI/System/time/timeZone`, {
+      method: "put",
+      body: "GMT+3",
+    });
 
-  setTime(): Promise<Response> {
     const datetime = formatISO(new Date());
 
     return this.httpClient.fetch(`http://${this.host}/ISAPI/System/time`, {
