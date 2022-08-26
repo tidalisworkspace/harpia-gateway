@@ -17,7 +17,7 @@ function remove(id: string) {
   }
 }
 
-function count() {
+function count(): number {
   return Object.keys(connections).length;
 }
 
