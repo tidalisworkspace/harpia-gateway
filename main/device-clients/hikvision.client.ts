@@ -16,18 +16,19 @@ import {
 } from "./types";
 import responseUtil from "./ResponseUtil";
 import { TimeRange } from "../socket/connection/handler/types";
+import range from "../helpers/range";
 
 export class HikvisionClient implements DeviceClient {
   private host: string;
   private httpClient: DigestFetch;
   private days: string[] = [
+    "sunday",
     "monday",
     "tuesday",
     "wednesday",
     "thursday",
     "friday",
     "saturday",
-    "sunday",
   ];
   private defaultTimeRange: TimeRange = {
     beginTime: "00:00:00",
@@ -267,8 +268,8 @@ export class HikvisionClient implements DeviceClient {
       return {
         id,
         week: this.capitalize(day),
-        ...this.defaultTimeRange
-      }
+        ...this.defaultTimeRange,
+      };
     }
 
     const { beginTime, endTime } = rightPlan[day] || this.defaultTimeRange;
@@ -285,7 +286,9 @@ export class HikvisionClient implements DeviceClient {
     return this.days.reduce((accumulator, current) => {
       const planConfig = this.toPlanConfig(1, current, rightPlan);
 
-      const planConfigs = [2, 3, 4, 5, 6, 7, 8].map(id => this.toPlanConfig(id, current, null))
+      const planConfigs = range(7, 2).map((id) =>
+        this.toPlanConfig(id, current, null)
+      );
 
       return [planConfig, ...planConfigs, ...accumulator];
     }, []);
