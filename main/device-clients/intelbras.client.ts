@@ -4,12 +4,37 @@ import streams from "memory-streams";
 import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
 import responseUtil from "./ResponseUtil";
-import { DeleteCardsParams, DeleteFacesParams, DeleteUsersParams, DeviceClient, Manufacturer, SaveCardParams, SaveFaceParams, SaveUserParams, SaveUserRightParams } from "./types";
+import {
+  DeleteCardsParams,
+  DeleteFacesParams,
+  DeleteUsersParams,
+  DeviceClient,
+  Manufacturer,
+  SaveCardParams,
+  SaveFaceParams,
+  SaveUserParams,
+  SaveUserRightParams,
+} from "./types";
 import fs from "fs";
+import { TimeRange } from "../socket/connection/handler/types";
+import range from "../helpers/range";
 
 export class IntelbrasClient implements DeviceClient {
   private host: string;
   private httpClient: DigestFetch;
+  private days: string[] = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
+  private defaultTimeRange: TimeRange = {
+    beginTime: "00:00:00",
+    endTime: "00:00:00",
+  };
 
   getManufacturer(): Manufacturer {
     return "<ITBF>";
@@ -191,11 +216,51 @@ export class IntelbrasClient implements DeviceClient {
   }
 
   saveUserRight(params: SaveUserRightParams): Promise<Response> {
-    throw new Error("Method not implemented.");
+    const { id } = params;
+
+    const userRights = this.days.reduce((accumulator, current, index) => {
+      const { beginTime, endTime } = params[current] || this.defaultTimeRange;
+
+      accumulator.push(
+        `AccessTimeSchedule[${id}].TimeSchedule[${index}][0]:1 ${beginTime}-${endTime}`
+      );
+
+      const { beginTime: beginTimeDefault, endTime: endTimeDefault } =
+        this.defaultTimeRange;
+
+      range(3, 1).forEach((i) => {
+        accumulator.push(
+          `AccessTimeSchedule[${id}].TimeSchedule[${index}][${i}]:1 ${beginTimeDefault}-${endTimeDefault}`
+        );
+      });
+
+      return accumulator;
+    }, []);
+
+    const userRightsParam = userRights.join("&");
+
+    return this.httpClient.fetch(
+      `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&AccessTimeSchedule[${id}].Enable=true&${userRightsParam}`
+    );
   }
 
   deleteAllUserRight(): Promise<Response> {
-    throw new Error("Method not implemented.");
+    const configParam = range(128)
+      .reduce(
+        (accumulator, current) => [
+          ...accumulator,
+          ...range(7).map(
+            (i) =>
+              `AccessTimeSchedule[${current}].TimeSchedule[${i}][0]:1 00:00:00-00:00:00`
+          ),
+        ],
+        []
+      )
+      .join("&");
+
+    return this.httpClient.fetch(
+      `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&${configParam}`
+    );
   }
 
   reboot(): Promise<Response> {
