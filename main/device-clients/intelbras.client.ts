@@ -4,7 +4,7 @@ import streams from "memory-streams";
 import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
 import responseUtil from "./ResponseUtil";
-import { DeviceClient, Manufacturer } from "./types";
+import { DeleteCardsParams, DeleteFacesParams, DeleteUsersParams, DeviceClient, Manufacturer, SaveCardParams, SaveFaceParams, SaveUserParams } from "./types";
 import fs from "fs";
 
 export class IntelbrasClient implements DeviceClient {
@@ -83,7 +83,7 @@ export class IntelbrasClient implements DeviceClient {
     return faceBuffer.toString("base64");
   }
 
-  saveFace(params: any): Promise<Response> {
+  saveFace(params: SaveFaceParams): Promise<Response> {
     const { id, picture } = params;
 
     const faceBuffer = fs.readFileSync(picture);
@@ -105,7 +105,7 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  deleteFaces(params: any): Promise<Response> {
+  deleteFaces(params: DeleteFacesParams): Promise<Response> {
     const { ids } = params;
 
     const userIdParam = ids
@@ -117,7 +117,7 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  saveCard(params: any): Promise<Response> {
+  saveCard(params: SaveCardParams): Promise<Response> {
     const { id, number } = params;
 
     return this.httpClient.fetch(
@@ -138,7 +138,7 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  deleteCards(params: { ids: string[] }): Promise<Response> {
+  deleteCards(params: DeleteCardsParams): Promise<Response> {
     const { ids } = params;
 
     const cardNumberParam = ids
@@ -150,26 +150,35 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  saveUser(params: {
-    id: string;
-    name: string;
-    expiration: { beginTime: string; endTime: string };
-  }): Promise<Response> {
-    const { id, name, expiration } = params;
+  saveUser(params: SaveUserParams): Promise<Response> {
+    const { id, name, rightPlans, expiration } = params;
 
     let { beginTime, endTime } = expiration || { beginTime: "", endTime: "" };
     beginTime = beginTime.replace("T", " ");
-    beginTime = beginTime.replace(/[-:]/g, "");
-
     endTime = endTime.replace("T", " ");
-    endTime = endTime.replace(/[-:]/g, "");
+
+    const sections = rightPlans || [0];
 
     return this.httpClient.fetch(
-      `http://${this.host}/cgi-bin/recordUpdater.cgi?action=insert&name=${name}&CardNo=0&CardStatus=0&CardName=${name}&UserID=${id}&Doors[0]=0&Password=&ValidDateStart=${beginTime}&ValidDateEnd=${endTime}`
+      `http://${this.host}/cgi-bin/AccessUser.cgi?action=insertMulti`,
+      {
+        method: "post",
+        body: {
+          UserList: [
+            {
+              UserID: id,
+              UserName: name,
+              TimeSections: sections,
+              ValidFrom: beginTime,
+              ValidTo: endTime,
+            },
+          ],
+        },
+      }
     );
   }
 
-  deleteUsers(params: any): Promise<Response> {
+  deleteUsers(params: DeleteUsersParams): Promise<Response> {
     const { ids } = params;
 
     const userIdParam = ids
@@ -181,12 +190,11 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  // travado mandar email
-  saveUserRight(params: any): Promise<Response> {
+  saveUserRight(params: SaveUserParams): Promise<Response> {
     throw new Error("Method not implemented.");
   }
 
-  deleteUserRight(params: any): Promise<Response> {
+  deleteAllUserRight(): Promise<Response> {
     throw new Error("Method not implemented.");
   }
 

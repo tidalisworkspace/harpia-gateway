@@ -2,13 +2,13 @@ import { deviceClients } from "../../../device-clients";
 import logger from "../../../../shared/logger";
 import { DataHandler, DeleteUserRightRequest } from "./types";
 
-export class DeleteUserRightHandler implements DataHandler {
+export class DeleteAllUserRightHandler implements DataHandler {
   constructor() {
-    logger.info("[Socket] Handler: delete user right initilized");
+    logger.info("[Socket] Handler: delete all user right initilized");
   }
 
   getName(): string {
-    return "deleteUserRight";
+    return "deleteAllUserRight";
   }
 
   async handle(
@@ -31,7 +31,7 @@ export class DeleteUserRightHandler implements DataHandler {
           `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
         );
 
-        await deviceClient.deleteUserRight({});
+        await deviceClient.deleteAllUserRight();
       }
     } catch (e) {
       logger.info(

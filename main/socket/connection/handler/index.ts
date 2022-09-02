@@ -1,6 +1,6 @@
 import logger from "../../../../shared/logger";
 import { CaptureFaceHandler } from "./capture-face.hanlder";
-import { DeleteUserRightHandler } from "./delete-user-right.handler";
+import { DeleteAllUserRightHandler } from "./delete-all-user-right.handler";
 import { DeleteUserHandler } from "./delete-user.handler";
 import { SaveUserRightHandler } from "./save-user-right.handler";
 import { SaveUserHandler } from "./save-user.handler";
@@ -13,7 +13,7 @@ export class Handler {
   constructor() {
     this.handlers = [
       new CaptureFaceHandler(),
-      new DeleteUserRightHandler(),
+      new DeleteAllUserRightHandler(),
       new DeleteUserHandler(),
       new SaveUserRightHandler(),
       new SaveUserHandler(),

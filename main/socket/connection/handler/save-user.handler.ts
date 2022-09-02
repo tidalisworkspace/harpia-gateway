@@ -36,7 +36,12 @@ export class SaveUserHandler implements DataHandler {
             `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
           );
 
-          await deviceClient.saveUser(people);
+          await deviceClient.saveUser({
+            id: people.id,
+            name: people.name,
+            rightPlans: device.rightPlans,
+            expiration: people.expiration,
+          });
 
           for (let k = 0; k < cards.length; k++) {
             const card = cards[k];

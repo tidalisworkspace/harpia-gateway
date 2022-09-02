@@ -1,3 +1,5 @@
+import { TimeRange } from "../socket/connection/handler/types";
+
 export type Manufacturer = "<HIKV>" | "<ITBF>";
 
 export interface DeviceClient {
@@ -6,18 +8,59 @@ export interface DeviceClient {
   openDoor(): Promise<Response>;
   setTime(): Promise<Response>;
   captureFace(): Promise<string>;
-  saveFace(params: any): Promise<Response>;
-  deleteFaces(params: any): Promise<Response>;
-  saveCard(params: any): Promise<Response>;
-  deleteCards(params: any): Promise<Response>;
-  saveUser(params: any): Promise<Response>;
-  deleteUsers(params: any): Promise<Response>;
-  saveUserRight(params: any): Promise<Response>;
-  deleteUserRight(params: any): Promise<Response>;
+  saveFace(params: SaveFaceParams): Promise<Response>;
+  deleteFaces(params: DeleteFacesParams): Promise<Response>;
+  saveCard(params: SaveCardParams): Promise<Response>;
+  deleteCards(params: DeleteCardsParams): Promise<Response>;
+  saveUser(params: SaveUserParams): Promise<Response>;
+  deleteUsers(params: DeleteUsersParams): Promise<Response>;
+  saveUserRight(params: SaveUserRightParams): Promise<Response>;
+  deleteAllUserRight(): Promise<Response>;
   reboot(): Promise<Response>;
 }
 
 export interface Boundary {
   getManufacturer(): Manufacturer;
   getToken(): string;
+}
+
+export interface SaveFaceParams {
+  id: string;
+  picture: string;
+}
+
+export interface DeleteFacesParams {
+  ids: number[];
+}
+
+export interface SaveCardParams {
+  id: string;
+  number: string;
+}
+
+export interface DeleteCardsParams {
+  ids: number[];
+}
+
+export interface SaveUserParams {
+  id: string;
+  name: string;
+  rightPlans?: number[];
+  expiration?: TimeRange;
+}
+
+export interface DeleteUsersParams {
+  ids: string[];
+}
+
+export interface SaveUserRightParams {
+  id: string;
+  name?: string;
+  monday?: TimeRange;
+  tuesday?: TimeRange;
+  wednesday?: TimeRange;
+  thursday?: TimeRange;
+  friday?: TimeRange;
+  saturday?: TimeRange;
+  sunday?: TimeRange;
 }

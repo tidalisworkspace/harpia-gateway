@@ -3,12 +3,36 @@ import DigestFetch from "digest-fetch";
 import fs from "fs";
 import parametroModel from "../database/models/parametro.model";
 import logger from "../../shared/logger";
-import { DeviceClient, Manufacturer } from "./types";
+import {
+  DeleteCardsParams,
+  DeleteFacesParams,
+  DeleteUsersParams,
+  DeviceClient,
+  Manufacturer,
+  SaveCardParams,
+  SaveFaceParams,
+  SaveUserParams,
+  SaveUserRightParams,
+} from "./types";
 import responseUtil from "./ResponseUtil";
+import { TimeRange } from "../socket/connection/handler/types";
 
 export class HikvisionClient implements DeviceClient {
   private host: string;
   private httpClient: DigestFetch;
+  private days: string[] = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
+  private defaultTimeRange: TimeRange = {
+    beginTime: "00:00:00",
+    endTime: "00:00:00",
+  };
 
   getManufacturer(): Manufacturer {
     return "<HIKV>";
@@ -34,7 +58,7 @@ export class HikvisionClient implements DeviceClient {
     return this;
   }
 
-  saveCard(params): Promise<Response> {
+  saveCard(params: SaveCardParams): Promise<Response> {
     const { id, number } = params;
 
     return this.httpClient.fetch(
@@ -52,7 +76,7 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  deleteCards(params): Promise<Response> {
+  deleteCards(params: DeleteCardsParams): Promise<Response> {
     const { ids } = params;
 
     const list = ids.map((id) => {
@@ -89,7 +113,7 @@ export class HikvisionClient implements DeviceClient {
     return faceBuffer.toString("base64");
   }
 
-  saveFace(params): Promise<Response> {
+  saveFace(params: SaveFaceParams): Promise<Response> {
     const { id, picture } = params;
 
     const boundary = `--------------- ${new Date().getTime()}`;
@@ -136,7 +160,7 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  deleteFaces(params): Promise<Response> {
+  deleteFaces(params: DeleteFacesParams): Promise<Response> {
     const { ids } = params;
 
     const list = ids.map((id) => {
@@ -167,10 +191,13 @@ export class HikvisionClient implements DeviceClient {
   }
 
   async setTime(): Promise<Response> {
-    await this.httpClient.fetch(`http://${this.host}/ISAPI/System/time/timeZone`, {
-      method: "put",
-      body: "GMT+3",
-    });
+    await this.httpClient.fetch(
+      `http://${this.host}/ISAPI/System/time/timeZone`,
+      {
+        method: "put",
+        body: "GMT+3",
+      }
+    );
 
     const datetime = formatISO(new Date());
 
@@ -180,7 +207,7 @@ export class HikvisionClient implements DeviceClient {
     });
   }
 
-  saveUser(params): Promise<Response> {
+  saveUser(params: SaveUserParams): Promise<Response> {
     const { id, name, rightPlans, expiration } = params;
 
     const RightPlan = (rightPlans || [1]).map((rightPlan) => ({
@@ -209,7 +236,7 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  deleteUsers(params): Promise<Response> {
+  deleteUsers(params: DeleteUsersParams): Promise<Response> {
     const { ids } = params;
 
     const UserInfoDetail =
@@ -231,8 +258,43 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  async saveUserRight(params): Promise<Response> {
-    const { id, name, planConfigs } = params;
+  private capitalize(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
+  private toPlanConfig(id, day, rightPlan) {
+    if (!rightPlan) {
+      return {
+        id,
+        week: this.capitalize(day),
+        ...this.defaultTimeRange
+      }
+    }
+
+    const { beginTime, endTime } = rightPlan[day] || this.defaultTimeRange;
+
+    return {
+      id,
+      week: this.capitalize(day),
+      beginTime,
+      endTime,
+    };
+  }
+
+  private getPlanConfigs(rightPlan) {
+    return this.days.reduce((accumulator, current) => {
+      const planConfig = this.toPlanConfig(1, current, rightPlan);
+
+      const planConfigs = [2, 3, 4, 5, 6, 7, 8].map(id => this.toPlanConfig(id, current, null))
+
+      return [planConfig, ...planConfigs, ...accumulator];
+    }, []);
+  }
+
+  async saveUserRight(params: SaveUserRightParams): Promise<Response> {
+    const { id, name } = params;
+
+    const planConfigs = this.getPlanConfigs(params);
 
     const configs = planConfigs.map((planConfig) => ({
       id: planConfig.id,
@@ -277,16 +339,14 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  deleteUserRight(params): Promise<Response> {
-    const { flags } = params;
-
+  deleteAllUserRight(): Promise<Response> {
     return this.httpClient.fetch(
       `http://${this.host}/ISAPI/AccessControl/ClearPlansCfg?format=json`,
       {
         method: "put",
         body: JSON.stringify({
           ClearPlansCfg: {
-            ClearFlags: flags,
+            ClearFlags: { userRightWeekPlan: true },
           },
         }),
       }

@@ -38,17 +38,12 @@ export interface Device {
   rightPlans?: any[];
 }
 
-export interface Expiration {
-  beginTime: string;
-  endTime: string;
-}
-
 export interface People {
   id: string;
   name: string;
   cards: string[];
   devices: Device[];
-  expiration: Expiration;
+  expiration: TimeRange;
   photo: string;
 }
 
