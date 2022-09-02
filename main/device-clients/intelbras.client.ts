@@ -4,7 +4,7 @@ import streams from "memory-streams";
 import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
 import responseUtil from "./ResponseUtil";
-import { DeleteCardsParams, DeleteFacesParams, DeleteUsersParams, DeviceClient, Manufacturer, SaveCardParams, SaveFaceParams, SaveUserParams } from "./types";
+import { DeleteCardsParams, DeleteFacesParams, DeleteUsersParams, DeviceClient, Manufacturer, SaveCardParams, SaveFaceParams, SaveUserParams, SaveUserRightParams } from "./types";
 import fs from "fs";
 
 export class IntelbrasClient implements DeviceClient {
@@ -190,7 +190,7 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  saveUserRight(params: SaveUserParams): Promise<Response> {
+  saveUserRight(params: SaveUserRightParams): Promise<Response> {
     throw new Error("Method not implemented.");
   }
 
