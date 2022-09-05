@@ -1,5 +1,5 @@
 import logger from "../../../../shared/logger";
-import { CaptureFaceHandler } from "./capture-face.hanlder";
+import { CaptureFaceHandler } from "./capture-face.handler";
 import { DeleteAllUserRightHandler } from "./delete-all-user-right.handler";
 import { DeleteUserHandler } from "./delete-user.handler";
 import { RebootHandler } from "./reboot.handler";
