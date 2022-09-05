@@ -1,5 +1,3 @@
-import { StringGradients } from "antd/lib/progress/progress";
-
 export interface DataHandler {
   getName(): string;
   handle(connectionId: string, request: Request): Promise<void>;
