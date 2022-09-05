@@ -1,6 +1,7 @@
 import { deviceClients } from "../../../device-clients";
 import logger from "../../../../shared/logger";
 import { DeleteUserRequest, DataHandler } from "./types";
+import socket from "../..";
 
 export class DeleteUserHandler implements DataHandler {
   constructor() {
@@ -17,6 +18,8 @@ export class DeleteUserHandler implements DataHandler {
   ): Promise<void> {
     try {
       const { client, peoples } = request.payload;
+
+      const errors = [];
 
       for (let i = 0; i < peoples.length; i++) {
         const people = peoples[i];
@@ -35,11 +38,36 @@ export class DeleteUserHandler implements DataHandler {
             `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
           );
 
-          await deviceClient.deleteUsers({ ids: [people.id] });
+          try {
+            await deviceClient.deleteUsers({ ids: [people.id] });
+          } catch (e) {
+            logger.error(
+              `[Socket] Connection [${connectionId}]: ${this.getName()} get an error with device ${
+                device.ip
+              }:${device.port} ${e.message}`
+            );
+
+            errors.push(`IP:${device.ip}:${device.port}`);
+
+            continue;
+          }
         }
       }
+
+      if (errors.length) {
+        socket.sendFailureMessage(connectionId, client, ...errors);
+        return;
+      }
+
+      socket.sendSuccessMessage(connectionId, client, "APAGADO(S) COM SUCESSO");
     } catch (e) {
-      logger.info(
+      socket.sendFailureMessage(
+        connectionId,
+        request.payload.client,
+        "ERRO INESPERADO"
+      );
+
+      logger.error(
         `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
           e.message
         }`
