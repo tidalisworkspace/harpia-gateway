@@ -36,6 +36,10 @@ export class CaptureFaceHandler implements DataHandler {
       const faceBase64 = await deviceClient.captureFace();
       const facePath = path.join(faceDirectory, `${peopleId}.jpg`);
 
+      logger.debug(
+        `[Socket] Connection [${connectionId}]: ${this.getName()} writing file on path ${facePath}`
+      );
+
       fs.writeFileSync(facePath, faceBase64, { encoding: "base64" });
     } catch (e) {
       logger.info(
