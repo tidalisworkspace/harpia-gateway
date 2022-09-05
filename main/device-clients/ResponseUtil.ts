@@ -139,13 +139,29 @@ class ResponseUtil {
     contentLength: number,
     index: number
   ): Buffer {
+    logger.debug(
+      `[ResponseUtil] getBoundaryContent: seaching blank line from ${index} index`
+    );
+
     const blankLine = this.eolToken + this.eolToken;
     const blankLineIndex = this.findIndex(data, blankLine, index);
 
+    logger.debug(
+      `[ResponseUtil] getBoundaryContent: blank line index is ${blankLineIndex}`
+    );
+
     const contentIndex = blankLineIndex + blankLine.length;
+
+    logger.debug(
+      `[ResponseUtil] getBoundaryContent: content index is ${contentIndex}`
+    );
 
     const content = Buffer.alloc(contentLength);
     data.copy(content, 0, contentIndex, contentIndex + contentLength);
+
+    logger.debug(
+      `[ResponseUtil] getBoundaryContent: content length is ${content.length}`
+    );
 
     return content;
   }
