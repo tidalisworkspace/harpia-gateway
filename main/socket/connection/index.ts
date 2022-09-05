@@ -9,6 +9,14 @@ const handler = new Handler();
 
 function handleError(connectionId: string, error: Error) {
   storage.remove(connectionId);
+
+  const response: IpcResponse = {
+    status: "success",
+    data: storage.count(),
+  };
+  
+  ipcMain.send("socket_connections_change", response);
+  
   logger.error(`[Socket] Connection [${connectionId}]: error ${error.message}`);
 }
 
@@ -36,6 +44,7 @@ function handleData(connectionId: string, data: Buffer) {
     .replace(/'/g, '"');
 
   try {
+    logger.debug(`[Socket] Connection [${connectionId}]: received message ${message}`);
     const json = JSON.parse(message);
 
     handler.resolve(connectionId, json);
