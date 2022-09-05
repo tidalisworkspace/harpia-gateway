@@ -3,25 +3,27 @@ export interface DataHandler {
   handle(connectionId: string, request: Request): Promise<void>;
 }
 
-export interface Request {
-  functionName: string;
-  payload: unknown;
+export interface Payload {
+  client: string;
 }
 
-export interface TriggerRelayPayload {
+export interface Request {
+  functionName: string;
+  payload: Payload;
+}
+
+export interface TriggerRelayPayload extends Payload {
   ip: string;
   port: number;
-  client: string;
 }
 
 export interface TriggerRelayRequest extends Request {
   payload: TriggerRelayPayload;
 }
 
-export interface CaptureFacePayload {
+export interface CaptureFacePayload extends Payload {
   ip: string;
   port: number;
-  client: string;
   peopleId: string;
   faceDirectory: string;
 }
@@ -45,8 +47,7 @@ export interface People {
   photo: string;
 }
 
-export interface RecordPeoplesPayload {
-  client: string;
+export interface RecordPeoplesPayload extends Payload {
   peoples: People[];
   faceDirectory: string;
 }
@@ -73,8 +74,7 @@ export interface RightPlan {
   sunday?: TimeRange;
 }
 
-export interface UserRightPayload {
-  client: string;
+export interface UserRightPayload extends Payload {
   rightPlans: RightPlan[];
 }
 
@@ -87,8 +87,7 @@ export interface People {
   devices: Device[];
 }
 
-export interface DeleteUserPayload {
-  client: string;
+export interface DeleteUserPayload extends Payload {
   peoples: People[];
 }
 
@@ -96,8 +95,7 @@ export interface DeleteUserRequest extends Request {
   payload: DeleteUserPayload;
 }
 
-export interface DeleteUserRightPayload {
-  client: string
+export interface DeleteUserRightPayload extends Payload {
   devices: Device[];
 }
 
@@ -105,10 +103,9 @@ export interface DeleteUserRightRequest extends Request {
   payload: DeleteUserRightPayload;
 }
 
-export interface RebootPayload {
+export interface RebootPayload extends Payload {
   ip: string;
   port: number;
-  client: string;
 }
 
 export interface RebootRequest extends Request {
