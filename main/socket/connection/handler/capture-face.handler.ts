@@ -3,6 +3,7 @@ import logger from "../../../../shared/logger";
 import { CaptureFaceRequest, DataHandler } from "./types";
 import fs from "fs";
 import path from "path";
+import socket from "../..";
 
 export class CaptureFaceHandler implements DataHandler {
   constructor() {
@@ -41,11 +42,19 @@ export class CaptureFaceHandler implements DataHandler {
       );
 
       fs.writeFileSync(facePath, faceBase64, { encoding: "base64" });
+
+      socket.sendSuccessMessage(connectionId, client, "CAPTURADO COM SUCESSO");
     } catch (e) {
       logger.info(
         `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
           e.message
         }`
+      );
+
+      socket.sendFailureMessage(
+        connectionId,
+        request.payload.client,
+        "ERRO NA CAPTURA"
       );
     }
   }
