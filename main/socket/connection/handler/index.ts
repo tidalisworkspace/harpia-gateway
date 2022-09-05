@@ -1,3 +1,4 @@
+import socket from "../..";
 import logger from "../../../../shared/logger";
 import { CaptureFaceHandler } from "./capture-face.handler";
 import { DeleteAllUserRightHandler } from "./delete-all-user-right.handler";
@@ -60,6 +61,8 @@ export class Handler {
   resolve(connectionId: string, json: any): void {
     try {
       const request = this.toRequest(json);
+
+      socket.sendAckMessage(connectionId, request.payload.client)
 
       const handler = this.getHandler(request.functionName);
 
