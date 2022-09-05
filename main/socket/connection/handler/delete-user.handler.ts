@@ -61,16 +61,16 @@ export class DeleteUserHandler implements DataHandler {
 
       socket.sendSuccessMessage(connectionId, client, "APAGADO(S) COM SUCESSO");
     } catch (e) {
-      socket.sendFailureMessage(
-        connectionId,
-        request.payload.client,
-        "ERRO INESPERADO"
-      );
-
       logger.error(
         `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
           e.message
         }`
+      );
+
+      socket.sendFailureMessage(
+        connectionId,
+        request.payload.client,
+        "ERRO INESPERADO"
       );
     }
   }

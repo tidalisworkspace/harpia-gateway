@@ -2,6 +2,7 @@ import { deviceClients } from "../../../device-clients";
 import logger from "../../../../shared/logger";
 import { DataHandler, RecordPeoplesRequest } from "./types";
 import path from "path";
+import socket from "../..";
 
 export class SaveUserHandler implements DataHandler {
   constructor() {
@@ -18,6 +19,8 @@ export class SaveUserHandler implements DataHandler {
   ): Promise<void> {
     try {
       const { client, faceDirectory, peoples } = request.payload;
+
+      const errors = [];
 
       for (let i = 0; i < peoples.length; i++) {
         const people = peoples[i];
@@ -36,28 +39,71 @@ export class SaveUserHandler implements DataHandler {
             `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
           );
 
-          await deviceClient.saveUser({
-            id: people.id,
-            name: people.name,
-            rightPlans: device.rightPlans,
-            expiration: people.expiration,
-          });
+          try {
+            await deviceClient.saveUser({
+              id: people.id,
+              name: people.name,
+              rightPlans: device.rightPlans,
+              expiration: people.expiration,
+            });
+          } catch (e) {
+            logger.error(
+              `[Socket] Connection [${connectionId}]: ${this.getName()} get an error with device ${
+                device.ip
+              }:${device.port} ${e.message}`
+            );
+
+            errors.push(`IP:${device.ip}:${device.port}`);
+
+            continue;
+          }
 
           for (let k = 0; k < cards.length; k++) {
             const card = cards[k];
-            await deviceClient.saveCard({ id: people.id, number: card });
+            try {
+              await deviceClient.saveCard({ id: people.id, number: card });
+            } catch (e) {
+              logger.error(
+                `[Socket] Connection [${connectionId}]: ${this.getName()} get an error with device ${
+                  device.ip
+                }:${device.port} ${e.message}`
+              );
+
+              continue;
+            }
           }
 
           const picture = path.join(faceDirectory, people.photo);
 
-          await deviceClient.saveFace({ id: people.id, picture });
+          try {
+            await deviceClient.saveFace({ id: people.id, picture });
+          } catch (e) {
+            logger.error(
+              `[Socket] Connection [${connectionId}]: ${this.getName()} get an error with device ${
+                device.ip
+              }:${device.port} ${e.message}`
+            );
+          }
         }
       }
+
+      if (errors.length) {
+        socket.sendFailureMessage(connectionId, client, ...errors);
+        return;
+      }
+
+      socket.sendSuccessMessage(connectionId, client, "CADASTRADO COM SUCESSO");
     } catch (e) {
-      logger.info(
+      logger.error(
         `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
           e.message
         }`
+      );
+
+      socket.sendFailureMessage(
+        connectionId,
+        request.payload.client,
+        "ERRO INESPERADO"
       );
     }
   }

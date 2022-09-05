@@ -34,16 +34,30 @@ export class CaptureFaceHandler implements DataHandler {
         `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
       );
 
-      const faceBase64 = await deviceClient.captureFace();
-      const facePath = path.join(faceDirectory, `${peopleId}.jpg`);
+      try {
+        const faceBase64 = await deviceClient.captureFace();
+        const facePath = path.join(faceDirectory, `${peopleId}.jpg`);
 
-      logger.debug(
-        `[Socket] Connection [${connectionId}]: ${this.getName()} writing file on path ${facePath}`
-      );
+        logger.debug(
+          `[Socket] Connection [${connectionId}]: ${this.getName()} writing file on path ${facePath}`
+        );
 
-      fs.writeFileSync(facePath, faceBase64, { encoding: "base64" });
+        fs.writeFileSync(facePath, faceBase64, { encoding: "base64" });
 
-      socket.sendSuccessMessage(connectionId, client, "CAPTURADO COM SUCESSO");
+        socket.sendSuccessMessage(
+          connectionId,
+          client,
+          "CAPTURADO COM SUCESSO"
+        );
+      } catch (e) {
+        logger.info(
+          `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
+            e.message
+          }`
+        );
+
+        socket.sendFailureMessage(connectionId, client, "ERRO NA CAPTURA");
+      }
     } catch (e) {
       logger.info(
         `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
@@ -54,7 +68,7 @@ export class CaptureFaceHandler implements DataHandler {
       socket.sendFailureMessage(
         connectionId,
         request.payload.client,
-        "ERRO NA CAPTURA"
+        "ERRO INESPERADO"
       );
     }
   }
