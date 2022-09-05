@@ -15,7 +15,7 @@ export default function (): void {
   const icon = path.resolve(
     path.dirname(__dirname),
     "resources",
-    "golden_gate.png"
+    "icon.png"
   );
 
   logger.info("[Window] Icon: using icon from", icon);
