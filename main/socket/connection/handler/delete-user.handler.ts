@@ -8,7 +8,7 @@ export class DeleteUserHandler implements DataHandler {
   }
 
   getName(): string {
-    return "deleteUser";
+    return "delete";
   }
 
   async handle(

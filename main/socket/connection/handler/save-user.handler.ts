@@ -9,7 +9,7 @@ export class SaveUserHandler implements DataHandler {
   }
 
   getName(): string {
-    return "recordPeoples";
+    return "record";
   }
 
   async handle(

@@ -8,7 +8,7 @@ export class DeleteAllUserRightHandler implements DataHandler {
   }
 
   getName(): string {
-    return "deleteAllUserRight";
+    return "clearRightWeekPlan";
   }
 
   async handle(
