@@ -2,6 +2,7 @@ import logger from "../../../../shared/logger";
 import { CaptureFaceHandler } from "./capture-face.hanlder";
 import { DeleteAllUserRightHandler } from "./delete-all-user-right.handler";
 import { DeleteUserHandler } from "./delete-user.handler";
+import { RebootHandler } from "./reboot.handler";
 import { SaveUserRightHandler } from "./save-user-right.handler";
 import { SaveUserHandler } from "./save-user.handler";
 import { TriggerRelayHandler } from "./trigger-relay.handler";
@@ -15,6 +16,7 @@ export class Handler {
       new CaptureFaceHandler(),
       new DeleteAllUserRightHandler(),
       new DeleteUserHandler(),
+      new RebootHandler(),
       new SaveUserRightHandler(),
       new SaveUserHandler(),
       new TriggerRelayHandler(),

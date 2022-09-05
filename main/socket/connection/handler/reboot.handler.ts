@@ -2,7 +2,7 @@ import { deviceClients } from "../../../device-clients";
 import logger from "../../../../shared/logger";
 import { DataHandler, TriggerRelayRequest } from "./types";
 
-export class TriggerRelayHandler implements DataHandler {
+export class RebootHandler implements DataHandler {
   constructor() {
     logger.info("[Socket] Handler: reboot initilized");
   }
