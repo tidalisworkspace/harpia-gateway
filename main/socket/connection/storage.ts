@@ -21,8 +21,13 @@ function count(): number {
   return Object.keys(connections).length;
 }
 
+function get(connectionId: string): Socket {
+  return connections[connectionId]
+}
+
 export default {
   add,
   remove,
   count,
+  get
 };
