@@ -106,3 +106,13 @@ export interface DeleteUserRightPayload {
 export interface DeleteUserRightRequest extends Request {
   payload: DeleteUserRightPayload;
 }
+
+export interface RebootPayload {
+  ip: string;
+  port: number;
+  client: string;
+}
+
+export interface RebootRequest extends Request {
+  payload: RebootPayload;
+}

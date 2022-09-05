@@ -1,6 +1,6 @@
 import { deviceClients } from "../../../device-clients";
 import logger from "../../../../shared/logger";
-import { DataHandler, TriggerRelayRequest } from "./types";
+import { DataHandler, RebootRequest, TriggerRelayRequest } from "./types";
 
 export class RebootHandler implements DataHandler {
   constructor() {
@@ -13,7 +13,7 @@ export class RebootHandler implements DataHandler {
 
   async handle(
     connectionId: string,
-    request: TriggerRelayRequest
+    request: RebootRequest
   ): Promise<void> {
     try {
       const deviceClient = await deviceClients.get(
