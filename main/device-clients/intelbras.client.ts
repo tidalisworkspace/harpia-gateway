@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import DigestFetch from "digest-fetch";
-import streams from "memory-streams";
 import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
 import responseUtil from "./ResponseUtil";
@@ -18,6 +17,7 @@ import {
 import fs from "fs";
 import { TimeRange } from "../socket/connection/handler/types";
 import range from "../helpers/range";
+import tmp, { FileResult } from "tmp";
 
 export class IntelbrasClient implements DeviceClient {
   private host: string;
@@ -77,32 +77,32 @@ export class IntelbrasClient implements DeviceClient {
       `http://${this.host}/cgi-bin/accessControl.cgi?action=captureCmd&type=1&heartbeat=5&timeout=10`
     );
 
-    const request = new Promise<Buffer>(async (resolve, reject) => {
+    const request = new Promise<FileResult>(async (resolve, reject) => {
       const timeoutId = setTimeout(
         () => reject(new Error("capture face timeout")),
-        10 * 1000
+        60 * 1000
       );
 
       const response = await this.httpClient.fetch(
         `http://${this.host}/cgi-bin/snapManager.cgi?action=attachFileProc&Flags[0]=Event&Events=[CitizenPictureCompare]`
       );
 
-      const bodyStream = new streams.WritableStream();
+      const tempFile = tmp.fileSync();
+
+      const writeStream = fs.createWriteStream(tempFile.name);
 
       const body = await response.body;
-      body.pipe(bodyStream);
+      body.pipe(writeStream);
+
+      clearTimeout(timeoutId);
 
       setTimeout(() => {
-        clearTimeout(timeoutId);
-
-        const bodyBuffer = bodyStream.toBuffer();
-
-        resolve(bodyBuffer);
-      }, 3 * 1000);
+        resolve(tempFile);
+      }, 5 * 1000);
     });
 
-    const body = await request;
-    logger.info("response body length:", body.length);
+    const responseTempFile = await request;
+    const body = fs.readFileSync(responseTempFile.name);
     const faceBuffer = responseUtil.getContent(body, "<ITBF>");
 
     return faceBuffer.toString("base64");
