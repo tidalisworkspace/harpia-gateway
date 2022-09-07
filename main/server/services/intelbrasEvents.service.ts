@@ -12,7 +12,7 @@ import IntelbrasEvent, { EventInfo } from "../types/IntelbrasEvent";
 import { TipoEvento } from "../types/TipoEvento";
 
 function isIrrelevant(eventInfo: EventInfo) {
-  return eventInfo.Code === "DoorStatus";
+  return eventInfo.Code !== "AccessControl";
 }
 
 function hasCardNumber(eventInfo: EventInfo) {
