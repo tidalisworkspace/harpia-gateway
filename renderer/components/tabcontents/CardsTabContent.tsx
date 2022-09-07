@@ -9,9 +9,9 @@ export default function CardsTabContent() {
   const ipc = useIpc();
   const [cards, setCards] = useState([]);
 
-  ipc.listen("cards_content_add", (response) =>
-    setCards([...cards, response.data])
-  );
+  ipc.listen("cards_content_add", (response) => {
+    setCards([response.data, ...cards].slice(0, 12));
+  });
 
   return (
     <Space direction="vertical" size="middle">
@@ -20,7 +20,7 @@ export default function CardsTabContent() {
       ) : (
         <Text strong>Nenhum cartão lido</Text>
       )}
-      <Timeline reverse>
+      <Timeline>
         {cards.map((card) => (
           <Dot>
             <Text code>{card.timestamp}</Text>
