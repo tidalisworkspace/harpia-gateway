@@ -104,8 +104,7 @@ export interface DeleteUserRightRequest extends Request {
 }
 
 export interface RebootPayload extends Payload {
-  ip: string;
-  port: number;
+  devices: Device[]
 }
 
 export interface RebootRequest extends Request {

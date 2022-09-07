@@ -14,42 +14,40 @@ export class RebootHandler implements DataHandler {
 
   async handle(connectionId: string, request: RebootRequest): Promise<void> {
     try {
-      const { client } = request.payload;
+      const { client, devices } = request.payload;
 
-      const deviceClient = await deviceClients.get(
-        request.payload.ip,
-        request.payload.port
-      );
+      const errors = [];
 
-      if (!deviceClient) {
+      for (let i = 0; i < devices.length; i++) {
+        const device = devices[i];
+
+        const deviceClient = await deviceClients.get(device.ip, device.port);
+
+        if (!deviceClient) {
+          return;
+        }
+
+        logger.info(
+          `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
+        );
+
+        try {
+          await deviceClient.reboot();
+        } catch (e) {
+          logger.info(
+            `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
+              e.message
+            }`
+          );
+        }
+      }
+
+      if (errors.length) {
+        socket.sendFailureMessage(connectionId, client, ...errors);
         return;
       }
 
-      logger.info(
-        `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
-      );
-
-      try {
-        await deviceClient.reboot();
-
-        socket.sendSuccessMessage(
-          connectionId,
-          client,
-          "REINICIANDO EQUIPAMENTO"
-        );
-      } catch (e) {
-        logger.info(
-          `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
-            e.message
-          }`
-        );
-
-        socket.sendFailureMessage(
-          connectionId,
-          request.payload.client,
-          "ERRO AO REINICIAR EQUIPAMENTO"
-        );
-      }
+      socket.sendSuccessMessage(connectionId, client, "REINICIADO(S) COM SUCESSO");
     } catch (e) {
       logger.info(
         `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
