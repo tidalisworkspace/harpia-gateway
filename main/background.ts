@@ -5,6 +5,7 @@ import { isProd } from "./helpers/environment";
 import ipc from "./ipc";
 import logger from "../shared/logger";
 import socket from "./socket";
+import server from './server'
 
 if (isProd) {
   serve({ directory: "app" });
@@ -18,6 +19,7 @@ logger.info("[APP] System: loading user data from", app.getPath("userData"));
   await app.whenReady();
   ipc.start();
   await socket.start();
+  await server.start();
   createWindow();
 })();
 

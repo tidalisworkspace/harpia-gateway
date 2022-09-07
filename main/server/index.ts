@@ -1,0 +1,38 @@
+import express, { Express } from "express";
+import bodyParser from "body-parser";
+import logger from "../../shared/logger";
+import hikvisionEventsRoute from "./routes/hikvisionEvents.route";
+import intelbrasEventsRoute from "./routes/intelbrasEvents.route";
+
+class Server {
+  private defaultPort: number = 9000;
+
+  private async getPort(): Promise<number> {
+    return this.defaultPort;
+  }
+
+  private getServer(): Express {
+    const server = express();
+    server.use(bodyParser.raw({ type: "*/*" }));
+    server.use("/hikvision/events", hikvisionEventsRoute);
+    server.use("/intelbras/events", intelbrasEventsRoute);
+
+    return server;
+  }
+
+  async start(): Promise<void> {
+    const port = await this.getPort();
+    const server = this.getServer();
+
+    return new Promise((resolve) => {
+      server.listen(port, () => {
+        logger.info(`[Server] App: listening at ${port}`);
+        resolve();
+      });
+    });
+  }
+}
+
+const server = new Server();
+
+export default server;
