@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import DigestFetch from "digest-fetch";
 import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
-import responseUtil from "./ResponseUtil";
+import responseReader from "../helpers/response-reader";
 import {
   DeleteCardsParams,
   DeleteFacesParams,
@@ -103,7 +103,7 @@ export class IntelbrasClient implements DeviceClient {
 
     const responseTempFile = await request;
     const body = fs.readFileSync(responseTempFile.name);
-    const faceBuffer = responseUtil.getContent(body, "<ITBF>");
+    const faceBuffer = responseReader.getFace(body, "<ITBF>");
 
     return faceBuffer.toString("base64");
   }

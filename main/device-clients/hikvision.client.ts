@@ -14,7 +14,7 @@ import {
   SaveUserParams,
   SaveUserRightParams,
 } from "./types";
-import responseUtil from "./ResponseUtil";
+import responseReader from "../helpers/response-reader";
 import { TimeRange } from "../socket/connection/handler/types";
 import range from "../helpers/range";
 
@@ -109,7 +109,7 @@ export class HikvisionClient implements DeviceClient {
     );
 
     const body = await response.buffer();
-    const faceBuffer = responseUtil.getContent(body, "<HIKV>");
+    const faceBuffer = responseReader.getFace(body, "<HIKV>");
 
     return faceBuffer.toString("base64");
   }
