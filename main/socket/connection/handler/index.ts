@@ -2,6 +2,7 @@ import socket from "../..";
 import logger from "../../../../shared/logger";
 import { CaptureFaceHandler } from "./capture-face.handler";
 import { DeleteAllUserRightHandler } from "./delete-all-user-right.handler";
+import { DeleteAllUserHandler } from "./delete-all-user.handler";
 import { DeleteUserHandler } from "./delete-user.handler";
 import { RebootHandler } from "./reboot.handler";
 import { SaveUserRightHandler } from "./save-user-right.handler";
@@ -16,6 +17,7 @@ export class Handler {
     this.handlers = [
       new CaptureFaceHandler(),
       new DeleteAllUserRightHandler(),
+      new DeleteAllUserHandler(),
       new DeleteUserHandler(),
       new RebootHandler(),
       new SaveUserRightHandler(),

@@ -111,3 +111,11 @@ export interface RebootPayload extends Payload {
 export interface RebootRequest extends Request {
   payload: RebootPayload;
 }
+
+export interface DeleteAllUserPayload extends Payload {
+  devices: Device[];
+}
+
+export interface DeleteAllUserRequest extends Request {
+  payload: DeleteAllUserPayload;
+}
