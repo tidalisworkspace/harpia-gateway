@@ -25,9 +25,14 @@ function get(connectionId: string): Socket {
   return connections[connectionId]
 }
 
+function getIds(): string[] {
+  return Object.keys(connections)
+}
+
 export default {
   add,
   remove,
   count,
-  get
+  get,
+  getIds,
 };
