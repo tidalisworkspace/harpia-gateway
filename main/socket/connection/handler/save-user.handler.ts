@@ -40,12 +40,14 @@ export class SaveUserHandler implements DataHandler {
           );
 
           try {
-            await deviceClient.saveUser({
+            const response = await deviceClient.saveUser({
               id: people.id,
               name: people.name,
               rightPlans: device.rightPlans,
               expiration: people.expiration,
             });
+
+            logger.debug("save user:", response.status, response.statusText);
           } catch (e) {
             logger.error(
               `[Socket] Connection [${connectionId}]: ${this.getName()} get an error with device ${
@@ -73,10 +75,12 @@ export class SaveUserHandler implements DataHandler {
             }
           }
 
-          const picture = path.join(faceDirectory, people.photo);
+          const picture = path.join("", people.photo);
 
           try {
-            await deviceClient.saveFace({ id: people.id, picture });
+            const response = await deviceClient.saveFace({ id: people.id, picture });
+
+            logger.debug("save face:", response.status, response.statusText);
           } catch (e) {
             logger.error(
               `[Socket] Connection [${connectionId}]: ${this.getName()} get an error with device ${

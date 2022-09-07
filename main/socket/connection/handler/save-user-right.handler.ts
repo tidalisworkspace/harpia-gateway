@@ -32,7 +32,9 @@ export class SaveUserRightHandler implements DataHandler {
           }
 
           try {
-            await deviceClient.saveUserRight(rightPlan);
+            const response = await deviceClient.saveUserRight(rightPlan);
+
+            logger.debug("saveUserRight:", response.status, response.statusText);
           } catch (e) {
             logger.error(
               `[Socket] Connection [${connectionId}]: ${this.getName()} get an error with device ${
