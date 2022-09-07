@@ -1,4 +1,4 @@
-import { differenceInMinutes, format, parseISO } from "date-fns";
+import { differenceInMinutes, format, parse, parseISO } from "date-fns";
 import { Sequelize } from "sequelize/types";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
@@ -12,7 +12,7 @@ import IntelbrasEvent, { EventInfo } from "../types/IntelbrasEvent";
 import { TipoEvento } from "../types/TipoEvento";
 
 function isIrrelevant(eventInfo: EventInfo) {
-  return eventInfo.Code !== "AccessControl";
+  return !eventInfo.Data.UserID || eventInfo.Code !== "AccessControl";
 }
 
 function hasCardNumber(eventInfo: EventInfo) {
@@ -20,16 +20,24 @@ function hasCardNumber(eventInfo: EventInfo) {
   return cardNumber && cardNumber.length && cardNumber.trim() !== "";
 }
 
-function toISO(dateTime: string): string {
-  return `${dateTime.replace(" ", "T")}-03:00`;
+function fromDateTimeString(str: string) {
+  return parse(str, "dd-MM-yyyy HH:mm:ss", new Date());
 }
 
-function toDate(dateTimeISO: string): string {
-  return format(parseISO(dateTimeISO), "dd/MM/yyyy");
+function toDate(dateTimeStr: string): string {
+  const date = format(fromDateTimeString(dateTimeStr), "dd/MM/yyyy");
+
+  logger.debug("date:", date);
+
+  return date;
 }
 
-function toHour(dateTimeISO: string): string {
-  return format(parseISO(dateTimeISO), "HH:mm:ss");
+function toHour(dateTimeStr: string): string {
+  const hour = format(fromDateTimeString(dateTimeStr), "HH:mm:ss");
+
+  logger.debug("hour:", hour);
+
+  return hour;
 }
 
 function toTimestamp(dateTimeISO: string): string {
@@ -37,7 +45,7 @@ function toTimestamp(dateTimeISO: string): string {
 }
 
 function getTipoEvento(event: IntelbrasEvent): TipoEvento {
-  const dateTime = parseISO(toISO(event.Time));
+  const dateTime = fromDateTimeString(event.Time);
   const now = new Date();
 
   const minutes = differenceInMinutes(now, dateTime);
@@ -58,7 +66,7 @@ function useStrToDate(sequelize: Sequelize, str: string, format: string) {
 }
 
 async function create(event: IntelbrasEvent): Promise<void> {
-  const time = toISO(event.Time);
+  const time = event.Time;
   const ip = event.ip;
 
   const equipamento = await equipamentoModel().findOne({ where: { ip } });
@@ -71,13 +79,6 @@ async function create(event: IntelbrasEvent): Promise<void> {
   }
 
   for (const eventInfo of event.Events) {
-    if (isIrrelevant(eventInfo)) {
-      logger.info(
-        `[Server] IntelbrasEventsService [${event.Time} ${eventInfo.Index}]: skipped because is irrelevant`
-      );
-      continue;
-    }
-
     if (hasCardNumber(eventInfo)) {
       const cardNumber = eventInfo.Data.CardNo;
 
@@ -96,6 +97,13 @@ async function create(event: IntelbrasEvent): Promise<void> {
       };
 
       ipc.send("cards_content_add", response);
+    }
+
+    if (isIrrelevant(eventInfo)) {
+      logger.info(
+        `[Server] IntelbrasEventsService [${event.Time} ${eventInfo.Index}]: skipped because is irrelevant`
+      );
+      continue;
     }
 
     const tipoEvento = getTipoEvento(event);
