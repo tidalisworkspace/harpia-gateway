@@ -24,6 +24,7 @@ export class RebootHandler implements DataHandler {
         const deviceClient = await deviceClients.get(device.ip, device.port);
 
         if (!deviceClient) {
+          errors.push(`IP:${device.ip}:${device.port}`);
           return;
         }
 
@@ -47,7 +48,11 @@ export class RebootHandler implements DataHandler {
         return;
       }
 
-      socket.sendSuccessMessage(connectionId, client, "REINICIADO(S) COM SUCESSO");
+      socket.sendSuccessMessage(
+        connectionId,
+        client,
+        "REINICIADO(S) COM SUCESSO"
+      );
     } catch (e) {
       logger.info(
         `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
