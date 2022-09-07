@@ -5,7 +5,7 @@ import service from "../services/intelbrasEvents.service";
 import IntelbrasEvent from "../types/IntelbrasEvent";
 
 function getIp(req: Request) {
-  return req.socket.remoteAddress.split(":")[3]
+  return req.socket.remoteAddress.split(":")[3];
 }
 
 async function create(req: Request, res: Response, next): Promise<void> {
@@ -13,7 +13,7 @@ async function create(req: Request, res: Response, next): Promise<void> {
     const eventBuffer = responseReader.getEvent(req.body, "<ITBF>");
 
     const event: IntelbrasEvent = JSON.parse(eventBuffer.toString("utf-8"));
-    event.ip = getIp(req)
+    event.ip = getIp(req);
 
     logger.debug(
       `[Server] IntelbrasEventsController [${
