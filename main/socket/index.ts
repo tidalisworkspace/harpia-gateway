@@ -7,7 +7,7 @@ import storage from "./connection/storage";
 class Socket {
   private defaultPort: number = 5000;
 
-  async getPort(): Promise<number> {
+  private async getPort(): Promise<number> {
     try {
       const parametro = await parametroModel().findOne();
       return parametro?.portaSocket || this.defaultPort;
@@ -17,25 +17,30 @@ class Socket {
     }
   }
 
-  async start(): Promise<void> {
-    const port = await this.getPort();
-
+  private getServer(): Server {
     const server = net.createServer();
     server.on("connection", handleConnection);
     server.on("close", () => logger.info("Socket closed"));
     server.on("error", (error: Error) =>
       logger.error("[Socket] Error: in connection>", error.message)
     );
-    server.on("listening", () =>
-      logger.info(`[Socket] Server: listening at ${port}`)
-    );
 
-    server.listen(port, "0.0.0.0");
-
-    return new Promise((resolve) => server.on("listening", resolve));
+    return server;
   }
 
-  send(connectionId: string, message: string) {
+  async start(): Promise<void> {
+    const port = await this.getPort();
+    const server = this.getServer();
+
+    return new Promise((resolve) => {
+      server.listen({ host: "0.0.0.0", port }, () => {
+        logger.info(`[Socket] Server: listening at ${port}`);
+        resolve();
+      });
+    });
+  }
+
+  private send(connectionId: string, message: string) {
     const connection = storage.get(connectionId);
 
     if (!connection) {
@@ -77,10 +82,22 @@ class Socket {
     this.send(connectionId, `<HKOK>${message}`);
   }
 
-  sendFailureMessage(connectionId: string, client: string, ...errors: string[]) {
+  sendFailureMessage(
+    connectionId: string,
+    client: string,
+    ...errors: string[]
+  ) {
     client = this.formatClient(client);
     const message = this.formatMessage(client, ...errors);
     this.send(connectionId, `<HKER>${message}`);
+  }
+
+  sendMessageToAll(message: string) {
+    const connectionIds = storage.getIds();
+
+    for (const connectionId of connectionIds) {
+      this.send(connectionId, message);
+    }
   }
 }
 
