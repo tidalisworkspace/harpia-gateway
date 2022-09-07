@@ -342,7 +342,7 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  deleteAllUserRight(): Promise<Response> {
+  async deleteAllUserRight(): Promise<void> {
     return this.httpClient.fetch(
       `http://${this.host}/ISAPI/AccessControl/ClearPlansCfg?format=json`,
       {

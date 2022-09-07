@@ -15,7 +15,7 @@ export interface DeviceClient {
   saveUser(params: SaveUserParams): Promise<Response>;
   deleteUsers(params: DeleteUsersParams): Promise<Response>;
   saveUserRight(params: SaveUserRightParams): Promise<Response>;
-  deleteAllUserRight(): Promise<Response>;
+  deleteAllUserRight(): Promise<void>;
   reboot(): Promise<Response>;
 }
 

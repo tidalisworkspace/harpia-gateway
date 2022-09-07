@@ -114,18 +114,21 @@ export class IntelbrasClient implements DeviceClient {
     const faceBuffer = fs.readFileSync(picture);
     const faceBase64 = faceBuffer.toString("base64");
 
+    const body = {
+      FaceList: [
+        {
+          UserID: id,
+          PhotoData: [faceBase64],
+        },
+      ],
+    };
+
     return this.httpClient.fetch(
       `http://${this.host}/cgi-bin/AccessFace.cgi?action=insertMulti`,
       {
         method: "post",
-        body: {
-          FaceList: [
-            {
-              UserID: id,
-              PhotoData: [faceBase64],
-            },
-          ],
-        },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       }
     );
   }
@@ -145,20 +148,23 @@ export class IntelbrasClient implements DeviceClient {
   saveCard(params: SaveCardParams): Promise<Response> {
     const { id, number } = params;
 
+    const body = {
+      CardList: [
+        {
+          UserID: id,
+          CardNo: Number(number).toString(16),
+          CardType: 0,
+          CardStatus: 0,
+        },
+      ],
+    };
+
     return this.httpClient.fetch(
       `http://${this.host}/cgi-bin/AccessCard.cgi?action=insertMulti`,
       {
         method: "post",
-        body: {
-          CardList: [
-            {
-              UserID: id,
-              CardNo: number,
-              CardType: 0,
-              CardStatus: 0,
-            },
-          ],
-        },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       }
     );
   }
@@ -182,23 +188,27 @@ export class IntelbrasClient implements DeviceClient {
     beginTime = beginTime.replace("T", " ");
     endTime = endTime.replace("T", " ");
 
-    const sections = rightPlans || [0];
+    const timeSections = rightPlans || [0];
+
+    const body = {
+      UserList: [
+        {
+          UserID: id,
+          UserName: name,
+          Doors: [0],
+          TimeSections: timeSections,
+          ValidFrom: beginTime,
+          ValidTo: endTime,
+        },
+      ],
+    };
 
     return this.httpClient.fetch(
       `http://${this.host}/cgi-bin/AccessUser.cgi?action=insertMulti`,
       {
         method: "post",
-        body: {
-          UserList: [
-            {
-              UserID: id,
-              UserName: name,
-              TimeSections: sections,
-              ValidFrom: beginTime,
-              ValidTo: endTime,
-            },
-          ],
-        },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       }
     );
   }
@@ -206,12 +216,18 @@ export class IntelbrasClient implements DeviceClient {
   deleteUsers(params: DeleteUsersParams): Promise<Response> {
     const { ids } = params;
 
-    const userIdParam = ids
-      .map((id, index) => `UserIDList[${index}]=${id}`)
-      .join("&");
+    if (ids && ids.length) {
+      const userIdParam = ids
+        .map((id, index) => `UserIDList[${index}]=${id}`)
+        .join("&");
+
+      return this.httpClient.fetch(
+        `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeMulti&${userIdParam}`
+      );
+    }
 
     return this.httpClient.fetch(
-      `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeMulti&${userIdParam}`
+      `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeAll`
     );
   }
 
@@ -222,7 +238,7 @@ export class IntelbrasClient implements DeviceClient {
       const { beginTime, endTime } = params[current] || this.defaultTimeRange;
 
       accumulator.push(
-        `AccessTimeSchedule[${id}].TimeSchedule[${index}][0]:1 ${beginTime}-${endTime}`
+        `AccessTimeSchedule[${id}].TimeSchedule[${index}][0]=1 ${beginTime}-${endTime}`
       );
 
       const { beginTime: beginTimeDefault, endTime: endTimeDefault } =
@@ -230,7 +246,7 @@ export class IntelbrasClient implements DeviceClient {
 
       range(3, 1).forEach((i) => {
         accumulator.push(
-          `AccessTimeSchedule[${id}].TimeSchedule[${index}][${i}]:1 ${beginTimeDefault}-${endTimeDefault}`
+          `AccessTimeSchedule[${id}].TimeSchedule[${index}][${i}]=1 ${beginTimeDefault}-${endTimeDefault}`
         );
       });
 
@@ -244,23 +260,32 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  deleteAllUserRight(): Promise<Response> {
-    const configParam = range(128)
-      .reduce(
-        (accumulator, current) => [
-          ...accumulator,
-          ...range(7).map(
+  deleteAllUserRight(): Promise<void> {
+    return new Promise(async (resolve) => {
+      for (const id of range(33)) {
+        const configParam = range(7)
+          .map(
             (i) =>
-              `AccessTimeSchedule[${current}].TimeSchedule[${i}][0]:1 00:00:00-00:00:00`
-          ),
-        ],
-        []
-      )
-      .join("&");
+              `AccessTimeSchedule[${id}].TimeSchedule[${i}][0]=1 00:00:00-00:00:00`
+          )
+          .join("&");
 
-    return this.httpClient.fetch(
-      `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&${configParam}`
-    );
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        const response = await this.httpClient.fetch(
+          `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&${configParam}`
+        );
+
+        logger.debug(
+          "deleteAllUserRight:",
+          id,
+          response.status,
+          response.statusText
+        );
+      }
+
+      resolve();
+    });
   }
 
   reboot(): Promise<Response> {
