@@ -71,6 +71,13 @@ async function create(event: HikvisionEvent): Promise<void> {
     return;
   }
 
+  if (equipamento.ignorarEvento) {
+    logger.warn(
+      `[Server] HikvisionEventsService [${dateTime}]: device with IP ${ip} ignoring event`
+    );
+    return;
+  }
+
   if (hasCardNumber(event)) {
     const cardNumber = event.AccessControllerEvent.cardNo;
 

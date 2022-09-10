@@ -12,11 +12,11 @@ import IntelbrasEvent, { EventInfo } from "../types/IntelbrasEvent";
 import { TipoEvento } from "../types/TipoEvento";
 
 function isIrrelevant(eventInfo: EventInfo) {
-  return !eventInfo.Data.UserID || eventInfo.Code !== "AccessControl";
+  return eventInfo.Code !== "AccessControl" || !eventInfo?.Data?.UserID;
 }
 
 function hasCardNumber(eventInfo: EventInfo) {
-  const cardNumber = eventInfo.Data.CardNo;
+  const cardNumber = eventInfo?.Data?.CardNo;
   return cardNumber && cardNumber.length && cardNumber.trim() !== "";
 }
 
@@ -78,17 +78,24 @@ async function create(event: IntelbrasEvent): Promise<void> {
     return;
   }
 
+  if (equipamento.ignorarEvento) {
+    logger.warn(
+      `[Server] HikvisionEventsService [${time}]: device with IP ${ip} ignoring event`
+    );
+    return;
+  }
+
   for (const eventInfo of event.Events) {
     if (hasCardNumber(eventInfo)) {
       const cardNumber = eventInfo.Data.CardNo;
 
       logger.debug(
-        `[Server] IntelbrasEventsService [${time}]: with card number ${cardNumber}`
+        `[Server] IntelbrasEventsService [${time}]: with card number HEX:${cardNumber} DECIMAL:${parseInt(cardNumber, 16)}`
       );
 
       const data = {
         timestamp: toTimestamp(time),
-        code: cardNumber,
+        code: parseInt(cardNumber, 16),
       };
 
       const response: IpcResponse = {
