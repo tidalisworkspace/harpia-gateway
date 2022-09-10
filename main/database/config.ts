@@ -1,5 +1,6 @@
 import { Dialect, ModelOptions, Options } from "sequelize/types";
 import logger from "../../shared/logger";
+import { isDev, isProd } from "../helpers/environment";
 import store from "../store";
 
 export default class Config {
@@ -68,6 +69,10 @@ export default class Config {
     return options;
   }
 
+  logging(sql) {
+    isDev && logger.debug(`database:sql ${sql}`);
+  }
+
   get(envname: string): Options {
     const options = this.getDatabaseOptions(envname);
 
@@ -76,7 +81,7 @@ export default class Config {
     return {
       ...options,
       define: this.modelOptions,
-      logging: (sql) => logger.debug("[Database]", sql),
+      logging: this.logging,
     };
   }
 }

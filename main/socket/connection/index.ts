@@ -1,23 +1,19 @@
 import { Socket } from "net";
 import { IpcResponse } from "../../../shared/ipc/types";
-import ipcMain from "../../ipc";
 import logger from "../../../shared/logger";
+import ipcMain from "../../ipc";
 import { Handler } from "./handler";
 import storage from "./storage";
+import validator, { socketMessageSchema } from "./validator";
 
 const handler = new Handler();
 
-function handleError(connectionId: string, error: Error) {
-  storage.remove(connectionId);
+function handleError(connectionId: string, e: Error) {
+  const connection = storage.get(connectionId);
 
-  const response: IpcResponse = {
-    status: "success",
-    data: storage.count(),
-  };
-  
-  ipcMain.send("socket_connections_change", response);
-  
-  logger.error(`[Socket] Connection [${connectionId}]: error ${error.message}`);
+  connection.destroy();
+
+  logger.error(`socket:connection:${connectionId} error ${e.message}`, e);
 }
 
 function handleClose(connectionId: string) {
@@ -30,33 +26,31 @@ function handleClose(connectionId: string) {
 
   ipcMain.send("socket_connections_change", response);
 
-  logger.info(`[Socket] Connection [${connectionId}]: closed`);
+  logger.info(`socket:connection:${connectionId} closed`);
 }
 
 function handleData(connectionId: string, data: Buffer) {
-  logger.info(
-    `[Socket] Connection [${connectionId}]: received data with ${data.length} length`
-  );
-
   const message = data
     .toString("utf-8")
     .replace(/\\/g, "\\\\")
     .replace(/'/g, '"');
 
-  try {
-    logger.debug(`[Socket] Connection [${connectionId}]: received message ${message}`);
-    const json = JSON.parse(message);
+  const json = JSON.parse(message);
 
-    handler.resolve(connectionId, json);
-  } catch (e) {
-    logger.info(`[Socket] Connection [${connectionId}]: error ${e.message}`);
+  const result = validator.validate(json, socketMessageSchema);
+
+  if (!result.valid) {
+    logger.warn(`socket:connection:${connectionId} invalid json schema`);
+    return;
   }
+
+  handler.resolve(connectionId, json);
 }
 
 export function handleConnection(connection: Socket) {
   const connectionId = storage.add(connection);
 
-  connection.on("error", (error: Error) => handleError(connectionId, error));
+  connection.on("error", (e: Error) => handleError(connectionId, e));
   connection.on("close", () => handleClose(connectionId));
   connection.on("data", (data) => handleData(connectionId, data));
 
@@ -67,5 +61,5 @@ export function handleConnection(connection: Socket) {
 
   ipcMain.send("socket_connections_change", response);
 
-  logger.info(`[Socket] Connection [${connectionId}]: connected`);
+  logger.info(`socket:connection:${connectionId} connected`);
 }

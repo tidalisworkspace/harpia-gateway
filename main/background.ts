@@ -1,11 +1,11 @@
 import { app } from "electron";
 import serve from "electron-serve";
+import logger from "../shared/logger";
 import { createWindow } from "./helpers";
 import { isProd } from "./helpers/environment";
 import ipc from "./ipc";
-import logger from "../shared/logger";
+import server from "./server";
 import socket from "./socket";
-import server from './server'
 
 if (isProd) {
   serve({ directory: "app" });
@@ -13,7 +13,7 @@ if (isProd) {
   app.setPath("userData", `${app.getPath("userData")} (development)`);
 }
 
-logger.info("[APP] System: loading user data from", app.getPath("userData"));
+logger.info(`app:main user data path ${app.getPath("userData")}`);
 
 (async () => {
   await app.whenReady();

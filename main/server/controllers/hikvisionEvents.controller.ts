@@ -1,29 +1,25 @@
 import { Request, Response } from "express";
+import { v4 as uuid } from "uuid";
 import logger from "../../../shared/logger";
 import responseReader from "../../helpers/response-reader";
 import service from "../services/hikvisionEvents.service";
-import HikvisionEvent from "../types/HikvisionEvent";
 
 async function create(req: Request, res: Response, next): Promise<void> {
+  const logId = uuid();
+
   try {
     const eventBuffer = responseReader.getEvent(req.body, "<HIKV>");
+    const eventString = eventBuffer.toString("utf-8");
 
-    const event: HikvisionEvent = JSON.parse(eventBuffer.toString("utf-8"));
+    logger.debug(`api:hikvisionEventsController:${logId} request ${eventString}`);
 
-    logger.debug(
-      `[Server] HikvisionEventsController [${
-        event.dateTime
-      }]: create event ${JSON.stringify(event)}`
-    );
-
-    await service.create(event);
+    await service.create({ logId, ...JSON.parse(eventString) });
 
     res.status(200).end();
-  } catch (err) {
-    logger.error(
-      `[Server] HikvisionEventsController: get an error when create event ${err.message}`
-    );
-    next(err);
+  } catch (e) {
+    logger.error(`api:hikvisionEventsController:${logId} error ${e.message}`, e);
+
+    next(e);
   }
 }
 

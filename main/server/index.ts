@@ -26,7 +26,7 @@ class Server {
 
     return new Promise((resolve) => {
       server.listen(port, () => {
-        logger.info(`[Server] App: listening at ${port}`);
+        logger.info(`api:server listening at ${port}`);
         resolve();
       });
     });

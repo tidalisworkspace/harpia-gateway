@@ -36,7 +36,7 @@ export class LoggerFileOpenHandler implements IpcHandler {
       }
 
       if (message) {
-        logger.error(`[IPC Main] Handler [${this.getName()}]: ${message}`);
+        logger.error(`ipcMain:${this.getName()} error ${message}`);
 
         const response: IpcResponse = {
           status: "error",
@@ -46,7 +46,7 @@ export class LoggerFileOpenHandler implements IpcHandler {
         event.sender.send(request.responseChannel, response);
       }
     } catch (e) {
-      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
+      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
 
       const response: IpcResponse = {
         status: "error",
@@ -79,7 +79,7 @@ export class LoggerFileCleanHandle implements IpcHandler {
       event.sender.send(request.responseChannel, response);
       event.sender.send("logger_file_size_change", response);
     } catch (e) {
-      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
+      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
 
       const response: IpcResponse = {
         status: "error",
@@ -105,7 +105,7 @@ export class LoggerFileSizeHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
+      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
 
       const response: IpcResponse = {
         status: "error",

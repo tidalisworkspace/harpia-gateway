@@ -1,72 +1,54 @@
-import { deviceClients } from "../../../device-clients";
-import logger from "../../../../shared/logger";
-import { DataHandler, UserRightRequest } from "./types";
 import socket from "../..";
+import logger from "../../../../shared/logger";
+import { deviceClients } from "../../../device-clients";
+import { DataHandler, UserRightRequest } from "./types";
 
 export class SaveUserRightHandler implements DataHandler {
-  constructor() {
-    logger.info("[Socket] Handler: save user right initilized");
-  }
-
   getName(): string {
     return "setupRightWeekPlan";
   }
 
   async handle(connectionId: string, request: UserRightRequest): Promise<void> {
-    try {
-      const { client, rightPlans } = request.payload;
+    const { client, rightPlans } = request.payload;
 
-      const errors = [];
+    const errors = [];
 
-      for (let i = 0; i < rightPlans.length; i++) {
-        const rightPlan = rightPlans[i];
-        const { devices } = rightPlan;
+    for (let i = 0; i < rightPlans.length; i++) {
+      const rightPlan = rightPlans[i];
+      const devices = rightPlan.devices;
 
-        for (let j = 0; j < devices.length; j++) {
-          const device = devices[j];
+      for (let j = 0; j < devices.length; j++) {
+        const { ip, port } = devices[j];
 
-          const deviceClient = await deviceClients.get(device.ip, device.port);
+        const deviceClient = await deviceClients.get(ip, port);
 
-          if (!deviceClient) {
-            continue;
-          }
+        if (!deviceClient) {
+          errors.push(`IP:${ip}:${port}`);
+          continue;
+        }
 
-          try {
-            const response = await deviceClient.saveUserRight(rightPlan);
+        try {
+          await deviceClient.saveUserRight(rightPlan);
+        } catch (e) {
+          logger.error(
+            `socket:handler:${this.getName()}:${connectionId} error ${
+              e.message
+            }`,
+            e
+          );
 
-            logger.debug("saveUserRight:", response.status, response.statusText);
-          } catch (e) {
-            logger.error(
-              `[Socket] Connection [${connectionId}]: ${this.getName()} get an error with device ${
-                device.ip
-              }:${device.port} ${e.message}`
-            );
+          errors.push(`IP:${ip}:${port}`);
 
-            errors.push(`IP:${device.ip}:${device.port}`);
-
-            continue;
-          }
+          continue;
         }
       }
-
-      if (errors.length) {
-        socket.sendFailureMessage(connectionId, client, ...errors);
-        return;
-      }
-
-      socket.sendSuccessMessage(connectionId, client, "CADASTRADO COM SUCESSO");
-    } catch (e) {
-      logger.info(
-        `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
-          e.message
-        }`
-      );
-
-      socket.sendSuccessMessage(
-        connectionId,
-        request.payload.client,
-        "ERRO INESPERADO"
-      );
     }
+
+    if (errors.length) {
+      socket.sendFailureMessage(connectionId, client, ...errors);
+      return;
+    }
+
+    socket.sendSuccessMessage(connectionId, client, "CADASTRADO COM SUCESSO");
   }
 }

@@ -6,6 +6,7 @@ interface AccessControllerEvent {
 }
 
 export default interface HikvisionEvent {
+  logId: string;
   ipAddress: string;
   dateTime: string;
   AccessControllerEvent: AccessControllerEvent;

@@ -66,21 +66,20 @@ function useStrToDate(sequelize: Sequelize, str: string, format: string) {
 }
 
 async function create(event: IntelbrasEvent): Promise<void> {
-  const time = event.Time;
-  const ip = event.ip;
+  const { logId, ip, Time: time } = event;
 
   const equipamento = await equipamentoModel().findOne({ where: { ip } });
 
   if (!equipamento) {
     logger.warn(
-      `[Server] IntelbrasEventsService [${time}]: device with IP ${ip} not found`
+      `api:intelbrasEventsService:${logId} device with not found by ip ${ip}`
     );
     return;
   }
 
   if (equipamento.ignorarEvento) {
     logger.warn(
-      `[Server] HikvisionEventsService [${time}]: device with IP ${ip} ignoring event`
+      `api:intelbrasEventsService:${logId} device ${ip} is ignoring events`
     );
     return;
   }
@@ -88,10 +87,6 @@ async function create(event: IntelbrasEvent): Promise<void> {
   for (const eventInfo of event.Events) {
     if (hasCardNumber(eventInfo)) {
       const cardNumber = eventInfo.Data.CardNo;
-
-      logger.debug(
-        `[Server] IntelbrasEventsService [${time}]: with card number HEX:${cardNumber} DECIMAL:${parseInt(cardNumber, 16)}`
-      );
 
       const data = {
         timestamp: toTimestamp(time),
@@ -107,9 +102,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
     }
 
     if (isIrrelevant(eventInfo)) {
-      logger.info(
-        `[Server] IntelbrasEventsService [${event.Time} ${eventInfo.Index}]: skipped because is irrelevant`
-      );
+      logger.warn(`api:intelbrasEventsService:${logId} irrelevant event`);
       continue;
     }
 
@@ -121,7 +114,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
 
     if (!pessoa) {
       logger.warn(
-        `[Server] IntelbrasEventsService [${time}]: people with ID ${pessoaId} not found`
+        `api:intelbrasEventsService:${logId} people not found by id ${pessoaId}`
       );
     }
 
@@ -149,15 +142,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
         tipo: tipoEvento,
       };
 
-      try {
-        await eventoModel().create(evento);
-      } catch (e) {
-        logger.error(
-          `[Server] IntelbrasEventsService: get error ${
-            e.message
-          } when save event ${JSON.stringify(evento)}`
-        );
-      }
+      await eventoModel().create(evento);
     }
 
     if (tipoEvento === "OFF") {

@@ -47,11 +47,13 @@ export class IntelbrasClient implements DeviceClient {
       const parametro = await parametroModel().findOne();
       const username = parametro?.usuarioIntelbras || "admin";
       const password = parametro?.senhaIntelbras || "admin123";
+
       this.httpClient = new DigestFetch(username, password);
+      
+      logger.info(`intelbrasClient:init:${this.host} initilized`);
     } catch (e) {
-      logger.error(
-        `Device client [${this.getManufacturer()}] error ${e.message}`
-      );
+      logger.error(`intelbrasClient:init:${this.host} error ${e.message}`, e);
+
       this.httpClient = new DigestFetch("admin", "admin123");
     }
 
@@ -266,11 +268,9 @@ export class IntelbrasClient implements DeviceClient {
         .map((id) => `AccessTimeSchedule[${id}].Enable=false`)
         .join("&");
 
-      const response = await this.httpClient.fetch(
+      await this.httpClient.fetch(
         `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&${configParam}`
       );
-
-      logger.debug("deleteAllUserRight:", response.status, response.statusText);
 
       resolve();
     });

@@ -1,4 +1,3 @@
-
 import equipamentoModel from "../database/models/equipamento.model";
 import logger from "../../shared/logger";
 import { HikvisionClient } from "./hikvision.client";
@@ -11,11 +10,17 @@ class DeviceClients {
     new IntelbrasClient(),
   ];
 
+  private getLogTag(...args) {
+    const extra = args.filter((arg) => !!arg?.toString()?.trim()).join(":");
+
+    return extra ? `deviceClients:${extra}` : `deviceClients`;
+  }
+
   async get(ip: string, port: number): Promise<DeviceClient> {
     const equipamento = await equipamentoModel().findOne({ where: { ip } });
 
     if (!equipamento) {
-      logger.warn(`No device found with IP ${ip}`);
+      logger.warn(`deviceClients:get:${ip} device not found by ip ${ip}`);
       return null;
     }
 
@@ -25,7 +30,7 @@ class DeviceClients {
 
     if (!client) {
       logger.warn(
-        `No client found for manufacturer ${equipamento.fabricante} with IP ${ip}`
+        `deviceClients:get:${ip} client for manufacturer ${equipamento.fabricante} not found`
       );
       return null;
     }

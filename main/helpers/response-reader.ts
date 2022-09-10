@@ -39,12 +39,10 @@ class ResponseReader {
         continue;
       }
 
-      logger.debug(
-        `[ResponseReader] findIndex: ${i} is index of ${JSON.stringify(search)}`
-      );
-
       return i;
     }
+
+    logger.debug("responseReader:findIndex search not found")
 
     return index;
   }
@@ -56,25 +54,12 @@ class ResponseReader {
     const boundary = this.getBoundaryByManufacturer(manufacturer);
 
     if (!boundary) {
-      logger.error(
-        "[ResponseReader] findFirstBoundaryIndex: no boundary defined for",
-        manufacturer
-      );
-
       return 0;
     }
 
     const boundaryToken = boundary.getToken();
 
-    logger.debug(
-      `[ResponseReader] findFirstBoundaryIndex: searching ${boundaryToken} as boundary of ${manufacturer}`
-    );
-
     const firstBoundaryIndex = this.findIndex(data, boundaryToken, 0);
-
-    logger.debug(
-      `[ResponseReader] findFirstBoundaryIndex: first boundary index is ${firstBoundaryIndex}`
-    );
 
     return firstBoundaryIndex;
   }
@@ -86,25 +71,12 @@ class ResponseReader {
     const boundary = this.getBoundaryByManufacturer(manufacturer);
 
     if (!boundary) {
-      logger.error(
-        "[ResponseReader] findSecondBoundaryIndex: no boundary defined for",
-        manufacturer
-      );
-
       return 0;
     }
 
     const boundaryToken = boundary.getToken();
 
-    logger.debug(
-      `[ResponseReader] findSecondBoundaryIndex: searching ${boundaryToken} as boundary of ${manufacturer}`
-    );
-
     const firstBoundaryIndex = this.findIndex(data, boundaryToken, 0);
-
-    logger.debug(
-      `[ResponseReader] findSecondBoundaryIndex: first boundary index is ${firstBoundaryIndex}`
-    );
 
     const secondBoundaryIndex = this.findIndex(
       data,
@@ -112,35 +84,15 @@ class ResponseReader {
       firstBoundaryIndex + boundaryToken.length
     );
 
-    logger.debug(
-      `[ResponseReader] findSecondBoundaryIndex: second boundary index is ${secondBoundaryIndex}`
-    );
-
     return secondBoundaryIndex;
   }
 
   private getContentLength(data: Buffer, index: number): number {
-    logger.debug(
-      `[ResponseReader] getContentLength: seaching content-length header from ${index} index`
-    );
-
     const headerNameIndex = this.findIndex(data, this.headerToken, index);
-
-    logger.debug(
-      `[ResponseReader] getContentLength: header name index is ${headerNameIndex}`
-    );
 
     const headerValueIndex = headerNameIndex + this.headerToken.length;
 
-    logger.debug(
-      `[ResponseReader] getContentLength: header value index is ${headerValueIndex}`
-    );
-
     const eolIndex = this.findIndex(data, this.eolToken, headerValueIndex);
-
-    logger.debug(
-      `[ResponseReader] getContentLength: end of line index is ${eolIndex}`
-    );
 
     const headerValueSize = eolIndex - headerValueIndex;
 
@@ -154,17 +106,21 @@ class ResponseReader {
         .trim()
     );
 
-    logger.debug(
-      `[ResponseReader] getContentLength: content length found ${contentLength}`
-    );
-
     return contentLength;
   }
 
   private getBoundaryByManufacturer(manufacturer: Manufacturer): Boundary {
-    return this.boundaries.find(
+    const boundary = this.boundaries.find(
       (boundary) => boundary.getManufacturer() === manufacturer
     );
+
+    if (!boundary) {
+      logger.debug(
+        `responseReader:boundary boundary definition not found for ${manufacturer}`
+      );
+    }
+
+    return boundary;
   }
 
   private getBoundaryContent(
@@ -172,36 +128,18 @@ class ResponseReader {
     contentLength: number,
     index: number
   ): Buffer {
-    logger.debug(
-      `[ResponseReader] getBoundaryContent: seaching blank line from ${index} index`
-    );
-
     const blankLine = this.eolToken + this.eolToken;
     const blankLineIndex = this.findIndex(data, blankLine, index);
 
-    logger.debug(
-      `[ResponseReader] getBoundaryContent: blank line index is ${blankLineIndex}`
-    );
-
     const contentIndex = blankLineIndex + blankLine.length;
-
-    logger.debug(
-      `[ResponseReader] getBoundaryContent: content index is ${contentIndex}`
-    );
 
     const content = Buffer.alloc(contentLength);
     data.copy(content, 0, contentIndex, contentIndex + contentLength);
-
-    logger.debug(
-      `[ResponseReader] getBoundaryContent: content length is ${content.length}`
-    );
 
     return content;
   }
 
   getFace(data: Buffer, manufacturer: Manufacturer): Buffer {
-    logger.debug(`[ResponseReader] getFace: search face started`);
-
     const boundaryIndex = this.findSecondBoundaryIndex(data, manufacturer);
     const contentLength = this.getContentLength(data, boundaryIndex);
 
@@ -209,8 +147,6 @@ class ResponseReader {
   }
 
   getEvent(data: Buffer, manufacturer: Manufacturer): Buffer {
-    logger.debug(`[ResponseReader] getEvent: search event started`);
-
     const firstBoundaryIndex = this.findFirstBoundaryIndex(data, manufacturer);
 
     const blankLine = this.eolToken + this.eolToken;

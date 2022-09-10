@@ -12,6 +12,7 @@ export interface EventInfo {
 }
 
 export default interface IntelbrasEvent {
+  logId: string;
   ip: string;
   Time: string;
   Events: EventInfo[];

@@ -1,7 +1,6 @@
 import { Menu } from "electron";
 import { Menubar, menubar } from "menubar";
 import path from "path";
-import logger from "../../shared/logger";
 
 import { windowIndex } from "./environment";
 
@@ -17,8 +16,6 @@ export default function (): void {
     "resources",
     "icon.png"
   );
-
-  logger.info("[Window] Icon: using icon from", icon);
 
   mainMenubar = menubar({
     preloadWindow: true,

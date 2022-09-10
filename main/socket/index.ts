@@ -1,6 +1,6 @@
 import net, { Server } from "net";
-import parametroModel from "../database/models/parametro.model";
 import logger from "../../shared/logger";
+import parametroModel from "../database/models/parametro.model";
 import { handleConnection } from "./connection";
 import storage from "./connection/storage";
 
@@ -10,9 +10,30 @@ class Socket {
   private async getPort(): Promise<number> {
     try {
       const parametro = await parametroModel().findOne();
-      return parametro?.portaSocket || this.defaultPort;
+
+      if (!parametro) {
+        logger.warn(
+          `socket:server parameter not found, using port ${this.defaultPort} (default)`
+        );
+
+        return this.defaultPort;
+      }
+
+      if (!parametro.portaSocket) {
+        logger.warn(
+          `socket:server port value not found, using port ${this.defaultPort} (default)`
+        );
+
+        return this.defaultPort;
+      }
+
+      return parametro.portaSocket;
     } catch (e) {
-      logger.warn("[Socket] Server: using default port;", e.message);
+      logger.warn(
+        `socket:server error, using port ${this.defaultPort} (default) ${e.message}`,
+        e
+      );
+
       return this.defaultPort;
     }
   }
@@ -20,9 +41,9 @@ class Socket {
   private getServer(): Server {
     const server = net.createServer();
     server.on("connection", handleConnection);
-    server.on("close", () => logger.info("Socket closed"));
-    server.on("error", (error: Error) =>
-      logger.error("[Socket] Error: in connection>", error.message)
+    server.on("close", () => logger.info("socket:server connection closed"));
+    server.on("error", (e: Error) =>
+      logger.error(`socket:server connection error ${e.message}`, e)
     );
 
     return server;
@@ -34,7 +55,7 @@ class Socket {
 
     return new Promise((resolve) => {
       server.listen({ host: "0.0.0.0", port }, () => {
-        logger.info(`[Socket] Server: listening at ${port}`);
+        logger.info(`socket:server listening at ${port}`);
         resolve();
       });
     });
@@ -44,22 +65,15 @@ class Socket {
     const connection = storage.get(connectionId);
 
     if (!connection) {
-      logger.warn(
-        `[Socket] Connection [${connectionId}]: not found by id ${connectionId}`
-      );
       return;
     }
 
-    logger.debug(
-      `[Socket] Connection [${connectionId}]: sending message ${message}`
-    );
+    logger.debug(`socket:server:${connectionId} sending message ${message}`);
 
     try {
       connection.write(message, "utf-8");
     } catch (e) {
-      logger.warn(
-        `[Socket] Connection [${connectionId}]: get an error when send message ${e.message}`
-      );
+      logger.error(`socket:server:${connectionId} error ${e.message}`, e);
     }
   }
 

@@ -1,34 +1,31 @@
 import { Request, Response } from "express";
+import { v4 as uuid } from "uuid";
 import logger from "../../../shared/logger";
 import responseReader from "../../helpers/response-reader";
 import service from "../services/intelbrasEvents.service";
-import IntelbrasEvent from "../types/IntelbrasEvent";
 
 function getIp(req: Request) {
   return req.socket.remoteAddress.split(":")[3];
 }
 
 async function create(req: Request, res: Response, next): Promise<void> {
+  const logId = uuid();
+
   try {
     const eventBuffer = responseReader.getEvent(req.body, "<ITBF>");
+    const eventString = eventBuffer.toString("utf-8");
 
-    const event: IntelbrasEvent = JSON.parse(eventBuffer.toString("utf-8"));
-    event.ip = getIp(req);
+    logger.debug(`api:intelbrasEventsController:${logId} request ${eventString}`);
 
-    logger.debug(
-      `[Server] IntelbrasEventsController [${
-        event.Time
-      }]: create event ${JSON.stringify(event)}`
-    );
-
-    await service.create(event);
+    const ip = getIp(req);
+    
+    await service.create({ logId, ip, ...JSON.parse(eventString) });
 
     res.status(200).end();
-  } catch (err) {
-    logger.error(
-      `[Server] IntelbrasEventsController: get an error when create event ${err.message}`
-    );
-    next(err);
+  } catch (e) {
+    logger.error(`api:intelbrasEventsController:${logId} error ${e.message}`, e);
+
+    next(e);
   }
 }
 

@@ -46,13 +46,13 @@ export class HikvisionClient implements DeviceClient {
       const parametro = await parametroModel().findOne();
       const username = parametro?.usuarioHikvision || "admin";
       const password = parametro?.senhaHikvision || "admin";
-      logger.info("username:", username);
-      logger.info("password:", password);
+      
       this.httpClient = new DigestFetch(username, password);
+
+      logger.info(`hikvisionClient:init:${this.host} initilized`);
     } catch (e) {
-      logger.error(
-        `Device client [${this.getManufacturer()}] error ${e.message}`
-      );
+      logger.error(`hikvisionClient:init:${this.host} error ${e.message}`, e);
+
       this.httpClient = new DigestFetch("admin", "admin");
     }
 

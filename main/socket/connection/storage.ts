@@ -1,5 +1,6 @@
 import { Socket } from "net";
 import { v4 as uuid } from "uuid";
+import logger from "../../../shared/logger";
 
 const connections = {};
 
@@ -22,11 +23,18 @@ function count(): number {
 }
 
 function get(connectionId: string): Socket {
-  return connections[connectionId]
+  const connection = connections[connectionId];
+
+  if (!connection) {
+    logger.warn(`connectionStorage connection not found by id ${connectionId}`);
+    return null;
+  }
+
+  return connection;
 }
 
 function getIds(): string[] {
-  return Object.keys(connections)
+  return Object.keys(connections);
 }
 
 export default {

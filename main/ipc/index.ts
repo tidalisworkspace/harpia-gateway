@@ -24,8 +24,6 @@ class Ipc {
       ipcMain.on(handler.getName(), (event, request) =>
         handler.handle(event, request)
       );
-
-      logger.info(`[IPC Main] Handler: listening channel ${handler.getName()}`);
     });
   }
 

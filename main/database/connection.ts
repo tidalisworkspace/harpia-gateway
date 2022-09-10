@@ -15,7 +15,7 @@ class Connection {
   }
 
   getSequelize(): Sequelize {
-    log.info("[Database] Connection: from", this.env);
+    log.info(`database:connection using ${this.env} env`);
     const options = this.config.get(this.env);
     return new Sequelize(options);
   }

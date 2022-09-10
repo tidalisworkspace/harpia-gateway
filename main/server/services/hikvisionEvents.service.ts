@@ -19,7 +19,7 @@ function isIrrelevant(event: HikvisionEvent) {
 }
 
 function hasCardNumber(event: HikvisionEvent) {
-  const cardNumber = event.AccessControllerEvent.cardNo;
+  const cardNumber = event?.AccessControllerEvent?.cardNo;
   return cardNumber && cardNumber.length && cardNumber.trim() !== "";
 }
 
@@ -41,15 +41,15 @@ function getTipoEvento(event: HikvisionEvent): TipoEvento {
 
   const minutes = differenceInMinutes(now, dateTime);
 
-  const tipoEvento = minutes > 1 ? "OFF" : "ON";
-
-  if (tipoEvento === "OFF") {
-    logger.info(
-      `[Server] HikvisionEventsService [${event.dateTime}]: offline event ${minutes}min ago`
+  if (minutes > 1) {
+    logger.debug(
+      `api:hikvisionEventsService:${event.logId} ${minutes}min ago (offline event)`
     );
+
+    return "OFF";
   }
 
-  return tipoEvento;
+  return "ON";
 }
 
 function useStrToDate(sequelize: Sequelize, str: string, format: string) {
@@ -57,33 +57,28 @@ function useStrToDate(sequelize: Sequelize, str: string, format: string) {
 }
 
 async function create(event: HikvisionEvent): Promise<void> {
-  const dateTime = event.dateTime;
-  const ip = event.ipAddress;
+  const { dateTime, ipAddress, logId } = event;
 
   const equipamento = await equipamentoModel().findOne({
-    where: { ip },
+    where: { ip: ipAddress },
   });
 
   if (!equipamento) {
     logger.warn(
-      `[Server] HikvisionEventsService [${dateTime}]: device with IP ${ip} not found`
+      `api:hikvisionEventsService:${logId} device with not found by ip ${ipAddress}`
     );
     return;
   }
 
   if (equipamento.ignorarEvento) {
     logger.warn(
-      `[Server] HikvisionEventsService [${dateTime}]: device with IP ${ip} ignoring event`
+      `api:hikvisionEventsService:${logId} device ${ipAddress} is ignoring events`
     );
     return;
   }
 
   if (hasCardNumber(event)) {
     const cardNumber = event.AccessControllerEvent.cardNo;
-
-    logger.debug(
-      `[Server] HikvisionEventsService [${dateTime}]: with card number ${cardNumber}`
-    );
 
     const data = {
       timestamp: toTimestamp(dateTime),
@@ -102,8 +97,8 @@ async function create(event: HikvisionEvent): Promise<void> {
     const major = event.AccessControllerEvent.majorEventType;
     const minor = event.AccessControllerEvent.subEventType;
 
-    logger.debug(
-      `[Server] HikvisionEventsService [${dateTime}]: skipped because is irrelevant ${major}:${minor}`
+    logger.warn(
+      `api:hikvisionEventsService:${logId} irrelevant event ${major}:${minor}`
     );
 
     return;
@@ -117,7 +112,7 @@ async function create(event: HikvisionEvent): Promise<void> {
 
   if (!pessoa) {
     logger.warn(
-      `[Server] HikvisionEventsService [${dateTime}]: people with ID ${pessoaId} not found`
+      `api:hikvisionEventsService:${logId} people not found by id ${pessoaId}`
     );
   }
 
@@ -141,22 +136,14 @@ async function create(event: HikvisionEvent): Promise<void> {
       tipo: tipoEvento,
     };
 
-    try {
-      await eventoModel().create(evento);
-    } catch (e) {
-      logger.error(
-        `[Server] HikvisionEventsService: get error ${
-          e.message
-        } when save event ${JSON.stringify(evento)}`
-      );
-    }
+    await eventoModel().create(evento);
   }
 
   if (tipoEvento === "OFF") {
     return;
   }
 
-  const ipWithPad = ip.padEnd(15, " ");
+  const ipWithPad = ipAddress.padEnd(15, " ");
   const timestamp = toTimestamp(dateTime);
   const tag = pessoa ? "<BLOF>" : "<HINI>";
 

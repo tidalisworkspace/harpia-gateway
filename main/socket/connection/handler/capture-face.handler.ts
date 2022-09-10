@@ -1,15 +1,11 @@
-import { deviceClients } from "../../../device-clients";
-import logger from "../../../../shared/logger";
-import { CaptureFaceRequest, DataHandler } from "./types";
 import fs from "fs";
 import path from "path";
 import socket from "../..";
+import logger from "../../../../shared/logger";
+import { deviceClients } from "../../../device-clients";
+import { CaptureFaceRequest, DataHandler } from "./types";
 
 export class CaptureFaceHandler implements DataHandler {
-  constructor() {
-    logger.info("[Socket] Handler: capture face initilized");
-  }
-
   getName(): string {
     return "captureFace";
   }
@@ -18,58 +14,48 @@ export class CaptureFaceHandler implements DataHandler {
     connectionId: string,
     request: CaptureFaceRequest
   ): Promise<void> {
+    const { client, faceDirectory, peopleId, ip, port } = request.payload;
+
+    const deviceClient = await deviceClients.get(ip, port);
+
+    if (!deviceClient) {
+      socket.sendFailureMessage(connectionId, client, "CLIENTE NAO ENCONTRADO");
+      return;
+    }
+
+    let faceBase64;
     try {
-      const { client, faceDirectory, peopleId } = request.payload;
-
-      const deviceClient = await deviceClients.get(
-        request.payload.ip,
-        request.payload.port
-      );
-
-      if (!deviceClient) {
-        return;
-      }
-
-      logger.info(
-        `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
-      );
-
-      try {
-        const faceBase64 = await deviceClient.captureFace();
-        const facePath = path.join(faceDirectory, `${peopleId}.jpg`);
-
-        logger.debug(
-          `[Socket] Connection [${connectionId}]: ${this.getName()} writing file on path ${facePath}`
-        );
-
-        fs.writeFileSync(facePath, faceBase64, { encoding: "base64" });
-
-        socket.sendSuccessMessage(
-          connectionId,
-          client,
-          "CAPTURADO COM SUCESSO"
-        );
-      } catch (e) {
-        logger.info(
-          `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
-            e.message
-          }`
-        );
-
-        socket.sendFailureMessage(connectionId, client, "ERRO NA CAPTURA");
-      }
+      faceBase64 = await deviceClient.captureFace();
     } catch (e) {
-      logger.info(
-        `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
-          e.message
-        }`
+      logger.error(
+        `socket:handler:${this.getName()}:${connectionId} error ${e.message}`,
+        e
+      );
+
+      socket.sendFailureMessage(connectionId, client, "ERRO NA CAPTURA");
+
+      return;
+    }
+
+    const facePath = path.join(faceDirectory, `${peopleId}.jpg`);
+
+    try {
+      fs.writeFileSync(facePath, faceBase64, { encoding: "base64" });
+    } catch (e) {
+      logger.error(
+        `socket:handler:${this.getName()}:${connectionId} error ${e.message}`,
+        e
       );
 
       socket.sendFailureMessage(
         connectionId,
-        request.payload.client,
-        "ERRO INESPERADO"
+        client,
+        `ERRO NA ESCRITA DA FOTO EM ${facePath}`
       );
+
+      return;
     }
+
+    socket.sendSuccessMessage(connectionId, client, "CAPTURADO COM SUCESSO");
   }
 }

@@ -19,21 +19,12 @@ export class Ipc {
       request.responseChannel = `${channel}_response_${new Date().getTime()}`;
     }
 
-    logger.info("[IPC Renderer] Request:", channel);
-
     electron.ipcRenderer.send(channel, request);
 
     return new Promise((resolve) => {
       electron.ipcRenderer.once(
         request.responseChannel,
         (event, response: IpcResponse) => {
-          logger.info(
-            "[IPC Renderer] Response:",
-            channel,
-            response.status,
-            response.message || ""
-          );
-
           resolve(response);
         }
       );
@@ -41,10 +32,7 @@ export class Ipc {
   }
 
   listen(channel: IpcRendererChannel, listener: any): void {
-    logger.info("[IPC Renderer] Listening:", channel);
-
     electron.ipcRenderer?.on(channel, (event, args) => {
-      logger.info("[IPC Renderer] Listen:", args);
       listener(args);
     });
   }

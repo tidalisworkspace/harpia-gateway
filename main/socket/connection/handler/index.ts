@@ -31,15 +31,19 @@ export class Handler {
     const payload = json[functionName];
 
     if (!functionName) {
-      throw new Error(
-        "function name required. expected format: { [functionName]: { payload } }"
+      logger.warn(
+        "socket:handler function name required. expected format: { [functionName]: { <payload> } }"
       );
+
+      return null;
     }
 
     if (!payload) {
-      throw new Error(
-        "payload is required. expected format: { [functionName]: { payload } }"
+      logger.warn(
+        "socket:handler payload is required. expected format: { [functionName]: { payload } }"
       );
+
+      return null;
     }
 
     return {
@@ -54,24 +58,45 @@ export class Handler {
     );
 
     if (!handler) {
-      throw new Error(`no handler found for function "${functionName}"`);
+      logger.warn(
+        `socket:handler no handler found for function ${functionName}`
+      );
     }
 
     return handler;
   }
 
   resolve(connectionId: string, json: any): void {
+    logger.debug(`socket:handler:${connectionId} resolve ${json}`);
+
+    const request = this.toRequest(json);
+
+    if (!request) {
+      return;
+    }
+
+    socket.sendAckMessage(connectionId, request.payload.client);
+
+    const handler = this.getHandler(request.functionName);
+
+    if (!handler) {
+      return;
+    }
+
     try {
-      const request = this.toRequest(json);
-
-      socket.sendAckMessage(connectionId, request.payload.client)
-
-      const handler = this.getHandler(request.functionName);
-
       handler.handle(connectionId, request);
     } catch (e) {
       logger.warn(
-        `Connection [${connectionId}]: error (when handle request) ${e.message}`
+        `socket:handler:${connectionId} unexpected error on handler ${handler.getName()} ${
+          e.message
+        }`,
+        e
+      );
+
+      socket.sendFailureMessage(
+        connectionId,
+        request.payload.client,
+        "ERRO INESPERADO"
       );
     }
   }

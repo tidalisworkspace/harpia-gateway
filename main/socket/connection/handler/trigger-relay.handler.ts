@@ -1,13 +1,9 @@
-import { deviceClients } from "../../../device-clients";
-import logger from "../../../../shared/logger";
-import { DataHandler, TriggerRelayRequest } from "./types";
 import socket from "../..";
+import logger from "../../../../shared/logger";
+import { deviceClients } from "../../../device-clients";
+import { DataHandler, TriggerRelayRequest } from "./types";
 
 export class TriggerRelayHandler implements DataHandler {
-  constructor() {
-    logger.info("[Socket] Handler: trigger relay initilized");
-  }
-
   getName(): string {
     return "triggerRelay";
   }
@@ -16,37 +12,26 @@ export class TriggerRelayHandler implements DataHandler {
     connectionId: string,
     request: TriggerRelayRequest
   ): Promise<void> {
+    const { client, ip, port } = request.payload;
+
+    const deviceClient = await deviceClients.get(ip, port);
+
+    if (!deviceClient) {
+      socket.sendFailureMessage(connectionId, client, "CLIENTE NAO ENCONTRADO");
+      return;
+    }
+
     try {
-      const { client } = request.payload;
-
-      const deviceClient = await deviceClients.get(
-        request.payload.ip,
-        request.payload.port
-      );
-
-      if (!deviceClient) {
-        return;
-      }
-
-      logger.info(
-        `[Socket] Connection [${connectionId}]: ${this.getName()} with ${deviceClient.getManufacturer()} client`
-      );
-
       await deviceClient.openDoor();
 
       socket.sendSuccessMessage(connectionId, client, "RELE ACIONADO");
     } catch (e) {
       logger.info(
-        `[Socket] Connection [${connectionId}]: ${this.getName()} get an error: ${
-          e.message
-        }`
+        `socket:handler:${this.getName()}:${connectionId} error ${e.message}`,
+        e
       );
 
-      socket.sendSuccessMessage(
-        connectionId,
-        request.payload.client,
-        "ERRO AO ACIONAR RELE"
-      );
+      socket.sendFailureMessage(connectionId, client, "ERRO AO ACIONAR RELE");
     }
   }
 }

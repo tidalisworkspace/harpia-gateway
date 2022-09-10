@@ -26,7 +26,7 @@ export class DatabaseConnectionStatusHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
+      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
 
       const response: IpcResponse = {
         status: "error",
@@ -65,7 +65,7 @@ export class DatabaseTestConnectionHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
+      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
 
       const response: IpcResponse = {
         status: "error",
@@ -105,7 +105,7 @@ export class DatabaseUpdateConnectionHandler implements IpcHandler {
         data: "connected",
       });
     } catch (e) {
-      logger.error(`[IPC Main] Handler [${this.getName()}]: ${e.message}`);
+      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
 
       const response: IpcResponse = {
         status: "error",
