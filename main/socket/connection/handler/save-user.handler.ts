@@ -75,7 +75,7 @@ export class SaveUserHandler implements DataHandler {
             }
           }
 
-          const picture = path.join("", people.photo);
+          const picture = path.join(faceDirectory, people.photo);
 
           try {
             const response = await deviceClient.saveFace({ id: people.id, picture });
