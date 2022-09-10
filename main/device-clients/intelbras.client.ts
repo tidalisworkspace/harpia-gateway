@@ -262,27 +262,15 @@ export class IntelbrasClient implements DeviceClient {
 
   deleteAllUserRight(): Promise<void> {
     return new Promise(async (resolve) => {
-      for (const id of range(33)) {
-        const configParam = range(7)
-          .map(
-            (i) =>
-              `AccessTimeSchedule[${id}].TimeSchedule[${i}][0]=1 00:00:00-00:00:00`
-          )
-          .join("&");
+      const configParam = range(33)
+        .map((id) => `AccessTimeSchedule[${id}].Enable=false`)
+        .join("&");
 
-        await new Promise((resolve) => setTimeout(resolve, 150));
+      const response = await this.httpClient.fetch(
+        `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&${configParam}`
+      );
 
-        const response = await this.httpClient.fetch(
-          `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&${configParam}`
-        );
-
-        logger.debug(
-          "deleteAllUserRight:",
-          id,
-          response.status,
-          response.statusText
-        );
-      }
+      logger.debug("deleteAllUserRight:", response.status, response.statusText);
 
       resolve();
     });
