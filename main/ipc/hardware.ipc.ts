@@ -1,20 +1,24 @@
 import { IpcMainEvent } from "electron";
 import {
+  HardwareRebootIpcRequest,
   IpcMainChannel,
   IpcRequest,
   IpcResponse,
 } from "../../shared/ipc/types";
+import logger from "../../shared/logger";
 import equipamentoModel, {
   Equipamento,
 } from "../database/models/equipamento.model";
-import logger from "../../shared/logger";
 
+import { deviceClients } from "../device-clients";
 import { IpcHandler } from "./types";
 
 function toHardware(equipamento: Equipamento) {
   return {
-    id: `${equipamento.id} ${equipamento.nome}`,
-    ip: `${equipamento.ip}:${equipamento.porta}`,
+    key: equipamento.id,
+    name: `${equipamento.id} ${equipamento.nome}`,
+    ip: equipamento.ip,
+    port: equipamento.porta,
     manufacturer: equipamento.fabricante,
   };
 }
@@ -45,6 +49,76 @@ export class HardwareFindAllHandler implements IpcHandler {
       const response: IpcResponse = {
         status: "error",
         message: "Impossível buscar dispositivos",
+      };
+
+      event.sender.send(request.responseChannel, response);
+    }
+  }
+}
+
+export class HardwareRebootHandler implements IpcHandler {
+  getName(): IpcMainChannel {
+    return "hardware_reboot";
+  }
+
+  async handle(
+    event: IpcMainEvent,
+    request: HardwareRebootIpcRequest
+  ): Promise<void> {
+    try {
+      const errors = [];
+
+      for (const deviceAddress of request.params) {
+        const { ip, port } = deviceAddress;
+
+        const deviceClient = await deviceClients.get(ip, port);
+
+        if (!deviceClient) {
+          logger.error(
+            `ipcMain:${this.getName()} device client not found by ip ${ip}`
+          );
+
+          errors.push(ip);
+
+          continue;
+        }
+
+        try {
+          await deviceClient.reboot();
+        } catch (e) {
+          logger.error(`ipcMain:${this.getName()} error ${ip} ${e.message}`, e);
+
+          errors.push(ip);
+
+          continue;
+        }
+      }
+
+      if (errors.length) {
+        const error = errors.join(",");
+
+        const response: IpcResponse = {
+          status: "error",
+          message: `Alguns dispositivos não foram reiniciados: ${error}`,
+        };
+
+        event.sender.send(request.responseChannel, response);
+
+        return;
+      }
+
+      const response: IpcResponse = {
+        status: "success",
+        message: "Dispositivos reiniciados",
+      };
+
+      event.sender.send(request.responseChannel, response);
+    } catch (e) {
+      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
+
+      const response: IpcResponse = {
+        status: "error",
+        message: "Impossível reiniciar dispositivos",
       };
 
       event.sender.send(request.responseChannel, response);

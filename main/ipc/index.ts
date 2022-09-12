@@ -1,14 +1,17 @@
 import { ipcMain } from "electron";
 import { IpcRendererChannel, IpcResponse } from "../../shared/ipc/types";
 import { getMainMenubar } from "../helpers/create-window";
-import logger from "../../shared/logger";
 import {
   DatabaseConnectionStatusHandler,
   DatabaseTestConnectionHandler,
-  DatabaseUpdateConnectionHandler
+  DatabaseUpdateConnectionHandler,
 } from "./database.ipc";
-import { HardwareFindAllHandler } from "./hardware.ipc";
-import { LoggerFileCleanHandle, LoggerFileOpenHandler, LoggerFileSizeHandler } from "./logger.ipc";
+import { HardwareFindAllHandler, HardwareRebootHandler } from "./hardware.ipc";
+import {
+  LoggerFileCleanHandle,
+  LoggerFileOpenHandler,
+  LoggerFileSizeHandler,
+} from "./logger.ipc";
 import { SocketConnectionsAmountHandler } from "./socket.ipc";
 import { IpcHandler } from "./types";
 
@@ -37,6 +40,7 @@ const ipc = new Ipc([
   new LoggerFileCleanHandle(),
   new LoggerFileSizeHandler(),
   new HardwareFindAllHandler(),
+  new HardwareRebootHandler(),
   new DatabaseConnectionStatusHandler(),
   new DatabaseTestConnectionHandler(),
   new DatabaseUpdateConnectionHandler(),
