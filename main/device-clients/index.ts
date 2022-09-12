@@ -10,12 +10,6 @@ class DeviceClients {
     new IntelbrasClient(),
   ];
 
-  private getLogTag(...args) {
-    const extra = args.filter((arg) => !!arg?.toString()?.trim()).join(":");
-
-    return extra ? `deviceClients:${extra}` : `deviceClients`;
-  }
-
   async get(ip: string, port: number): Promise<DeviceClient> {
     const equipamento = await equipamentoModel().findOne({ where: { ip } });
 
