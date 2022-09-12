@@ -4,6 +4,7 @@ import logger from "../shared/logger";
 import { createWindow } from "./helpers";
 import { isProd } from "./helpers/environment";
 import ipc from "./ipc";
+import job from "./job";
 import server from "./server";
 import socket from "./socket";
 
@@ -20,6 +21,7 @@ logger.info(`app:main user data path ${app.getPath("userData")}`);
   ipc.start();
   await socket.start();
   await server.start();
+  job.start();
   createWindow();
 })();
 

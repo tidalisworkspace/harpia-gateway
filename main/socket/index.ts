@@ -113,6 +113,10 @@ class Socket {
       this.send(connectionId, message);
     }
   }
+
+  sendAliveMessage() {
+    this.sendMessageToAll("<HKVI>@ESTOU VIVO@");
+  }
 }
 
 const socket = new Socket();
