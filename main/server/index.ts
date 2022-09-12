@@ -39,7 +39,7 @@ class Server {
     }
   }
 
-  private getServer(): Express {
+  private newServer(): Express {
     const server = express();
     server.use(bodyParser.raw({ type: "*/*" }));
     server.use("/hikvision/events", hikvisionEventsRoute);
@@ -50,7 +50,7 @@ class Server {
 
   async start(): Promise<void> {
     const port = await this.getPort();
-    const server = this.getServer();
+    const server = this.newServer();
 
     return new Promise((resolve) => {
       server.listen(port, () => {
