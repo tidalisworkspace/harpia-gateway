@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Op } from "sequelize";
 import connection from "../connection";
 
 export interface Equipamento extends Model {
@@ -74,6 +74,14 @@ export default function equipamentoModel() {
       defaultScope: {
         where: {
           habilitado: "S",
+          [Op.or]: [
+            {
+              modelo: "HIKV 671",
+            },
+            {
+              modelo: "ITB FACE1",
+            },
+          ],
         },
       },
     }
