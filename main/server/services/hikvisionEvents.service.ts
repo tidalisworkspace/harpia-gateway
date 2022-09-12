@@ -43,7 +43,7 @@ function getTipoEvento(event: HikvisionEvent): TipoEvento {
 
   if (minutes > 1) {
     logger.debug(
-      `api:hikvisionEventsService:${event.logId} ${minutes}min ago (offline event)`
+      `http:hikvisionEventsService:${event.logId} ${minutes}min ago (offline event)`
     );
 
     return "OFF";
@@ -65,14 +65,14 @@ async function create(event: HikvisionEvent): Promise<void> {
 
   if (!equipamento) {
     logger.warn(
-      `api:hikvisionEventsService:${logId} device with not found by ip ${ipAddress}`
+      `http:hikvisionEventsService:${logId} device with not found by ip ${ipAddress}`
     );
     return;
   }
 
   if (equipamento.ignorarEvento) {
     logger.warn(
-      `api:hikvisionEventsService:${logId} device ${ipAddress} is ignoring events`
+      `http:hikvisionEventsService:${logId} device ${ipAddress} is ignoring events`
     );
     return;
   }
@@ -98,7 +98,7 @@ async function create(event: HikvisionEvent): Promise<void> {
     const minor = event.AccessControllerEvent.subEventType;
 
     logger.warn(
-      `api:hikvisionEventsService:${logId} irrelevant event ${major}:${minor}`
+      `http:hikvisionEventsService:${logId} irrelevant event ${major}:${minor}`
     );
 
     return;
@@ -112,7 +112,7 @@ async function create(event: HikvisionEvent): Promise<void> {
 
   if (!pessoa) {
     logger.warn(
-      `api:hikvisionEventsService:${logId} people not found by id ${pessoaId}`
+      `http:hikvisionEventsService:${logId} people not found by id ${pessoaId}`
     );
   }
 

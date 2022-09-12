@@ -11,13 +11,18 @@ async function create(req: Request, res: Response, next): Promise<void> {
     const eventBuffer = responseReader.getEvent(req.body, "<HIKV>");
     const eventString = eventBuffer.toString("utf-8");
 
-    logger.debug(`api:hikvisionEventsController:${logId} request ${eventString}`);
+    logger.debug(
+      `http:hikvisionEventsController:${logId} request ${eventString}`
+    );
 
     await service.create({ logId, ...JSON.parse(eventString) });
 
     res.status(200).end();
   } catch (e) {
-    logger.error(`api:hikvisionEventsController:${logId} error ${e.message}`, e);
+    logger.error(
+      `http:hikvisionEventsController:${logId} error ${e.message}`,
+      e
+    );
 
     next(e);
   }

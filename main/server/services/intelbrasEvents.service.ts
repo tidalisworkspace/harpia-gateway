@@ -72,14 +72,14 @@ async function create(event: IntelbrasEvent): Promise<void> {
 
   if (!equipamento) {
     logger.warn(
-      `api:intelbrasEventsService:${logId} device with not found by ip ${ip}`
+      `http:intelbrasEventsService:${logId} device with not found by ip ${ip}`
     );
     return;
   }
 
   if (equipamento.ignorarEvento) {
     logger.warn(
-      `api:intelbrasEventsService:${logId} device ${ip} is ignoring events`
+      `http:intelbrasEventsService:${logId} device ${ip} is ignoring events`
     );
     return;
   }
@@ -102,7 +102,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
     }
 
     if (isIrrelevant(eventInfo)) {
-      logger.warn(`api:intelbrasEventsService:${logId} irrelevant event`);
+      logger.warn(`http:intelbrasEventsService:${logId} irrelevant event`);
       continue;
     }
 
@@ -114,7 +114,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
 
     if (!pessoa) {
       logger.warn(
-        `api:intelbrasEventsService:${logId} people not found by id ${pessoaId}`
+        `http:intelbrasEventsService:${logId} people not found by id ${pessoaId}`
       );
     }
 

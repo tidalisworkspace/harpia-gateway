@@ -15,15 +15,20 @@ async function create(req: Request, res: Response, next): Promise<void> {
     const eventBuffer = responseReader.getEvent(req.body, "<ITBF>");
     const eventString = eventBuffer.toString("utf-8");
 
-    logger.debug(`api:intelbrasEventsController:${logId} request ${eventString}`);
+    logger.debug(
+      `http:intelbrasEventsController:${logId} request ${eventString}`
+    );
 
     const ip = getIp(req);
-    
+
     await service.create({ logId, ip, ...JSON.parse(eventString) });
 
     res.status(200).end();
   } catch (e) {
-    logger.error(`api:intelbrasEventsController:${logId} error ${e.message}`, e);
+    logger.error(
+      `http:intelbrasEventsController:${logId} error ${e.message}`,
+      e
+    );
 
     next(e);
   }
