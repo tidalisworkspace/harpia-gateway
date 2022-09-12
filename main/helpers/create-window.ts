@@ -2,6 +2,7 @@ import { Menu } from "electron";
 import { Menubar, menubar } from "menubar";
 import path from "path";
 import { getIOCounters } from "process";
+import logger from "../../shared/logger";
 
 import { isLinux, isWindows, windowIndex } from "./environment";
 
@@ -13,16 +14,19 @@ export function getMainMenubar(): Menubar {
 
 function getIconFilePath() {
   const resourcesDir = path.resolve(path.dirname(__dirname), "resources");
+  let iconPath;
 
   if (isLinux) {
-    return path.resolve(resourcesDir, "icon.png");
+    iconPath = path.resolve(resourcesDir, "icon.png");
   }
 
   if (isWindows) {
-    return path.resolve(resourcesDir, "icon.ico");
+    iconPath = path.resolve(resourcesDir, "icon.ico");
   }
 
-  return null;
+  logger.debug(`app:main usin icon ${iconPath}`);
+
+  return iconPath;
 }
 
 export default function (): void {
@@ -52,6 +56,13 @@ export default function (): void {
       label: "Abrir",
       click: () => {
         mainMenubar.showWindow();
+      },
+    },
+    {
+      label: "Reiniciar",
+      click: () => {
+        mainMenubar.app.relaunch();
+        mainMenubar.app.quit();
       },
     },
     {
