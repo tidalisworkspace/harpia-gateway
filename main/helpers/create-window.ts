@@ -1,8 +1,9 @@
 import { Menu } from "electron";
 import { Menubar, menubar } from "menubar";
 import path from "path";
+import { getIOCounters } from "process";
 
-import { windowIndex } from "./environment";
+import { isLinux, isWindows, windowIndex } from "./environment";
 
 let mainMenubar;
 
@@ -10,12 +11,22 @@ export function getMainMenubar(): Menubar {
   return mainMenubar;
 }
 
+function getIconFilePath() {
+  const resourcesDir = path.resolve(path.dirname(__dirname), "resources");
+
+  if (isLinux) {
+    return path.resolve(resourcesDir, "icon.png");
+  }
+
+  if (isWindows) {
+    return path.resolve(resourcesDir, "icon.ico");
+  }
+
+  return null;
+}
+
 export default function (): void {
-  const icon = path.resolve(
-    path.dirname(__dirname),
-    "resources",
-    "icon.png"
-  );
+  const icon = getIconFilePath();
 
   mainMenubar = menubar({
     preloadWindow: true,
