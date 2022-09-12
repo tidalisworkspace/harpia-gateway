@@ -1,6 +1,11 @@
-import { ReloadOutlined } from "@ant-design/icons";
+import {
+  ClearOutlined,
+  PoweroffOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import { Button, Divider, message, Table, Tooltip, Typography } from "antd";
 import { ColumnsType } from "antd/lib/table";
+import { TableRowSelection } from "antd/lib/table/interface";
 import { useEffect, useState } from "react";
 import { IpcRequest, IpcResponse } from "../../../shared/ipc/types";
 import { useIpc } from "../../hooks/useIpc";
@@ -51,13 +56,17 @@ function showMessage(response: IpcResponse) {
 export default function HardwaresTabContent() {
   const ipc = useIpc();
   const [hardwares, setHardwares] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [reloading, setRealoading] = useState(false);
   const [rebooting, setRebooting] = useState(false);
 
-  const rowSelection = {
-    onChange: (_: React.Key[], selectedRows: DataType[]) =>
-      setSelectedRows(selectedRows),
+  const rowSelection: TableRowSelection<DataType> = {
+    selectedRowKeys,
+    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+      setSelectedRowKeys(selectedRowKeys);
+      setSelectedRows(selectedRows);
+    },
   };
 
   async function loadHardwares(): Promise<IpcResponse> {
@@ -102,6 +111,11 @@ export default function HardwaresTabContent() {
     setRebooting(false);
   }
 
+  function handleClearSelection() {
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+  }
+
   useEffect(() => {
     loadHardwares();
   }, []);
@@ -110,10 +124,11 @@ export default function HardwaresTabContent() {
     <>
       <Button
         type="link"
-        icon={<ReloadOutlined />}
         size="small"
-        onClick={handleReload}
+        icon={<ReloadOutlined />}
+        disabled={!!selectedRows.length}
         loading={reloading}
+        onClick={handleReload}
       >
         Buscar dispositivos
       </Button>
@@ -121,9 +136,20 @@ export default function HardwaresTabContent() {
       <Button
         type="link"
         size="small"
-        disabled={!selectedRows.length}
-        onClick={handleReboot}
+        icon={<ClearOutlined />}
+        disabled={rebooting || reloading || !selectedRows.length}
+        onClick={handleClearSelection}
+      >
+        Limpar seleção
+      </Button>
+      <Divider type="vertical" />
+      <Button
+        type="link"
+        size="small"
+        icon={<PoweroffOutlined />}
+        disabled={reloading || !selectedRows.length}
         loading={rebooting}
+        onClick={handleReboot}
       >
         Reiniciar selecionados
       </Button>
