@@ -25,19 +25,11 @@ function fromDateTimeString(str: string) {
 }
 
 function toDate(dateTimeStr: string): string {
-  const date = format(fromDateTimeString(dateTimeStr), "dd/MM/yyyy");
-
-  logger.debug("date:", date);
-
-  return date;
+  return format(fromDateTimeString(dateTimeStr), "dd/MM/yyyy");
 }
 
 function toHour(dateTimeStr: string): string {
-  const hour = format(fromDateTimeString(dateTimeStr), "HH:mm:ss");
-
-  logger.debug("hour:", hour);
-
-  return hour;
+  return format(fromDateTimeString(dateTimeStr), "HH:mm:ss");
 }
 
 function toTimestamp(dateTimeISO: string): string {
@@ -50,15 +42,7 @@ function getTipoEvento(event: IntelbrasEvent): TipoEvento {
 
   const minutes = differenceInMinutes(now, dateTime);
 
-  const tipoEvento = minutes > 1 ? "OFF" : "ON";
-
-  if (tipoEvento === "OFF") {
-    logger.info(
-      `[Server] IntelbrasEventsService [${dateTime}]: offline event ${minutes}min ago`
-    );
-  }
-
-  return tipoEvento;
+  return minutes > 1 ? "OFF" : "ON";
 }
 
 function useStrToDate(sequelize: Sequelize, str: string, format: string) {
@@ -146,6 +130,8 @@ async function create(event: IntelbrasEvent): Promise<void> {
     }
 
     if (tipoEvento === "OFF") {
+      logger.info(`http:intelbrasEventsService:${logId} offline event`);
+
       continue;
     }
 
