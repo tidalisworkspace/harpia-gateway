@@ -4,7 +4,7 @@ import logger from "../../shared/logger";
 import storage from "../socket/connection/storage";
 import { IpcHandler } from "./types";
 
-export class SocketConnectionsAmountHandler implements IpcHandler {
+export default class SocketConnectionsAmountHandler implements IpcHandler {
   getName(): IpcMainChannel {
     return "socket_connections_amount";
   }

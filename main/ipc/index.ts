@@ -6,13 +6,15 @@ import {
   DatabaseTestConnectionHandler,
   DatabaseUpdateConnectionHandler,
 } from "./database.ipc";
-import { HardwareFindAllHandler, HardwareRebootHandler } from "./hardware.ipc";
-import {
-  LoggerFileCleanHandle,
-  LoggerFileOpenHandler,
-  LoggerFileSizeHandler,
-} from "./logger.ipc";
-import { SocketConnectionsAmountHandler } from "./socket.ipc";
+import HardwareConfigureEventsServerHandler from "./hardware-configure-events-server-handler";
+import HardwareFindAllHandler from "./hardware-find-all-handler";
+import HardwareRebootHandler from "./hardware-reboot-handler";
+import HardwareUpdateDatetimeHandler from "./hardware-update-datetime-handler";
+import { LoggerFileCleanHandle } from "./logger-file-clean-handle";
+import { LoggerFileOpenHandler } from "./logger-file-open-handler.ipc";
+import { LoggerFileSizeHandler } from "./logger-file-size-handler";
+import SocketConnectionsAmountHandler from "./socket-connections-amount-handler";
+
 import { IpcHandler } from "./types";
 
 class Ipc {
@@ -39,11 +41,16 @@ const ipc = new Ipc([
   new LoggerFileOpenHandler(),
   new LoggerFileCleanHandle(),
   new LoggerFileSizeHandler(),
+
   new HardwareFindAllHandler(),
   new HardwareRebootHandler(),
+  new HardwareUpdateDatetimeHandler(),
+  new HardwareConfigureEventsServerHandler(),
+
   new DatabaseConnectionStatusHandler(),
   new DatabaseTestConnectionHandler(),
   new DatabaseUpdateConnectionHandler(),
+
   new SocketConnectionsAmountHandler(),
 ]);
 

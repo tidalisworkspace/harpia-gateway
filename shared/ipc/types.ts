@@ -3,8 +3,10 @@ export interface IpcRequest {
   params?: any;
 }
 
+export type IpcResponseStatus = "success" | "error"
+
 export interface IpcResponse {
-  status: "success" | "error";
+  status: IpcResponseStatus;
   message?: string;
   data?: any;
 }
@@ -15,6 +17,8 @@ export type IpcMainChannel =
   | "logger_file_size"
   | "hardware_find_all"
   | "hardware_reboot"
+  | "hardware_update_datetime"
+  | "hardware_configure_events_server"
   | "database_connection_status"
   | "database_test_connection"
   | "database_update_connection"
@@ -27,11 +31,11 @@ export type IpcRendererChannel =
   | "database_connection_change"
   | "logger_file_size_change";
 
-export interface DeviceAddress {
+export interface HardwareAddress {
   ip: string;
   port: number;
 }
 
-export interface HardwareRebootIpcRequest extends IpcRequest {
-  params?: DeviceAddress[];
+export interface HardwareCommandIpcRequest extends IpcRequest {
+  params?: HardwareAddress[];
 }
