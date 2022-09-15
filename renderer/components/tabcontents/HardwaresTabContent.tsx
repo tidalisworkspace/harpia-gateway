@@ -48,7 +48,7 @@ const columns: ColumnsType<DataType> = [
     key: "id",
     render: (_, { name, manufacturer }) => (
       <Tooltip title={getManufacturerName(manufacturer)} placement="bottom">
-        {name.length > 14 ? `${name.slice(0, 14)}...` : name}
+        <Text style={{ width: 190 }} ellipsis>{name}</Text>
       </Tooltip>
     ),
   },
@@ -216,36 +216,43 @@ export default function HardwaresTabContent() {
   );
 
   return (
-    <>
-      <Button
-        type="link"
-        size="small"
-        icon={<ReloadOutlined />}
-        disabled={busy}
-        onClick={handleReload}
-      >
-        Buscar dispositivos
-      </Button>
-      <Button
-        type="link"
-        size="small"
-        danger
-        icon={<ClearOutlined />}
-        disabled={busy || !selectedRows.length}
-        onClick={handleClearSelection}
-      >
-        Limpar seleção
-      </Button>
-      <Tooltip title="Ações para os dispositivos selecionados ou todos se nenhum for previamente selecionado">
-        <Dropdown overlay={menu} trigger={["click"]} disabled={busy}>
-          <a onClick={(e) => e.preventDefault()}>
-            <Space size={3}>
-              <MoreOutlined />
-              Mais ações
-            </Space>
-          </a>
-        </Dropdown>
-      </Tooltip>
+    <Space direction="vertical">
+      <Space size="small">
+        <Button
+          type="link"
+          shape="circle"
+          size="small"
+          icon={<ReloadOutlined />}
+          disabled={busy}
+          onClick={handleReload}
+        >
+          Buscar dispositivos
+        </Button>
+        <Button
+          type="link"
+          shape="circle"
+          size="small"
+          danger
+          icon={<ClearOutlined />}
+          disabled={busy || !selectedRows.length}
+          onClick={handleClearSelection}
+        >
+          Limpar seleção
+        </Button>
+        <Tooltip
+          title="Ações para os dispositivos selecionados ou todos se nenhum for previamente selecionado"
+          placement="left"
+        >
+          <Dropdown overlay={menu} trigger={["click"]} disabled={busy}>
+            <a onClick={(e) => e.preventDefault()}>
+              <Space size={3}>
+                <MoreOutlined />
+                Mais ações
+              </Space>
+            </a>
+          </Dropdown>
+        </Tooltip>
+      </Space>
       <Table
         rowSelection={{ type: "checkbox", ...rowSelection }}
         showHeader={false}
@@ -253,6 +260,6 @@ export default function HardwaresTabContent() {
         dataSource={hardwares}
         pagination={false}
       />
-    </>
+    </Space>
   );
 }

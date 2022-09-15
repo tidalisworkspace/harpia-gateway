@@ -22,7 +22,9 @@ export type IpcMainChannel =
   | "database_connection_status"
   | "database_test_connection"
   | "database_update_connection"
-  | "socket_connections_amount";
+  | "socket_connections_amount"
+  | "socket_port"
+  | "http_port";
 
 export type IpcRendererChannel =
   | "settings_tab_dot"

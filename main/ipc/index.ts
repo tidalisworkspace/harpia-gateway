@@ -10,10 +10,12 @@ import HardwareConfigureEventsServerHandler from "./hardware-configure-events-se
 import HardwareFindAllHandler from "./hardware-find-all-handler";
 import HardwareRebootHandler from "./hardware-reboot-handler";
 import HardwareUpdateDatetimeHandler from "./hardware-update-datetime-handler";
+import HttpPortHandler from "./http-port-handler";
 import { LoggerFileCleanHandle } from "./logger-file-clean-handle";
 import { LoggerFileOpenHandler } from "./logger-file-open-handler.ipc";
 import { LoggerFileSizeHandler } from "./logger-file-size-handler";
 import SocketConnectionsAmountHandler from "./socket-connections-amount-handler";
+import SocketPortHandler from "./socket-port-handler";
 
 import { IpcHandler } from "./types";
 
@@ -52,6 +54,9 @@ const ipc = new Ipc([
   new DatabaseUpdateConnectionHandler(),
 
   new SocketConnectionsAmountHandler(),
+  new SocketPortHandler(),
+
+  new HttpPortHandler(),
 ]);
 
 export default ipc;

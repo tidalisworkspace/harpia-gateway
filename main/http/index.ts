@@ -5,10 +5,15 @@ import hikvisionEventsRoute from "./routes/hikvisionEvents.route";
 import intelbrasEventsRoute from "./routes/intelbrasEvents.route";
 import parametroModel from "../database/models/parametro.model";
 
-class Server {
+class Http {
   private defaultPort: number = 9000;
+  private port: number;
 
-  private async getPort(): Promise<number> {
+  getPort(): number {
+    return this.port;
+  }
+
+  private async loadPort(): Promise<number> {
     try {
       const parametro = await parametroModel().findOne();
 
@@ -49,18 +54,18 @@ class Server {
   }
 
   async start(): Promise<void> {
-    const port = await this.getPort();
+    this.port = await this.loadPort();
     const server = this.newServer();
 
     return new Promise((resolve) => {
-      server.listen(port, () => {
-        logger.info(`http:server listening at ${port}`);
+      server.listen(this.port, () => {
+        logger.info(`http:server listening at ${this.port}`);
         resolve();
       });
     });
   }
 }
 
-const server = new Server();
+const http = new Http();
 
-export default server;
+export default http;

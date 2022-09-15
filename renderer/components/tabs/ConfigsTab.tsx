@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { IpcResponse } from "../../../shared/ipc/types";
 import { useIpc } from "../../hooks/useIpc";
 
-export default function ConfiguracoesTab() {
+export default function ConfigsTab() {
   const ipc = useIpc();
 
   const [showDot, setShowDot] = useState(false);

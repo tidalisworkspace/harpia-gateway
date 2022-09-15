@@ -1,6 +1,6 @@
 import { MobileOutlined } from "@ant-design/icons";
 
-export default function DispositivosTab() {
+export default function HardwaresTab() {
   return (
     <>
       <MobileOutlined />

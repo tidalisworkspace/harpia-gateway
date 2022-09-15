@@ -18,7 +18,7 @@ export default class HardwareFindAllHandler implements IpcHandler {
   private toHardware(equipamento: Equipamento) {
     return {
       key: equipamento.id,
-      name: `${equipamento.id} ${equipamento.nome}`,
+      name: `${equipamento.id} ${equipamento.nome} saiioasdipsopids piuaspiafijo`,
       ip: equipamento.ip,
       port: equipamento.porta,
       manufacturer: equipamento.fabricante,

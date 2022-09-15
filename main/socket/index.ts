@@ -6,8 +6,13 @@ import storage from "./connection/storage";
 
 class Socket {
   private defaultPort: number = 5000;
+  private port: number;
 
-  private async getPort(): Promise<number> {
+  getPort() {
+    return this.port;
+  }
+
+  private async loadPort(): Promise<number> {
     try {
       const parametro = await parametroModel().findOne();
 
@@ -50,12 +55,12 @@ class Socket {
   }
 
   async start(): Promise<void> {
-    const port = await this.getPort();
+    this.port = await this.loadPort();
     const server = this.getServer();
 
     return new Promise((resolve) => {
-      server.listen({ host: "0.0.0.0", port }, () => {
-        logger.info(`socket:server listening at ${port}`);
+      server.listen({ host: "0.0.0.0", port: this.port }, () => {
+        logger.info(`socket:server listening at ${this.port}`);
         resolve();
       });
     });

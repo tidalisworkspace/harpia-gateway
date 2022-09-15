@@ -1,10 +1,10 @@
 import { Layout, Tabs, Typography } from "antd";
 import React from "react";
-import CartoesTab from "../components/tabs/CartoesTab";
+import CardsTab from "../components/tabs/CardsTab";
 import CardsTabContent from "../components/tabcontents/CardsTabContent";
-import ConfiguracoesTab from "../components/tabs/ConfiguracoesTab";
+import ConfigsTab from "../components/tabs/ConfigsTab";
 import ConfiguracoesTabContent from "../components/tabcontents/ConfiguracoesTabContent";
-import DispositivosTab from "../components/tabs/DispositivosTab";
+import HardwaresTab from "../components/tabs/HardwaresTab";
 import HardwaresTabContent from "../components/tabcontents/HardwaresTabContent";
 
 const { Title } = Typography;
@@ -19,15 +19,15 @@ export default function Home() {
           Harpia Gateway
         </Title>
         <Tabs centered>
-          <TabPane tab={<DispositivosTab />} key="1">
+          <TabPane tab={<HardwaresTab />} key="1">
             <HardwaresTabContent />
           </TabPane>
 
-          <TabPane tab={<CartoesTab />} key="2">
+          <TabPane tab={<CardsTab />} key="2">
             <CardsTabContent />
           </TabPane>
 
-          <TabPane tab={<ConfiguracoesTab />} key="3">
+          <TabPane tab={<ConfigsTab />} key="3">
             <ConfiguracoesTabContent />
           </TabPane>
         </Tabs>

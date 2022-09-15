@@ -1,17 +1,22 @@
-import { Typography } from "antd";
+import { Space, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { IpcResponse } from "../../../../shared/ipc/types";
 import { useIpc } from "../../../hooks/useIpc";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
-export default function SocketSection() {
+export default function SocketServerPanelContent() {
   const ipc = useIpc();
   const [connectionsAmount, setConnectionsAmout] = useState(0);
+  const [port, setPort] = useState(0);
 
-  async function loadSocketConnectionsAmount() {
+  async function loadConnectionsAmount() {
     const response = await ipc.send("socket_connections_amount");
     setConnectionsAmout(response.data);
+  }
+
+  async function loadPort() {
+    const response = await ipc.send("socket_port");
+    setPort(response.data || port);
   }
 
   ipc.listen("socket_connections_change", (response) =>
@@ -19,13 +24,14 @@ export default function SocketSection() {
   );
 
   useEffect(() => {
-    loadSocketConnectionsAmount();
+    loadPort();
+    loadConnectionsAmount();
   }, []);
 
   return (
-    <>
-      <Title level={5}>Socket</Title>
+    <Space direction="vertical" size="small">
+      <Text>Porta: {port}</Text>
       <Text>Quantidade de conexões: {connectionsAmount}</Text>
-    </>
+    </Space>
   );
 }

@@ -17,10 +17,9 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import { IpcResponse } from "../../../../shared/ipc/types";
-import logger from "../../../../shared/logger";
-import { Ipc, useIpc } from "../../../hooks/useIpc";
+import { useIpc } from "../../../hooks/useIpc";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const Status = (props) => (
   <Space>
@@ -64,7 +63,7 @@ function showMessage(response: IpcResponse) {
   message[response.status](response.message);
 }
 
-export default function DatabaseConnectionSection() {
+export default function DatabaseConnectionPanelContent() {
   const ipc = useIpc();
   const [form] = Form.useForm();
 
@@ -100,9 +99,6 @@ export default function DatabaseConnectionSection() {
 
   return (
     <>
-      <Title level={5} style={{ marginBottom: 10, marginTop: 10 }}>
-        Conexão do banco de dados
-      </Title>
       <DatabaseStatus />
       <Space style={{ marginTop: 10 }}>
         <Form
@@ -176,7 +172,12 @@ export default function DatabaseConnectionSection() {
                   cancelText="Não"
                   onConfirm={handleSubmit}
                 >
-                  <Button type="link" icon={<SaveFilled />} htmlType="submit">
+                  <Button
+                    type="link"
+                    shape="circle"
+                    icon={<SaveFilled />}
+                    htmlType="submit"
+                  >
                     Atualizar
                   </Button>
                 </Popconfirm>

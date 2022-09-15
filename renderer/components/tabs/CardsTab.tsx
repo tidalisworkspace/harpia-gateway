@@ -1,6 +1,6 @@
 import { CreditCardOutlined } from "@ant-design/icons";
 
-export default function CartoesTab() {
+export default function CardsTab() {
   return (
     <>
       <CreditCardOutlined />

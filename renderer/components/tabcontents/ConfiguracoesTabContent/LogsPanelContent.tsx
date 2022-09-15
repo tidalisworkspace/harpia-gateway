@@ -2,10 +2,9 @@ import { ClearOutlined, FileFilled, ReloadOutlined } from "@ant-design/icons";
 import { Button, message, Popconfirm, Row, Space, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { IpcResponse } from "../../../../shared/ipc/types";
-import logger from "../../../../shared/logger";
 import { useIpc } from "../../../hooks/useIpc";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 function showMessage(response: IpcResponse) {
   if (!response.message) {
@@ -15,7 +14,7 @@ function showMessage(response: IpcResponse) {
   message[response.status](response.message);
 }
 
-export default function LogsSection() {
+export default function LogsPanelContent() {
   const [fileSize, setFileSize] = useState("0 Bytes");
   const ipc = useIpc();
 
@@ -58,9 +57,6 @@ export default function LogsSection() {
 
   return (
     <>
-      <Title level={5} style={{ marginBottom: 10 }}>
-        Logs
-      </Title>
       <Row>
         <Space direction="vertical" size="small">
           <Button
@@ -77,19 +73,26 @@ export default function LogsSection() {
         </Space>
       </Row>
       <Row>
-        <Button type="link" icon={<FileFilled />} onClick={handleOpenLogs}>
-          Abrir logs
-        </Button>
-        <Popconfirm
-          title="Tem certeza que deseja limpar?"
-          okText="Sim"
-          cancelText="Não"
-          onConfirm={handleCleanLogs}
-        >
-          <Button type="link" danger icon={<ClearOutlined />}>
-            Limpar logs
+        <Space size="small">
+          <Button
+            type="link"
+            shape="circle"
+            icon={<FileFilled />}
+            onClick={handleOpenLogs}
+          >
+            Abrir logs
           </Button>
-        </Popconfirm>
+          <Popconfirm
+            title="Tem certeza que deseja limpar?"
+            okText="Sim"
+            cancelText="Não"
+            onConfirm={handleCleanLogs}
+          >
+            <Button type="link" shape="circle" danger icon={<ClearOutlined />}>
+              Limpar logs
+            </Button>
+          </Popconfirm>
+        </Space>
       </Row>
     </>
   );
