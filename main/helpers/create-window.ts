@@ -38,7 +38,6 @@ export default function (): void {
     icon,
     tooltip: "Harpia Gateway",
     browserWindow: {
-      icon,
       width: 450,
       height: 700,
       title: "Harpia Gateway",

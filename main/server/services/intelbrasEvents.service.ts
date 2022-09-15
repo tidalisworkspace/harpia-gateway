@@ -1,8 +1,7 @@
-import { differenceInMinutes, format, parse, parseISO } from "date-fns";
-import { Sequelize } from "sequelize/types";
+import { differenceInMinutes, format, parse } from "date-fns";
+import { Sequelize } from "sequelize";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
-import connection from "../../database/connection";
 import equipamentoModel from "../../database/models/equipamento.model";
 import eventoModel from "../../database/models/evento.model";
 import pessoaModel from "../../database/models/pessoa.model";
@@ -45,8 +44,8 @@ function getTipoEvento(event: IntelbrasEvent): TipoEvento {
   return minutes > 1 ? "OFF" : "ON";
 }
 
-function useStrToDate(sequelize: Sequelize, str: string, format: string) {
-  return sequelize.fn("STR_TO_DATE", str, format);
+function useStrToDate(str: string, format: string) {
+  return Sequelize.fn("STR_TO_DATE", str, format);
 }
 
 async function create(event: IntelbrasEvent): Promise<void> {
@@ -103,21 +102,15 @@ async function create(event: IntelbrasEvent): Promise<void> {
     }
 
     if (pessoa) {
-      const sequelize = connection.getSequelize();
-
       const data = toDate(time);
       const hora = toHour(time);
       const dataHora = toTimestamp(time);
 
       const evento = {
         pessoaId: pessoa.id,
-        data: useStrToDate(sequelize, data, "%d/%m/%Y"),
-        hora: useStrToDate(
-          sequelize,
-          `30/12/1899 ${hora}`,
-          "%d/%m/%Y %H:%i:%S"
-        ),
-        dataHora: useStrToDate(sequelize, dataHora, "%d/%m/%Y %H:%i:%S"),
+        data: useStrToDate(data, "%d/%m/%Y"),
+        hora: useStrToDate(`30/12/1899 ${hora}`, "%d/%m/%Y %H:%i:%S"),
+        dataHora: useStrToDate(dataHora, "%d/%m/%Y %H:%i:%S"),
         departamento: pessoa.departamento,
         nomeGrupoHorario: pessoa.nomeGrupoHorario,
         equipamentoId: equipamento.id,

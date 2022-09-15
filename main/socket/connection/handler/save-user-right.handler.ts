@@ -31,10 +31,9 @@ export class SaveUserRightHandler implements DataHandler {
           await deviceClient.saveUserRight(rightPlan);
         } catch (e) {
           logger.error(
-            `socket:handler:${this.getName()}:${connectionId} error ${
+            `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
               e.message
-            }`,
-            e
+            }`
           );
 
           errors.push(`IP:${ip}:${port}`);

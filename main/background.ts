@@ -1,6 +1,7 @@
 import { app } from "electron";
 import serve from "electron-serve";
 import logger from "../shared/logger";
+import database from "./database";
 import { createWindow } from "./helpers";
 import { isProd } from "./helpers/environment";
 import ipc from "./ipc";
@@ -18,6 +19,7 @@ logger.info(`app:main user data path ${app.getPath("userData")}`);
 
 (async () => {
   await app.whenReady();
+  await database.start();
   ipc.start();
   await socket.start();
   await server.start();

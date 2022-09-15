@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import connection from "../connection";
+import database from "..";
 
 export interface Pessoa extends Model {
   id: string;
@@ -10,7 +10,7 @@ export interface Pessoa extends Model {
 }
 
 export default function pessoaModel() {
-  return connection.getSequelize().define<Pessoa>("pessoa", {
+  return database.getConnection().define<Pessoa>("pessoa", {
     id: {
       primaryKey: true,
       type: DataTypes.STRING(15),

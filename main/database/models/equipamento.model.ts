@@ -1,5 +1,5 @@
 import { DataTypes, Model, Op } from "sequelize";
-import connection from "../connection";
+import database from "..";
 
 export interface Equipamento extends Model {
   id: number;
@@ -14,7 +14,7 @@ export interface Equipamento extends Model {
 }
 
 export default function equipamentoModel() {
-  return connection.getSequelize().define<Equipamento>(
+  return database.getConnection().define<Equipamento>(
     "equipamento",
     {
       id: {

@@ -44,7 +44,7 @@ export class HardwareFindAllHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
+      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",
@@ -86,7 +86,9 @@ export class HardwareRebootHandler implements IpcHandler {
         try {
           await deviceClient.reboot();
         } catch (e) {
-          logger.error(`ipcMain:${this.getName()} error ${ip} ${e.message}`, e);
+          logger.error(
+            `ipcMain:${this.getName()} error ${ip} ${e.name}:${e.message}`
+          );
 
           errors.push(ip);
 
@@ -114,7 +116,7 @@ export class HardwareRebootHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
+      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

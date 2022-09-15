@@ -39,10 +39,9 @@ export class SaveUserHandler implements DataHandler {
           });
         } catch (e) {
           logger.error(
-            `socket:handler:${this.getName()}:${connectionId} error ${
+            `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
               e.message
-            }`,
-            e
+            }`
           );
 
           errors.push(`IP:${ip}:${port}`);
@@ -58,9 +57,8 @@ export class SaveUserHandler implements DataHandler {
           } catch (e) {
             logger.error(
               `socket:handler:${this.getName()}:${connectionId} error ${
-                e.message
-              }`,
-              e
+                e.name
+              }:${e.message}`
             );
           }
         }
@@ -74,10 +72,9 @@ export class SaveUserHandler implements DataHandler {
           });
         } catch (e) {
           logger.error(
-            `socket:handler:${this.getName()}:${connectionId} error ${
+            `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
               e.message
-            }`,
-            e
+            }`
           );
         }
       }

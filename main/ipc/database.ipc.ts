@@ -5,7 +5,7 @@ import {
   IpcRequest,
   IpcResponse,
 } from "../../shared/ipc/types";
-import connection from "../database/connection";
+import database from "../database";
 import logger from "../../shared/logger";
 import store from "../store";
 import { IpcHandler } from "./types";
@@ -17,7 +17,7 @@ export class DatabaseConnectionStatusHandler implements IpcHandler {
 
   async handle(event: IpcMainEvent, request: IpcRequest): Promise<void> {
     try {
-      await connection.getSequelize().authenticate();
+      await database.getConnection().authenticate();
 
       const response: IpcResponse = {
         status: "success",
@@ -26,7 +26,7 @@ export class DatabaseConnectionStatusHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
+      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",
@@ -65,7 +65,7 @@ export class DatabaseTestConnectionHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
+      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",
@@ -93,6 +93,8 @@ export class DatabaseUpdateConnectionHandler implements IpcHandler {
       store.setSecret("database.username", username);
       store.setSecret("database.password", password);
 
+      database.start();
+
       const response: IpcResponse = {
         status: "success",
         message: "Dados de conexão atualizados",
@@ -105,7 +107,7 @@ export class DatabaseUpdateConnectionHandler implements IpcHandler {
         data: "connected",
       });
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
+      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

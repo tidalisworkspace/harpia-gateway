@@ -20,8 +20,7 @@ async function create(req: Request, res: Response, next): Promise<void> {
     res.status(200).end();
   } catch (e) {
     logger.error(
-      `http:hikvisionEventsController:${logId} error ${e.message}`,
-      e
+      `http:hikvisionEventsController:${logId} error ${e.name}:${e.message}`
     );
 
     next(e);

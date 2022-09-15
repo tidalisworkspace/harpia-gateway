@@ -1,6 +1,6 @@
-import { Dialect, ModelOptions, Options } from "sequelize/types";
+import { Dialect, ModelOptions, Options } from "sequelize";
 import logger from "../../shared/logger";
-import { isDev, isProd } from "../helpers/environment";
+import { isDev } from "../helpers/environment";
 import store from "../store";
 
 export default class Config {

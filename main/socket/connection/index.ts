@@ -13,7 +13,9 @@ function handleError(connectionId: string, e: Error) {
 
   connection.destroy();
 
-  logger.error(`socket:connection:${connectionId} error ${e.message}`, e);
+  logger.error(
+    `socket:connection:${connectionId} error ${e.name}:${e.message}`
+  );
 }
 
 function handleClose(connectionId: string) {

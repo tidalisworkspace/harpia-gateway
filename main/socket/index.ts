@@ -43,7 +43,7 @@ class Socket {
     server.on("connection", handleConnection);
     server.on("close", () => logger.info("socket:server connection closed"));
     server.on("error", (e: Error) =>
-      logger.error(`socket:server connection error ${e.message}`, e)
+      logger.error(`socket:server connection error ${e.name}:${e.message}`)
     );
 
     return server;
@@ -73,7 +73,9 @@ class Socket {
     try {
       connection.write(message, "utf-8");
     } catch (e) {
-      logger.error(`socket:server:${connectionId} error ${e.message}`, e);
+      logger.error(
+        `socket:server:${connectionId} error ${e.name}:${e.message}`
+      );
     }
   }
 

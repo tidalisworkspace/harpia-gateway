@@ -34,10 +34,9 @@ export class DeleteUserHandler implements DataHandler {
           await deviceClient.deleteUsers({ ids: [id] });
         } catch (e) {
           logger.error(
-            `socket:handler:${this.getName()}:${connectionId} error ${
+            `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
               e.message
-            }`,
-            e
+            }`
           );
 
           errors.push(`IP:${ip}:${port}`);

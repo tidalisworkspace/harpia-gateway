@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import connection from "../connection";
+import database from "..";
 
 export interface Parametro extends Model {
   id: number;
@@ -13,7 +13,7 @@ export interface Parametro extends Model {
 }
 
 export default function parametroModel() {
-  return connection.getSequelize().define<Parametro>(
+  return database.getConnection().define<Parametro>(
     "parametro",
     {
       id: {
@@ -34,7 +34,7 @@ export default function parametroModel() {
       portaHttp: {
         allowNull: false,
         type: DataTypes.DOUBLE,
-        field: "cd_porta_http_par"
+        field: "cd_porta_http_par",
       },
       usuarioHikvision: {
         allowNull: false,

@@ -16,7 +16,7 @@ export class SocketConnectionsAmountHandler implements IpcHandler {
         data: storage.count(),
       });
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.message}`, e);
+      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
 
       event.sender.send(request.responseChannel, {
         status: "error",

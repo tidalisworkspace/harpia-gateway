@@ -39,6 +39,7 @@
     "@types/node": "^16.11.38",
     "@types/node-cron": "^3.0.4",
     "@types/react": "^18.0.8",
+    "@types/sequelize": "^4.28.14",
     "@types/tmp": "^0.2.3",
     "antd": "^4.20.2",
     "electron": "^18.2.0",

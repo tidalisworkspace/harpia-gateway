@@ -52,7 +52,7 @@ export class IntelbrasClient implements DeviceClient {
       
       logger.info(`intelbrasClient:init:${this.host} initilized`);
     } catch (e) {
-      logger.error(`intelbrasClient:init:${this.host} error ${e.message}`, e);
+      logger.error(`intelbrasClient:init:${this.host} error ${e.name}:${e.message}`);
 
       this.httpClient = new DigestFetch("admin", "admin123");
     }

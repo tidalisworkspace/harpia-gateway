@@ -28,8 +28,9 @@ export class CaptureFaceHandler implements DataHandler {
       faceBase64 = await deviceClient.captureFace();
     } catch (e) {
       logger.error(
-        `socket:handler:${this.getName()}:${connectionId} error ${e.message}`,
-        e
+        `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
+          e.message
+        }`
       );
 
       socket.sendFailureMessage(connectionId, client, "ERRO NA CAPTURA");
@@ -43,8 +44,9 @@ export class CaptureFaceHandler implements DataHandler {
       fs.writeFileSync(facePath, faceBase64, { encoding: "base64" });
     } catch (e) {
       logger.error(
-        `socket:handler:${this.getName()}:${connectionId} error ${e.message}`,
-        e
+        `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
+          e.message
+        }`
       );
 
       socket.sendFailureMessage(

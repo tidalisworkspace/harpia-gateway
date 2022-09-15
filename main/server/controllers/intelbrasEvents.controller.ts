@@ -8,7 +8,7 @@ function getIp(req: Request) {
   return req.socket.remoteAddress.split(":")[3];
 }
 
-async function create(req: Request, res: Response, next): Promise<void> {
+async function create(req: Request, res: Response): Promise<void> {
   const logId = uuid();
 
   try {
@@ -26,11 +26,10 @@ async function create(req: Request, res: Response, next): Promise<void> {
     res.status(200).end();
   } catch (e) {
     logger.error(
-      `http:intelbrasEventsController:${logId} error ${e.message}`,
-      e
+      `http:intelbrasEventsController:${logId} error ${e.name}:${e.message}`
     );
 
-    next(e);
+    res.status(500).end();
   }
 }
 

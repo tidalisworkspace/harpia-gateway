@@ -51,7 +51,7 @@ export class HikvisionClient implements DeviceClient {
 
       logger.info(`hikvisionClient:init:${this.host} initilized`);
     } catch (e) {
-      logger.error(`hikvisionClient:init:${this.host} error ${e.message}`, e);
+      logger.error(`hikvisionClient:init:${this.host} error ${e.name}:${e.message}`);
 
       this.httpClient = new DigestFetch("admin", "admin");
     }

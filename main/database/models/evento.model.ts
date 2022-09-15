@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import connection from "../connection";
+import database from "..";
 
 export interface Evento extends Model {
   pessoaId: string;
@@ -25,7 +25,7 @@ export interface Evento extends Model {
 }
 
 export default function eventoModel() {
-  return connection.getSequelize().define<Evento>(
+  return database.getConnection().define<Evento>(
     "evento",
     {
       pessoaId: {

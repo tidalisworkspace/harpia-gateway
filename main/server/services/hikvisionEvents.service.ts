@@ -1,8 +1,7 @@
 import { differenceInMinutes, format, parseISO } from "date-fns";
-import { Sequelize } from "sequelize/types";
+import { Sequelize } from "sequelize";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
-import connection from "../../database/connection";
 import equipamentoModel from "../../database/models/equipamento.model";
 import eventoModel from "../../database/models/evento.model";
 import pessoaModel from "../../database/models/pessoa.model";
@@ -52,8 +51,8 @@ function getTipoEvento(event: HikvisionEvent): TipoEvento {
   return "ON";
 }
 
-function useStrToDate(sequelize: Sequelize, str: string, format: string) {
-  return sequelize.fn("STR_TO_DATE", str, format);
+function useStrToDate(str: string, format: string) {
+  return Sequelize.fn("STR_TO_DATE", str, format);
 }
 
 async function create(event: HikvisionEvent): Promise<void> {
@@ -117,17 +116,15 @@ async function create(event: HikvisionEvent): Promise<void> {
   }
 
   if (pessoa) {
-    const sequelize = connection.getSequelize();
-
     const data = toDate(dateTime);
     const hora = toHour(dateTime);
     const dataHora = toTimestamp(dateTime);
 
     const evento = {
       pessoaId: pessoa.id,
-      data: useStrToDate(sequelize, data, "%d/%m/%Y"),
-      hora: useStrToDate(sequelize, `30/12/1899 ${hora}`, "%d/%m/%Y %H:%i:%S"),
-      dataHora: useStrToDate(sequelize, dataHora, "%d/%m/%Y %H:%i:%S"),
+      data: useStrToDate(data, "%d/%m/%Y"),
+      hora: useStrToDate(`30/12/1899 ${hora}`, "%d/%m/%Y %H:%i:%S"),
+      dataHora: useStrToDate(dataHora, "%d/%m/%Y %H:%i:%S"),
       departamento: pessoa.departamento,
       nomeGrupoHorario: pessoa.nomeGrupoHorario,
       equipamentoId: equipamento.id,
