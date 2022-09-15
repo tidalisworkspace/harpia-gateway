@@ -69,8 +69,14 @@ export default class Config {
     return options;
   }
 
-  logging(sql) {
-    isDev && logger.debug(`database:sql ${sql}`);
+  private logging(sql) {
+    if (!isDev) {
+      return;
+    }
+
+    sql = sql.replace("Executing (default):", "").trim();
+
+    logger.debug(`database:query ${sql}`);
   }
 
   get(envname: string): Options {
