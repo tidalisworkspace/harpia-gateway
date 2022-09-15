@@ -13,6 +13,7 @@ import {
   SaveFaceParams,
   SaveUserParams,
   SaveUserRightParams,
+  SetEventsServerParams,
 } from "./types";
 import responseReader from "../helpers/response-reader";
 import { TimeRange } from "../socket/connection/handler/types";
@@ -46,12 +47,14 @@ export class HikvisionClient implements DeviceClient {
       const parametro = await parametroModel().findOne();
       const username = parametro?.usuarioHikvision || "admin";
       const password = parametro?.senhaHikvision || "admin";
-      
+
       this.httpClient = new DigestFetch(username, password);
 
       logger.info(`hikvisionClient:init:${this.host} initilized`);
     } catch (e) {
-      logger.error(`hikvisionClient:init:${this.host} error ${e.name}:${e.message}`);
+      logger.error(
+        `hikvisionClient:init:${this.host} error ${e.name}:${e.message}`
+      );
 
       this.httpClient = new DigestFetch("admin", "admin");
     }
@@ -191,7 +194,7 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  async setTime(): Promise<Response> {
+  async updateTime(): Promise<Response> {
     await this.httpClient.fetch(
       `http://${this.host}/ISAPI/System/time/timeZone`,
       {
@@ -360,5 +363,39 @@ export class HikvisionClient implements DeviceClient {
     return this.httpClient.fetch(`http://${this.host}/ISAPI/System/reboot`, {
       method: "put",
     });
+  }
+
+  setEventsServer(params: SetEventsServerParams): Promise<void> {
+    const { ip, port } = params;
+
+    const body = `
+    <HttpHostNotificationList>
+      <HttpHostNotification>
+        <id>1</id>
+        <url>http://${ip}:${port}/hikvision/events</url>
+        <protocolType>HTTP</protocolType>
+        <parameterFormatType>JSON</parameterFormatType>
+        <addressingFormatType>ipaddress</addressingFormatType>
+        <ipAddress>${ip}</ipAddress>
+        <portNo>${port}</portNo>
+        <httpAuthenticationMethod>none</httpAuthenticationMethod>
+            <uploadImagesDataType>URL</uploadImagesDataType>
+            <EventList>
+                <Event>
+                    <type>AccessControllerEvent</type>
+                    <pictureURLType>URL</pictureURLType>
+                </Event>
+            </EventList>
+      </HttpHostNotification>
+    </HttpHostNotificationList>
+    `.trim();
+
+    return this.httpClient.fetch(
+      `http://${this.host}/ISAPI/Event/notification/httpHosts`,
+      {
+        method: "put",
+        body,
+      }
+    );
   }
 }

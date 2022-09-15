@@ -6,7 +6,7 @@ export interface DeviceClient {
   getManufacturer(): Manufacturer;
   init(ip: string, port: number): Promise<DeviceClient>;
   openDoor(): Promise<Response>;
-  setTime(): Promise<Response>;
+  updateTime(): Promise<Response>;
   captureFace(): Promise<string>;
   saveFace(params: SaveFaceParams): Promise<Response>;
   deleteFaces(params: DeleteFacesParams): Promise<Response>;
@@ -17,6 +17,7 @@ export interface DeviceClient {
   saveUserRight(params: SaveUserRightParams): Promise<Response>;
   deleteAllUserRight(): Promise<void>;
   reboot(): Promise<Response>;
+  setEventsServer(params: SetEventsServerParams): Promise<void>;
 }
 
 export interface Boundary {
@@ -63,4 +64,9 @@ export interface SaveUserRightParams {
   friday?: TimeRange;
   saturday?: TimeRange;
   sunday?: TimeRange;
+}
+
+export interface SetEventsServerParams {
+  ip: string;
+  port: number;
 }

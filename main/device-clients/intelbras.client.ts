@@ -13,6 +13,7 @@ import {
   SaveFaceParams,
   SaveUserParams,
   SaveUserRightParams,
+  SetEventsServerParams,
 } from "./types";
 import fs from "fs";
 import { TimeRange } from "../socket/connection/handler/types";
@@ -49,10 +50,12 @@ export class IntelbrasClient implements DeviceClient {
       const password = parametro?.senhaIntelbras || "admin123";
 
       this.httpClient = new DigestFetch(username, password);
-      
+
       logger.info(`intelbrasClient:init:${this.host} initilized`);
     } catch (e) {
-      logger.error(`intelbrasClient:init:${this.host} error ${e.name}:${e.message}`);
+      logger.error(
+        `intelbrasClient:init:${this.host} error ${e.name}:${e.message}`
+      );
 
       this.httpClient = new DigestFetch("admin", "admin123");
     }
@@ -66,7 +69,7 @@ export class IntelbrasClient implements DeviceClient {
     );
   }
 
-  setTime(): Promise<Response> {
+  updateTime(): Promise<Response> {
     const time = format(new Date(), "yyyy-mm-dd HH:mm:ss");
 
     return this.httpClient.fetch(
@@ -279,6 +282,22 @@ export class IntelbrasClient implements DeviceClient {
   reboot(): Promise<Response> {
     return this.httpClient.fetch(
       `http://${this.host}/cgi-bin/magicBox.cgi?action=reboot`
+    );
+  }
+
+  setEventsServer(params: SetEventsServerParams): Promise<void> {
+    const { ip, port } = params;
+
+    const query = [
+      "action=setConfig",
+      "PictureHttpUpload.Enable=true",
+      `PictureHttpUpload.UploadServerList[0].Address=${ip}`,
+      `PictureHttpUpload.UploadServerList[0].Port=${port}`,
+      "PictureHttpUpload.UploadServerList[0].Uploadpath=/intelbras/events",
+    ].join("&");
+
+    return this.httpClient.fetch(
+      `http://${this.host}/cgi-bin/configManager.cgi?${query}`
     );
   }
 }
