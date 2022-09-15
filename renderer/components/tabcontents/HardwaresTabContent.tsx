@@ -1,13 +1,27 @@
 import {
   ClearOutlined,
+  ClockCircleOutlined,
+  MoreOutlined,
   PoweroffOutlined,
   ReloadOutlined,
+  WifiOutlined,
 } from "@ant-design/icons";
-import { Button, Divider, message, Table, Tooltip, Typography } from "antd";
+import {
+  Button,
+  Divider,
+  Dropdown,
+  Menu,
+  message,
+  Space,
+  Table,
+  Tooltip,
+  Typography,
+} from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { TableRowSelection } from "antd/lib/table/interface";
 import { useEffect, useState } from "react";
 import { IpcRequest, IpcResponse } from "../../../shared/ipc/types";
+import logger from "../../../shared/logger";
 import { useIpc } from "../../hooks/useIpc";
 
 const { Text } = Typography;
@@ -58,8 +72,7 @@ export default function HardwaresTabContent() {
   const [hardwares, setHardwares] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [reloading, setRealoading] = useState(false);
-  const [rebooting, setRebooting] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const rowSelection: TableRowSelection<DataType> = {
     selectedRowKeys,
@@ -68,6 +81,10 @@ export default function HardwaresTabContent() {
       setSelectedRows(selectedRows);
     },
   };
+
+  function getSelected(): DataType[] {
+    return selectedRows.length ? selectedRows : hardwares;
+  }
 
   async function loadHardwares(): Promise<IpcResponse> {
     const response = await ipc.send("hardware_find_all");
@@ -78,17 +95,47 @@ export default function HardwaresTabContent() {
   }
 
   async function rebootHardwares(): Promise<IpcResponse> {
-    const request: IpcRequest = {
-      params: selectedRows,
-    };
+    const params = getSelected();
+
+    const request: IpcRequest = { params };
 
     const response = await ipc.send("hardware_reboot", request);
 
     return response;
   }
 
+  function clearSelection() {
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+  }
+
+  async function updateDateTime(): Promise<IpcResponse> {
+    const params = getSelected();
+
+    const request: IpcRequest = { params };
+
+    const response = await ipc.send("hardware_update_datetime", request);
+
+    return response;
+  }
+
+  async function configureEventsServer(): Promise<IpcResponse> {
+    const params = getSelected();
+
+    const request: IpcRequest = { params };
+
+    const response = await ipc.send(
+      "hardware_configure_events_server",
+      request
+    );
+
+    return response;
+  }
+
   async function handleReload() {
-    setRealoading(true);
+    setBusy(true);
+
+    clearSelection();
 
     await message.loading("Buscando dispositivos");
 
@@ -96,11 +143,11 @@ export default function HardwaresTabContent() {
 
     showMessage(response);
 
-    setRealoading(false);
+    setBusy(false);
   }
 
   async function handleReboot() {
-    setRebooting(true);
+    setBusy(true);
 
     await message.loading("Reiniciando dispositivos");
 
@@ -108,17 +155,65 @@ export default function HardwaresTabContent() {
 
     showMessage(response);
 
-    setRebooting(false);
+    setBusy(false);
   }
 
   function handleClearSelection() {
-    setSelectedRowKeys([]);
-    setSelectedRows([]);
+    clearSelection();
+  }
+
+  async function handleUpdateDateTime() {
+    setBusy(true);
+
+    await message.loading("Atualizando data/hora dos dispositivos");
+
+    const response = await updateDateTime();
+
+    showMessage(response);
+
+    setBusy(false);
+  }
+
+  async function handleConfigureEventsServer() {
+    setBusy(true);
+
+    await message.loading("Configurando servidor de eventos nos dispositivos");
+
+    const response = await configureEventsServer();
+
+    showMessage(response);
+
+    setBusy(false);
   }
 
   useEffect(() => {
     loadHardwares();
   }, []);
+
+  const menu = (
+    <Menu
+      items={[
+        {
+          key: "0",
+          icon: <ClockCircleOutlined />,
+          label: "Atualizar data/horário",
+          onClick: handleUpdateDateTime,
+        },
+        {
+          key: "1",
+          icon: <WifiOutlined />,
+          label: "Configurar servidor de eventos",
+          onClick: handleConfigureEventsServer,
+        },
+        {
+          key: "2",
+          icon: <PoweroffOutlined />,
+          label: "Reiniciar",
+          onClick: handleReboot,
+        },
+      ]}
+    />
+  );
 
   return (
     <>
@@ -126,33 +221,31 @@ export default function HardwaresTabContent() {
         type="link"
         size="small"
         icon={<ReloadOutlined />}
-        disabled={!!selectedRows.length}
-        loading={reloading}
+        disabled={busy}
         onClick={handleReload}
       >
         Buscar dispositivos
       </Button>
-      <Divider type="vertical" />
       <Button
         type="link"
         size="small"
+        danger
         icon={<ClearOutlined />}
-        disabled={rebooting || reloading || !selectedRows.length}
+        disabled={busy || !selectedRows.length}
         onClick={handleClearSelection}
       >
         Limpar seleção
       </Button>
-      <Divider type="vertical" />
-      <Button
-        type="link"
-        size="small"
-        icon={<PoweroffOutlined />}
-        disabled={reloading || !selectedRows.length}
-        loading={rebooting}
-        onClick={handleReboot}
-      >
-        Reiniciar selecionados
-      </Button>
+      <Tooltip title="Ações para os dispositivos selecionados ou todos se nenhum for previamente selecionado">
+        <Dropdown overlay={menu} trigger={["click"]} disabled={busy}>
+          <a onClick={(e) => e.preventDefault()}>
+            <Space size={3}>
+              <MoreOutlined />
+              Mais ações
+            </Space>
+          </a>
+        </Dropdown>
+      </Tooltip>
       <Table
         rowSelection={{ type: "checkbox", ...rowSelection }}
         showHeader={false}
