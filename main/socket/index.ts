@@ -7,9 +7,14 @@ import storage from "./connection/storage";
 class Socket {
   private defaultPort: number = 5000;
   private port: number;
+  private state: string = "stopped";
 
   getPort() {
     return this.port;
+  }
+
+  getState() {
+    return this.state;
   }
 
   private async loadPort(): Promise<number> {
@@ -35,35 +40,39 @@ class Socket {
       return parametro.portaSocket;
     } catch (e) {
       logger.warn(
-        `socket:server error, using port ${this.defaultPort} (default) ${e.message}`,
-        e
+        `socket:server error, using port ${this.defaultPort} (default) ${e.name}:${e.message}`
       );
 
       return this.defaultPort;
     }
   }
 
-  private getServer(): Server {
+  private createServer(): Server {
     const server = net.createServer();
     server.on("connection", handleConnection);
     server.on("close", () => logger.info("socket:server connection closed"));
-    server.on("error", (e: Error) =>
-      logger.error(`socket:server connection error ${e.name}:${e.message}`)
-    );
+
+    server.on("error", (e: NodeJS.ErrnoException) => {
+      logger.error(`socket:server error ${e.name}:${e.message}`);
+
+      if (e.code === "EADDRINUSE") {
+        this.state = "error";
+      }
+    });
+
+    server.on("listening", () => {
+      logger.info(`socket:server listening at ${this.port}`);
+      this.state = "running";
+    });
 
     return server;
   }
 
   async start(): Promise<void> {
+    this.state = "starting";
     this.port = await this.loadPort();
-    const server = this.getServer();
-
-    return new Promise((resolve) => {
-      server.listen({ host: "0.0.0.0", port: this.port }, () => {
-        logger.info(`socket:server listening at ${this.port}`);
-        resolve();
-      });
-    });
+    const server = this.createServer();
+    server.listen({ host: "0.0.0.0", port: this.port });
   }
 
   private send(connectionId: string, message: string) {

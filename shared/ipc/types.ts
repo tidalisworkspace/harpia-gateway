@@ -25,7 +25,10 @@ export type IpcMainChannel =
   | "database_update_connection"
   | "socket_connections_amount"
   | "socket_port"
-  | "http_port";
+  | "socket_state"
+  | "http_port"
+  | "http_state";
+
 
 export type IpcRendererChannel =
   | "settings_tab_dot"

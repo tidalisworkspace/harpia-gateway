@@ -1,16 +1,21 @@
-import express, { Express } from "express";
 import bodyParser from "body-parser";
+import express, { Express } from "express";
 import logger from "../../shared/logger";
+import parametroModel from "../database/models/parametro.model";
 import hikvisionEventsRoute from "./routes/hikvisionEvents.route";
 import intelbrasEventsRoute from "./routes/intelbrasEvents.route";
-import parametroModel from "../database/models/parametro.model";
 
 class Http {
   private defaultPort: number = 9000;
   private port: number;
+  private state: string = "stopped";
 
   getPort(): number {
     return this.port;
+  }
+
+  getState() {
+    return this.state;
   }
 
   private async loadPort(): Promise<number> {
@@ -36,33 +41,43 @@ class Http {
       return parametro.portaHttp;
     } catch (e) {
       logger.warn(
-        `http:server error, using port ${this.defaultPort} (default) ${e.message}`,
-        e
+        `http:server error, using port ${this.defaultPort} (default) ${e.name}:${e.message}`
       );
 
       return this.defaultPort;
     }
   }
 
-  private newServer(): Express {
-    const server = express();
-    server.use(bodyParser.raw({ type: "*/*" }));
-    server.use("/hikvision/events", hikvisionEventsRoute);
-    server.use("/intelbras/events", intelbrasEventsRoute);
+  private createApp(): Express {
+    const app = express();
+    app.use(bodyParser.raw({ type: "*/*" }));
+    app.use("/hikvision/events", hikvisionEventsRoute);
+    app.use("/intelbras/events", intelbrasEventsRoute);
+    return app;
+  }
 
-    return server;
+  private createrServer(app: Express) {
+    const server = app.listen(this.port);
+
+    server.on("listening", () => {
+      logger.info(`http:server listening at ${this.port}`);
+      this.state = "running";
+    });
+
+    server.on("error", (e: NodeJS.ErrnoException) => {
+      logger.error(`http:server error ${e.name}:${e.message}`);
+
+      if (e.code === "EADDRINUSE") {
+        this.state = "error";
+      }
+    });
   }
 
   async start(): Promise<void> {
+    this.state = "starting";
     this.port = await this.loadPort();
-    const server = this.newServer();
-
-    return new Promise((resolve) => {
-      server.listen(this.port, () => {
-        logger.info(`http:server listening at ${this.port}`);
-        resolve();
-      });
-    });
+    const app = this.createApp();
+    this.createrServer(app);
   }
 }
 

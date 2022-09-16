@@ -1,8 +1,4 @@
-import {
-  CheckCircleFilled,
-  LoadingOutlined,
-  SaveFilled,
-} from "@ant-design/icons";
+import { SaveFilled } from "@ant-design/icons";
 import {
   Button,
   Col,
@@ -13,46 +9,34 @@ import {
   Radio,
   Row,
   Space,
-  Typography,
 } from "antd";
 import { useEffect, useState } from "react";
 import { IpcResponse } from "../../../../shared/ipc/types";
 import { useIpc } from "../../../hooks/useIpc";
+import Status from "../../Status";
 
-const { Text } = Typography;
-
-const Status = (props) => (
-  <Space>
-    Status:
-    <Text type={props.type}>
-      {props.text} {props.loading ? <LoadingOutlined /> : <CheckCircleFilled />}
-    </Text>
-  </Space>
-);
-
-const DatabaseStatus = () => {
+function ConnectionStatus() {
   const ipc = useIpc();
-  const [status, setStatus] = useState(null);
+  const [type, setType] = useState("loading");
+
+  const types = {
+    connected: <Status title="Conexão" text="Conectado" success />,
+    disconnected: <Status title="Conexão" text="Desconectado" failed />,
+    loading: <Status title="Conexão" text="Carregando" loading />,
+    error: <Status title="Conexão" text="Erro" failed />,
+  };
 
   ipc.listen("database_connection_change", (response) =>
-    setStatus(response.data)
+    setType(response.data)
   );
 
   useEffect(() => {
     ipc
       .send("database_connection_status")
-      .then((response) => setStatus(response.data));
+      .then((response) => setType(response.data || "error"));
   }, []);
 
-  if (status === "connected") {
-    return <Status type="success" text="Conectado" />;
-  }
-
-  if (status === "disconnected") {
-    return <Status type="danger" text="Desconectado" />;
-  }
-
-  return <Status type="secondary" text="Carregando" loading />;
+  return types[type];
 };
 
 function showMessage(response: IpcResponse) {
@@ -63,7 +47,7 @@ function showMessage(response: IpcResponse) {
   message[response.status](response.message);
 }
 
-export default function DatabaseConnectionPanelContent() {
+export default function DatabasePanelContent() {
   const ipc = useIpc();
   const [form] = Form.useForm();
 
@@ -99,7 +83,7 @@ export default function DatabaseConnectionPanelContent() {
 
   return (
     <>
-      <DatabaseStatus />
+      <ConnectionStatus />
       <Space style={{ marginTop: 10 }}>
         <Form
           form={form}
@@ -178,7 +162,7 @@ export default function DatabaseConnectionPanelContent() {
                     icon={<SaveFilled />}
                     htmlType="submit"
                   >
-                    Atualizar
+                    Salvar
                   </Button>
                 </Popconfirm>
               </Form.Item>

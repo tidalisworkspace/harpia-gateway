@@ -1,5 +1,5 @@
 import { Collapse, Typography } from "antd";
-import DatabaseConnectionPanelContent from "./DatabaseConnectionPanelContent";
+import DatabasePanelContent from "./DatabasePanelContent";
 import HttpServerPanelContent from "./HttpServerPanelContent";
 import LogsPanelContent from "./LogsPanelContent";
 import SocketServerPanelContent from "./SocketServerPanelContent";
@@ -16,9 +16,9 @@ export default function ConfiguracoesTabContent() {
         </Panel>
         <Panel
           key="1"
-          header={<Title level={5}>Conexão do banco de dados</Title>}
+          header={<Title level={5}>Banco de dados</Title>}
         >
-          <DatabaseConnectionPanelContent />
+          <DatabasePanelContent />
         </Panel>
         <Panel key="2" header={<Title level={5}>Servidor Socket</Title>}>
           <SocketServerPanelContent />
