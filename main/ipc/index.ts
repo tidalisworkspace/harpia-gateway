@@ -9,6 +9,7 @@ import {
 import HardwareConfigureEventsServerHandler from "./hardware-configure-events-server-handler";
 import HardwareFindAllHandler from "./hardware-find-all-handler";
 import HardwareRebootHandler from "./hardware-reboot-handler";
+import HardwareTestConnection from "./hardware-test-connection-handler";
 import HardwareUpdateDatetimeHandler from "./hardware-update-datetime-handler";
 import HttpPortHandler from "./http-port-handler";
 import { LoggerFileCleanHandle } from "./logger-file-clean-handle";
@@ -48,6 +49,7 @@ const ipc = new Ipc([
   new HardwareRebootHandler(),
   new HardwareUpdateDatetimeHandler(),
   new HardwareConfigureEventsServerHandler(),
+  new HardwareTestConnection(),
 
   new DatabaseConnectionStatusHandler(),
   new DatabaseTestConnectionHandler(),

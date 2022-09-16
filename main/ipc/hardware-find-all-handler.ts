@@ -8,6 +8,7 @@ import logger from "../../shared/logger";
 import equipamentoModel, {
   Equipamento,
 } from "../database/models/equipamento.model";
+import store from "../store";
 import { IpcHandler } from "./types";
 
 export default class HardwareFindAllHandler implements IpcHandler {
@@ -16,12 +17,15 @@ export default class HardwareFindAllHandler implements IpcHandler {
   }
 
   private toHardware(equipamento: Equipamento) {
+    const connection = store.getHardwareConnection(equipamento.ip);
+
     return {
       key: equipamento.id,
       name: `${equipamento.id} ${equipamento.nome}`,
       ip: equipamento.ip,
       port: equipamento.porta,
       manufacturer: equipamento.fabricante,
+      connection,
     };
   }
 

@@ -19,6 +19,7 @@ export type IpcMainChannel =
   | "hardware_reboot"
   | "hardware_update_datetime"
   | "hardware_configure_events_server"
+  | "hardware_test_connection"
   | "database_connection_status"
   | "database_test_connection"
   | "database_update_connection"

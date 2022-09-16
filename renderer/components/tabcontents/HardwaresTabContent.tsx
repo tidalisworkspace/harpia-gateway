@@ -1,14 +1,15 @@
 import {
   ClearOutlined,
   ClockCircleOutlined,
+  CloudOutlined,
   MoreOutlined,
   PoweroffOutlined,
   ReloadOutlined,
   WifiOutlined,
 } from "@ant-design/icons";
 import {
+  Badge,
   Button,
-  Divider,
   Dropdown,
   Menu,
   message,
@@ -21,7 +22,6 @@ import { ColumnsType } from "antd/lib/table";
 import { TableRowSelection } from "antd/lib/table/interface";
 import { useEffect, useState } from "react";
 import { IpcRequest, IpcResponse } from "../../../shared/ipc/types";
-import logger from "../../../shared/logger";
 import { useIpc } from "../../hooks/useIpc";
 
 const { Text } = Typography;
@@ -35,27 +35,65 @@ function getManufacturerName(manufacturer) {
   return manufacturers[manufacturer] || "Desconhecido";
 }
 
-interface DataType {
+const connectionInfos = {
+  none: {
+    color: "gray",
+    tip: "Nenhum teste de conexão realizado ou nenhum resultado disponível",
+  },
+  connected: {
+    color: "green",
+    tip: "Endereço IP existe na rede e dispositivo respondendo normalmente",
+  },
+  disconnected: {
+    color: "red",
+    tip: "Endereço IP não existe na rede",
+  },
+  need_attention: {
+    color: "orange",
+    tip: "Endereço IP existe na rede e dispositivo não responde",
+  },
+};
+
+function getConnectionInfo(connection) {
+  return connectionInfos[connection] || connectionInfos.none;
+}
+
+interface Hardware {
   key: React.Key;
   name: string;
   ip: string;
   port: number;
   manufacturer: string;
+  connection: "connected" | "disconnected" | "need_attention";
 }
 
-const columns: ColumnsType<DataType> = [
+const columns: ColumnsType<Hardware> = [
   {
     key: "id",
+    ellipsis: {
+      showTitle: false,
+    },
     render: (_, { name, manufacturer }) => (
-      <Tooltip title={getManufacturerName(manufacturer)} placement="bottom">
-        <Text style={{ width: 190 }} ellipsis>{name}</Text>
+      <Tooltip
+        title={`${name} (${getManufacturerName(manufacturer)})`}
+        placement="bottom"
+      >
+        {name} ({getManufacturerName(manufacturer)})
       </Tooltip>
     ),
   },
   {
     key: "ip",
-    title: "Endereço IP",
     render: (_, { ip, port }) => <Text copyable>{`${ip}:${port}`}</Text>,
+  },
+  {
+    key: "status",
+    width: "10%",
+    render: (_, { connection }) => (
+      <Tooltip title={getConnectionInfo(connection).tip} placement="left">
+        <Badge color={getConnectionInfo(connection).color} />
+      </Tooltip>
+    ),
   },
 ];
 
@@ -74,15 +112,19 @@ export default function HardwaresTabContent() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [busy, setBusy] = useState(false);
 
-  const rowSelection: TableRowSelection<DataType> = {
+  function toggleBusy() {
+    setBusy((busy) => !busy);
+  }
+
+  const rowSelection: TableRowSelection<Hardware> = {
     selectedRowKeys,
-    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: Hardware[]) => {
       setSelectedRowKeys(selectedRowKeys);
       setSelectedRows(selectedRows);
     },
   };
 
-  function getSelected(): DataType[] {
+  function getSelected(): Hardware[] {
     return selectedRows.length ? selectedRows : hardwares;
   }
 
@@ -132,8 +174,18 @@ export default function HardwaresTabContent() {
     return response;
   }
 
-  async function handleReload() {
-    setBusy(true);
+  async function testConnection(): Promise<IpcResponse> {
+    const params = getSelected();
+
+    const request: IpcRequest = { params };
+
+    const response = await ipc.send("hardware_test_connection", request);
+
+    return response;
+  }
+
+  async function handleLoad() {
+    toggleBusy();
 
     clearSelection();
 
@@ -143,11 +195,11 @@ export default function HardwaresTabContent() {
 
     showMessage(response);
 
-    setBusy(false);
+    toggleBusy();
   }
 
   async function handleReboot() {
-    setBusy(true);
+    toggleBusy();
 
     await message.loading("Reiniciando dispositivos");
 
@@ -155,7 +207,7 @@ export default function HardwaresTabContent() {
 
     showMessage(response);
 
-    setBusy(false);
+    toggleBusy();
   }
 
   function handleClearSelection() {
@@ -163,7 +215,7 @@ export default function HardwaresTabContent() {
   }
 
   async function handleUpdateDateTime() {
-    setBusy(true);
+    toggleBusy();
 
     await message.loading("Atualizando data/hora dos dispositivos");
 
@@ -171,11 +223,11 @@ export default function HardwaresTabContent() {
 
     showMessage(response);
 
-    setBusy(false);
+    toggleBusy();
   }
 
   async function handleConfigureEventsServer() {
-    setBusy(true);
+    toggleBusy();
 
     await message.loading("Configurando servidor de eventos nos dispositivos");
 
@@ -183,7 +235,21 @@ export default function HardwaresTabContent() {
 
     showMessage(response);
 
-    setBusy(false);
+    toggleBusy();
+  }
+
+  async function handleTestConnection() {
+    toggleBusy();
+
+    await message.loading("Testando conexão");
+
+    const response = await testConnection();
+
+    loadHardwares();
+
+    showMessage(response);
+
+    toggleBusy();
   }
 
   useEffect(() => {
@@ -194,19 +260,25 @@ export default function HardwaresTabContent() {
     <Menu
       items={[
         {
-          key: "0",
+          key: "test-connection",
+          icon: <WifiOutlined />,
+          label: "Testar conexão",
+          onClick: handleTestConnection,
+        },
+        {
+          key: "update-datetime",
           icon: <ClockCircleOutlined />,
           label: "Atualizar data/horário",
           onClick: handleUpdateDateTime,
         },
         {
-          key: "1",
-          icon: <WifiOutlined />,
+          key: "configure-events-server",
+          icon: <CloudOutlined />,
           label: "Configurar servidor de eventos",
           onClick: handleConfigureEventsServer,
         },
         {
-          key: "2",
+          key: "reboot",
           icon: <PoweroffOutlined />,
           label: "Reiniciar",
           onClick: handleReboot,
@@ -224,7 +296,7 @@ export default function HardwaresTabContent() {
           size="small"
           icon={<ReloadOutlined />}
           disabled={busy}
-          onClick={handleReload}
+          onClick={handleLoad}
         >
           Buscar dispositivos
         </Button>
@@ -254,6 +326,7 @@ export default function HardwaresTabContent() {
         </Tooltip>
       </Space>
       <Table
+        size="small"
         rowSelection={{ type: "checkbox", ...rowSelection }}
         showHeader={false}
         columns={columns}
