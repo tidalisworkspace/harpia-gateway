@@ -53,7 +53,7 @@ export default class HardwareUpdateDatetimeHandler implements IpcHandler {
 
         const response: IpcResponse = {
           status: "error",
-          message: `Erro para atualizar data/hora dos dispositivos: ${error}`,
+          message: `Erro para atualizar data/hora: ${error}`,
         };
 
         event.sender.send(request.responseChannel, response);
@@ -63,7 +63,7 @@ export default class HardwareUpdateDatetimeHandler implements IpcHandler {
 
       const response: IpcResponse = {
         status: "success",
-        message: "Dispositivos com data/hora atualizados",
+        message: "Data/hora atualizada",
       };
 
       event.sender.send(request.responseChannel, response);
@@ -72,7 +72,7 @@ export default class HardwareUpdateDatetimeHandler implements IpcHandler {
 
       const response: IpcResponse = {
         status: "error",
-        message: "Impossível atualizar data/hora dos dispositivos",
+        message: "Impossível atualizar data/hora",
       };
 
       event.sender.send(request.responseChannel, response);

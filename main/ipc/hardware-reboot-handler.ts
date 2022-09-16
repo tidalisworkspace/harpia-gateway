@@ -53,7 +53,7 @@ export default class HardwareRebootHandler implements IpcHandler {
 
         const response: IpcResponse = {
           status: "error",
-          message: `Erro para reiniciar dispositivos: ${error}`,
+          message: `Erro para reiniciar: ${error}`,
         };
 
         event.sender.send(request.responseChannel, response);
@@ -63,7 +63,7 @@ export default class HardwareRebootHandler implements IpcHandler {
 
       const response: IpcResponse = {
         status: "success",
-        message: "Dispositivos reiniciados",
+        message: "Reiniciado(s)",
       };
 
       event.sender.send(request.responseChannel, response);
@@ -72,7 +72,7 @@ export default class HardwareRebootHandler implements IpcHandler {
 
       const response: IpcResponse = {
         status: "error",
-        message: "Impossível reiniciar dispositivos",
+        message: "Impossível reiniciar",
       };
 
       event.sender.send(request.responseChannel, response);

@@ -55,7 +55,7 @@ export default class HardwareConfigureEventsServerHandler
 
         const response: IpcResponse = {
           status: "error",
-          message: `Erro para configurar servidor de eventos nos dispositivos: ${error}`,
+          message: `Erro para configurar servidor de eventos: ${error}`,
         };
 
         event.sender.send(request.responseChannel, response);
@@ -65,7 +65,7 @@ export default class HardwareConfigureEventsServerHandler
 
       const response: IpcResponse = {
         status: "success",
-        message: "Dispositivos com servidor de eventos configurado",
+        message: "Servidor de eventos configurado",
       };
 
       event.sender.send(request.responseChannel, response);
@@ -74,7 +74,7 @@ export default class HardwareConfigureEventsServerHandler
 
       const response: IpcResponse = {
         status: "error",
-        message: "Impossível configurar servidor de eventos nos dispositivos",
+        message: "Impossível configurar servidor de eventos",
       };
 
       event.sender.send(request.responseChannel, response);
