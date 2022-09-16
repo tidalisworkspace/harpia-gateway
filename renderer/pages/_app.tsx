@@ -1,12 +1,13 @@
-import React from "react";
-import type { AppProps } from "next/app";
 import "antd/dist/antd.css";
+import type { AppProps } from "next/app";
+import ptBR from "antd/lib/locale/pt_BR";
+import { ConfigProvider } from "antd";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <React.Fragment>
+    <ConfigProvider locale={ptBR}>
       <Component {...pageProps} />
-    </React.Fragment>
+    </ConfigProvider>
   );
 }
 
