@@ -29,6 +29,7 @@
     "node-fetchv3": "npm:node-fetch@^3.2.10",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
+    "ping": "^0.4.2",
     "sequelize": "^6.21.2",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2"
@@ -38,6 +39,7 @@
     "@types/express": "^4.17.13",
     "@types/node": "^16.11.38",
     "@types/node-cron": "^3.0.4",
+    "@types/ping": "^0.4.1",
     "@types/react": "^18.0.8",
     "@types/sequelize": "^4.28.14",
     "@types/tmp": "^0.2.3",

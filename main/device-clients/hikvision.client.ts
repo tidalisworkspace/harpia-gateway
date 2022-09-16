@@ -1,13 +1,20 @@
 import { formatISO } from "date-fns";
 import DigestFetch from "digest-fetch";
 import fs from "fs";
-import parametroModel from "../database/models/parametro.model";
+import ping from "ping";
 import logger from "../../shared/logger";
+import parametroModel from "../database/models/parametro.model";
+import range from "../helpers/range";
+import responseReader from "../helpers/response-reader";
+import { TimeRange } from "../socket/connection/handler/types";
 import {
   DeleteCardsParams,
   DeleteFacesParams,
   DeleteUsersParams,
   DeviceClient,
+  DevicePingError,
+  DeviceRequestError,
+  DeviceResponseError,
   Manufacturer,
   SaveCardParams,
   SaveFaceParams,
@@ -15,11 +22,9 @@ import {
   SaveUserRightParams,
   SetEventsServerParams,
 } from "./types";
-import responseReader from "../helpers/response-reader";
-import { TimeRange } from "../socket/connection/handler/types";
-import range from "../helpers/range";
 
 export class HikvisionClient implements DeviceClient {
+  private ip: string;
   private host: string;
   private httpClient: DigestFetch;
   private days: string[] = [
@@ -41,6 +46,7 @@ export class HikvisionClient implements DeviceClient {
   }
 
   async init(ip: string, port: number): Promise<DeviceClient> {
+    this.ip = ip;
     this.host = `${ip}:${port}`;
 
     try {
@@ -397,5 +403,26 @@ export class HikvisionClient implements DeviceClient {
         body,
       }
     );
+  }
+
+  async testConnection(): Promise<void> {
+    const { alive } = await ping.promise.probe(this.ip);
+
+    if (!alive) {
+      throw new DevicePingError();
+    }
+
+    let response: Response;
+
+    try {
+      response = await this.httpClient.fetch(`http://${this.host}`);
+    } catch (e) {
+      logger.error(`deviceClient:hikvision error ${e.name}:${e.message}`);
+      throw new DeviceRequestError();
+    }
+
+    if (response.status !== 200) {
+      throw new DeviceResponseError();
+    }
   }
 }
