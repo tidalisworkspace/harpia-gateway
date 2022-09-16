@@ -9,10 +9,6 @@ class Store extends ElectronStore {
     this.cypher = new Cypher();
   }
 
-  setSecret(key: string, value?: string) {
-    super.set(key, this.cypher.encrypt(value));
-  }
-
   getSecret(key: string, defaultValue?: any): string {
     const value = super.get(key);
 
@@ -21,6 +17,20 @@ class Store extends ElectronStore {
     }
 
     return this.cypher.decrypt(value as CypherData);
+  }
+
+  setSecret(key: string, value?: string) {
+    super.set(key, this.cypher.encrypt(value));
+  }
+
+  getHardwareConnection(ip: string) {
+    const key = ip.replaceAll(".", "");
+    return super.get(`hardware.${key}.connection`);
+  }
+
+  setHardwareConnection(ip: string, connection: string) {
+    const key = ip.replaceAll(".", "");
+    super.set(`hardware.${key}.connection`, connection);
   }
 }
 
