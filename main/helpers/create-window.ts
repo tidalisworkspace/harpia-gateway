@@ -6,7 +6,7 @@ import logger from "../../shared/logger";
 
 import { isLinux, isWindows, windowIndex } from "./environment";
 
-let mainMenubar;
+let mainMenubar: Menubar;
 
 export function getMainMenubar(): Menubar {
   return mainMenubar;
@@ -50,13 +50,9 @@ export default function (): void {
     },
   });
 
-  const shouldQuit = mainMenubar.app.makeSingleInstance(() => {
-    if (mainMenubar) {
-      mainMenubar.showWindow();
-    }
-  });
+  const gotTheLock = mainMenubar.app.requestSingleInstanceLock();
 
-  if (shouldQuit) {
+  if (!gotTheLock) {
     mainMenubar.app.quit();
   }
 
