@@ -24,7 +24,7 @@ function getIconFilePath() {
     iconPath = path.resolve(resourcesDir, "icon.ico");
   }
 
-  logger.debug(`app:main usin icon ${iconPath}`);
+  logger.debug(`app:main using icon ${iconPath}`);
 
   return iconPath;
 }
@@ -48,6 +48,22 @@ export default function (): void {
         contextIsolation: false,
       },
     },
+  });
+
+  const shouldQuit = mainMenubar.app.makeSingleInstance(() => {
+    if (mainMenubar) {
+      mainMenubar.showWindow();
+    }
+  });
+
+  if (shouldQuit) {
+    mainMenubar.app.quit();
+  }
+
+  mainMenubar.app.on("second-instance", () => {
+    if (mainMenubar) {
+      mainMenubar.showWindow();
+    }
   });
 
   const contextMenu = Menu.buildFromTemplate([
