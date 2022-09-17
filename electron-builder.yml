@@ -1,0 +1,13 @@
+appId: br.com.tidalis
+productName: Harpia Gateway
+copyright: Copyright © 2022 Tidalis
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+      - resources
+publish: null
