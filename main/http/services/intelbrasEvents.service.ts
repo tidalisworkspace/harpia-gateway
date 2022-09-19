@@ -11,7 +11,11 @@ import IntelbrasEvent, { EventInfo } from "../types/IntelbrasEvent";
 import { TipoEvento } from "../types/TipoEvento";
 
 function isIrrelevant(eventInfo: EventInfo) {
-  return eventInfo.Code !== "AccessControl" || !eventInfo?.Data?.UserID;
+  return (
+    eventInfo.Code !== "AccessControl" ||
+    !eventInfo?.Data?.UserID ||
+    !!eventInfo?.Data?.ErrorCode
+  );
 }
 
 function hasCardNumber(eventInfo: EventInfo) {
