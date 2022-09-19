@@ -67,7 +67,9 @@ export class Handler {
   }
 
   resolve(connectionId: string, json: any): void {
-    logger.debug(`socket:handler:${connectionId} resolve ${json}`);
+    logger.debug(
+      `socket:handler:${connectionId} resolving ${JSON.stringify(json)}`
+    );
 
     const request = this.toRequest(json);
 
