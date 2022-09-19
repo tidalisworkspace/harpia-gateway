@@ -1,12 +1,41 @@
 import path from "path";
 import socket from "../..";
 import logger from "../../../../shared/logger";
+import equipamentoModel from "../../../database/models/equipamento.model";
 import { deviceClients } from "../../../device-clients";
+import { DeleteUsersParams } from "../../../device-clients/types";
 import { DataHandler, RecordPeoplesRequest } from "./types";
 
 export class SaveUserHandler implements DataHandler {
   getName(): string {
     return "record";
+  }
+
+  private async deleteUsersFromAllDevices(
+    connectionId: string,
+    ids: string[]
+  ): Promise<void> {
+    const equipamentos = await equipamentoModel().findAll();
+
+    for (const equipamento of equipamentos) {
+      const { ip, porta } = equipamento;
+
+      const deviceClient = await deviceClients.get(ip, porta);
+
+      if (!deviceClient) {
+        continue;
+      }
+
+      try {
+        await deviceClient.deleteUsers({ ids });
+      } catch (e) {
+        logger.error(
+          `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
+            e.message
+          }`
+        );
+      }
+    }
   }
 
   async handle(
@@ -16,6 +45,10 @@ export class SaveUserHandler implements DataHandler {
     const { client, faceDirectory, peoples } = request.payload;
 
     const errors = [];
+
+    const ids = peoples.map((people) => people.id);
+
+    await this.deleteUsersFromAllDevices(connectionId, ids);
 
     for (let i = 0; i < peoples.length; i++) {
       const { id, name, expiration, devices, cards, photo } = peoples[i];
