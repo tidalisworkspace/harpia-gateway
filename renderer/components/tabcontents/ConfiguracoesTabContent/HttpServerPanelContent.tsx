@@ -23,11 +23,17 @@ function State() {
   }, []);
 
   return types[type];
-};
+}
 
 export default function HttpServerPanelContent() {
   const ipc = useIpc();
   const [port, setPort] = useState(0);
+  const [ip, setIp] = useState("0.0.0.0");
+
+  async function loadIp() {
+    const response = await ipc.send("http_ip");
+    setIp(response.data || ip);
+  }
 
   async function loadPort() {
     const response = await ipc.send("http_port");
@@ -35,12 +41,14 @@ export default function HttpServerPanelContent() {
   }
 
   useEffect(() => {
+    loadIp();
     loadPort();
   }, []);
 
   return (
     <Space direction="vertical" size="small">
       <State />
+      <Text>IP: {ip}</Text>
       <Text>Porta: {port}</Text>
     </Space>
   );

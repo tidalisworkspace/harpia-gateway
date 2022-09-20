@@ -11,6 +11,7 @@ import HardwareFindAllHandler from "./hardware-find-all-handler";
 import HardwareRebootHandler from "./hardware-reboot-handler";
 import HardwareTestConnection from "./hardware-test-connection-handler";
 import HardwareUpdateDatetimeHandler from "./hardware-update-datetime-handler";
+import HttpIpHandler from "./http-ip-handler";
 import HttpPortHandler from "./http-port-handler";
 import HttpStateHandler from "./http-state-handler";
 import { LoggerFileCleanHandle } from "./logger-file-clean-handle";
@@ -61,6 +62,7 @@ const ipc = new Ipc([
   new SocketPortHandler(),
   new SocketStateHandler(),
 
+  new HttpIpHandler(),
   new HttpPortHandler(),
   new HttpStateHandler(),
 ]);

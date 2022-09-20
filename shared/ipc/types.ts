@@ -3,7 +3,7 @@ export interface IpcRequest {
   params?: any;
 }
 
-export type IpcResponseStatus = "success" | "error"
+export type IpcResponseStatus = "success" | "error";
 
 export interface IpcResponse {
   status: IpcResponseStatus;
@@ -26,9 +26,9 @@ export type IpcMainChannel =
   | "socket_connections_amount"
   | "socket_port"
   | "socket_state"
+  | "http_ip"
   | "http_port"
   | "http_state";
-
 
 export type IpcRendererChannel =
   | "settings_tab_dot"
