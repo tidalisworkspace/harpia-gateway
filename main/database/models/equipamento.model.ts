@@ -10,7 +10,7 @@ export interface Equipamento extends Model {
   ip: string;
   porta: number;
   funcaoBotao1: string;
-  ignorarEvento: string;
+  ignorarEvento: boolean;
 }
 
 export default function equipamentoModel() {
