@@ -1,10 +1,11 @@
 import { ipcMain } from "electron";
 import { IpcRendererChannel, IpcResponse } from "../../shared/ipc/types";
 import { getMainMenubar } from "../helpers/create-window";
+import AppVersionHandler from "./app-version-handler";
 import {
   DatabaseConnectionStatusHandler,
   DatabaseTestConnectionHandler,
-  DatabaseUpdateConnectionHandler,
+  DatabaseUpdateConnectionHandler
 } from "./database.ipc";
 import HardwareConfigureEventsServerHandler from "./hardware-configure-events-server-handler";
 import HardwareFindAllHandler from "./hardware-find-all-handler";
@@ -65,6 +66,8 @@ const ipc = new Ipc([
   new HttpIpHandler(),
   new HttpPortHandler(),
   new HttpStateHandler(),
+
+  new AppVersionHandler(),
 ]);
 
 export default ipc;

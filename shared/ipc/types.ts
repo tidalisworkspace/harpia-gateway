@@ -28,7 +28,8 @@ export type IpcMainChannel =
   | "socket_state"
   | "http_ip"
   | "http_port"
-  | "http_state";
+  | "http_state"
+  | "app_version";
 
 export type IpcRendererChannel =
   | "settings_tab_dot"
