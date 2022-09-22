@@ -1,9 +1,9 @@
 import { differenceInMinutes, format, parse } from "date-fns";
-import { Sequelize } from "sequelize";
+import { CreationAttributes, Sequelize } from "sequelize";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
-import equipamentoModel from "../../database/models/equipamento.model";
-import eventoModel from "../../database/models/evento.model";
+import equipamentoModel, { Equipamento } from "../../database/models/equipamento.model";
+import eventoModel, { Evento } from "../../database/models/evento.model";
 import pessoaModel from "../../database/models/pessoa.model";
 import ipc from "../../ipc";
 import socket from "../../socket";
@@ -121,6 +121,9 @@ async function create(event: IntelbrasEvent): Promise<void> {
         tipoCadastroPessoa: pessoa.tipoCadastro,
         sentido: equipamento.funcaoBotao1,
         tipo: tipoEvento,
+        codigoEquipamento: "IB",
+        fabricanteEquipamento: "<ITBF>",
+        modeloEquipamento: equipamento.modelo
       };
 
       await eventoModel().create(evento);
