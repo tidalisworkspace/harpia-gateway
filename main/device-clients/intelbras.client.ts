@@ -76,7 +76,7 @@ export class IntelbrasClient implements DeviceClient {
   }
 
   updateTime(): Promise<Response> {
-    const time = format(new Date(), "yyyy-mm-dd HH:mm:ss");
+    const time = format(new Date(), "yyyy-MM-dd HH:mm:ss");
 
     return this.httpClient.fetch(
       `http://${this.host}/cgi-bin/global.cgi?action=setCurrentTime&time=${time}`

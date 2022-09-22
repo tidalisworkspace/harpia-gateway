@@ -1,6 +1,7 @@
 export interface EventData {
   CardNo: string;
   UserID: string;
+  ErrorCode: number;
 }
 
 export type EventCode = "AccessControl" | "DoorStatus";

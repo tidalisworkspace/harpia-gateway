@@ -6,9 +6,13 @@ import hikvisionEventsRoute from "./routes/hikvisionEvents.route";
 import intelbrasEventsRoute from "./routes/intelbrasEvents.route";
 
 class Http {
-  private defaultPort: number = 9000;
-  private port: number;
+  private ip: string = "0.0.0.0";
+  private port: number = 9000;
   private state: string = "stopped";
+
+  getIp(): string {
+    return this.ip;
+  }
 
   getPort(): number {
     return this.port;
@@ -18,33 +22,65 @@ class Http {
     return this.state;
   }
 
-  private async loadPort(): Promise<number> {
+  private async loadIp(): Promise<string> {
     try {
-      const parametro = await parametroModel().findOne();
+      const parametro = await parametroModel().findOne({
+        attributes: ["ipHttp"],
+      });
 
       if (!parametro) {
         logger.warn(
-          `http:server parameter not found, using port ${this.defaultPort} (default)`
+          `http:server parameter not found, using ${this.ip} as events server ip`
         );
 
-        return this.defaultPort;
+        return this.ip;
+      }
+
+      if (!parametro.ipHttp) {
+        logger.warn(
+          `http:server ip value not found, using ${this.ip} as events server ip`
+        );
+
+        return this.ip;
+      }
+
+      return parametro.ipHttp;
+    } catch (e) {
+      logger.warn(`http:server error, using ${this.ip} as events server ip`);
+
+      return this.ip;
+    }
+  }
+
+  private async loadPort(): Promise<number> {
+    try {
+      const parametro = await parametroModel().findOne({
+        attributes: ["portaHttp"],
+      });
+
+      if (!parametro) {
+        logger.warn(
+          `http:server parameter not found, using port ${this.port} (default)`
+        );
+
+        return this.port;
       }
 
       if (!parametro.portaHttp) {
         logger.warn(
-          `http:server port value not found, using port ${this.defaultPort} (default)`
+          `http:server port value not found, using port ${this.port} (default)`
         );
 
-        return this.defaultPort;
+        return this.port;
       }
 
       return parametro.portaHttp;
     } catch (e) {
       logger.warn(
-        `http:server error, using port ${this.defaultPort} (default) ${e.name}:${e.message}`
+        `http:server error, using port ${this.port} (default) ${e.name}:${e.message}`
       );
 
-      return this.defaultPort;
+      return this.port;
     }
   }
 
@@ -75,6 +111,7 @@ class Http {
 
   async start(): Promise<void> {
     this.state = "starting";
+    this.ip = await this.loadIp();
     this.port = await this.loadPort();
     const app = this.createApp();
     this.createrServer(app);

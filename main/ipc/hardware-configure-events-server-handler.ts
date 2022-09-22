@@ -6,6 +6,7 @@ import {
 } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { deviceClients } from "../device-clients";
+import http from "../http";
 import { IpcHandler } from "./types";
 
 export default class HardwareConfigureEventsServerHandler
@@ -38,7 +39,10 @@ export default class HardwareConfigureEventsServerHandler
         }
 
         try {
-          await deviceClient.updateTime();
+          const ip = http.getIp();
+          const port = http.getPort();
+          
+          await deviceClient.setEventsServer({ ip, port });
         } catch (e) {
           logger.error(
             `ipcMain:${this.getName()} error ${ip} ${e.name}:${e.message}`

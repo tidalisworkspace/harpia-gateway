@@ -5,6 +5,7 @@ export interface Parametro extends Model {
   id: number;
   caminho: string;
   portaSocket: number;
+  ipHttp: string;
   portaHttp: number;
   usuarioHikvision: string;
   senhaHikvision: string;
@@ -30,6 +31,11 @@ export default function parametroModel() {
         allowNull: false,
         type: DataTypes.DOUBLE,
         field: "cd_porta_hik_par",
+      },
+      ipHttp: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        field: "cd_ip_server_par",
       },
       portaHttp: {
         allowNull: false,

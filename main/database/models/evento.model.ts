@@ -115,13 +115,11 @@ export default function eventoModel() {
         allowNull: false,
         type: DataTypes.STRING(2),
         field: "cd_dispositivo_pas",
-        defaultValue: "HK",
       },
       fabricanteEquipamento: {
         allowNull: false,
         type: DataTypes.STRING(6),
         field: "cd_modulo_comun_pas",
-        defaultValue: "<HICK>",
       },
       provisorio: {
         allowNull: false,
@@ -133,7 +131,6 @@ export default function eventoModel() {
         allowNull: false,
         type: DataTypes.STRING(10),
         field: "cd_disp_acionado_pas",
-        defaultValue: "HICK 671",
       },
       offline: {
         allowNull: false,
