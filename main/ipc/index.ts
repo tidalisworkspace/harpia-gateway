@@ -2,11 +2,9 @@ import { ipcMain } from "electron";
 import { IpcRendererChannel, IpcResponse } from "../../shared/ipc/types";
 import { getMainMenubar } from "../helpers/create-window";
 import AppVersionHandler from "./app-version-handler";
-import {
-  DatabaseConnectionStatusHandler,
-  DatabaseTestConnectionHandler,
-  DatabaseUpdateConnectionHandler
-} from "./database.ipc";
+import { DatabaseConnectionStatusHandler } from "./database-connection-status-handler";
+import { DatabaseTestConnectionHandler } from "./database-test-connection-handler";
+import { DatabaseUpdateConnectionHandler } from "./database-update-connection-handler";
 import HardwareConfigureEventsServerHandler from "./hardware-configure-events-server-handler";
 import HardwareFindAllHandler from "./hardware-find-all-handler";
 import HardwareRebootHandler from "./hardware-reboot-handler";
