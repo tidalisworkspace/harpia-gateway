@@ -1,7 +1,7 @@
 import { Socket } from "net";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
-import ipcMain from "../../ipc";
+import ipcMain from "../../ipc-main";
 import { Handler } from "./handler";
 import storage from "./storage";
 import validator, { socketMessageSchema } from "./validator";
@@ -26,7 +26,7 @@ function handleClose(connectionId: string) {
     data: storage.count(),
   };
 
-  ipcMain.send("socket_connections_change", response);
+  ipcMain.sendToRenderer("socket_connections_change", response);
 
   logger.info(`socket:connection:${connectionId} closed`);
 }
@@ -61,7 +61,7 @@ export function handleConnection(connection: Socket) {
     data: storage.count(),
   };
 
-  ipcMain.send("socket_connections_change", response);
+  ipcMain.sendToRenderer("socket_connections_change", response);
 
   logger.info(`socket:connection:${connectionId} connected`);
 }

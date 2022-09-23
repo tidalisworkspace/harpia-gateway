@@ -5,7 +5,7 @@ import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
 import eventoModel from "../../database/models/evento.model";
 import pessoaModel from "../../database/models/pessoa.model";
-import ipcMain from "../../ipc";
+import ipcMain from "../../ipc-main";
 import socket from "../../socket";
 import HikvisionEvent from "../types/HikvisionEvent";
 import { TipoEvento } from "../types/TipoEvento";
@@ -89,7 +89,7 @@ async function create(event: HikvisionEvent): Promise<void> {
       data,
     };
 
-    ipcMain.send("cards_content_add", response);
+    ipcMain.sendToRenderer("cards_content_add", response);
   }
 
   if (isIrrelevant(event)) {

@@ -19,7 +19,7 @@ export default class IpcMain {
     });
   }
 
-  send(channel: IpcRendererChannel, response: IpcResponse): void {
+  sendToRenderer(channel: IpcRendererChannel, response: IpcResponse): void {
     getMainMenubar()?.window?.webContents?.send(channel, response);
   }
 }

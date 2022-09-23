@@ -4,7 +4,7 @@ import logger from "../shared/logger";
 import database from "./database";
 import { createWindow } from "./helpers";
 import { isProd } from "./helpers/environment";
-import ipcMain from "./ipc";
+import ipcMain from "./ipc-main";
 import job from "./job";
 import http from "./http";
 import socket from "./socket";

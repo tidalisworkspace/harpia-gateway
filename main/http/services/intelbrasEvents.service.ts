@@ -5,7 +5,7 @@ import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
 import eventoModel from "../../database/models/evento.model";
 import pessoaModel from "../../database/models/pessoa.model";
-import ipcMain from "../../ipc";
+import ipcMain from "../../ipc-main";
 import socket from "../../socket";
 import IntelbrasEvent, { EventInfo } from "../types/IntelbrasEvent";
 import { TipoEvento } from "../types/TipoEvento";
@@ -85,7 +85,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
         data,
       };
 
-      ipcMain.send("cards_content_add", response);
+      ipcMain.sendToRenderer("cards_content_add", response);
     }
 
     if (isIrrelevant(eventInfo)) {
