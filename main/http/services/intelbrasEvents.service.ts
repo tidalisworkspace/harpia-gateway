@@ -1,11 +1,11 @@
 import { differenceInMinutes, format, parse } from "date-fns";
-import { CreationAttributes, Sequelize } from "sequelize";
+import { Sequelize } from "sequelize";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
-import equipamentoModel, { Equipamento } from "../../database/models/equipamento.model";
-import eventoModel, { Evento } from "../../database/models/evento.model";
+import equipamentoModel from "../../database/models/equipamento.model";
+import eventoModel from "../../database/models/evento.model";
 import pessoaModel from "../../database/models/pessoa.model";
-import ipc from "../../ipc";
+import ipcMain from "../../ipc";
 import socket from "../../socket";
 import IntelbrasEvent, { EventInfo } from "../types/IntelbrasEvent";
 import { TipoEvento } from "../types/TipoEvento";
@@ -85,7 +85,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
         data,
       };
 
-      ipc.send("cards_content_add", response);
+      ipcMain.send("cards_content_add", response);
     }
 
     if (isIrrelevant(eventInfo)) {
@@ -123,7 +123,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
         tipo: tipoEvento,
         codigoEquipamento: "IB",
         fabricanteEquipamento: "<ITBF>",
-        modeloEquipamento: equipamento.modelo
+        modeloEquipamento: equipamento.modelo,
       };
 
       await eventoModel().create(evento);

@@ -4,7 +4,7 @@ import logger from "../shared/logger";
 import database from "./database";
 import { createWindow } from "./helpers";
 import { isProd } from "./helpers/environment";
-import ipc from "./ipc";
+import ipcMain from "./ipc";
 import job from "./job";
 import http from "./http";
 import socket from "./socket";
@@ -20,7 +20,7 @@ logger.info(`app:main user data path ${app.getPath("userData")}`);
 (async () => {
   await app.whenReady();
   await database.start();
-  ipc.start();
+  ipcMain.start();
   await socket.start();
   await http.start();
   job.start();
