@@ -6,6 +6,7 @@ import {
 } from "../../shared/ipc/types";
 
 export interface IpcHandler {
+  readonly channel?: IpcMainChannel;
   getChannel(): IpcMainChannel;
   handleAsync(event: IpcMainEvent, request: IpcRequest): Promise<void>;
   handleSync(
