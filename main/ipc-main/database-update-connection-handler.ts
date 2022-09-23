@@ -1,3 +1,4 @@
+import { IpcMainInvokeEvent } from "electron";
 import {
   IpcMainChannel,
   IpcRequest,
@@ -9,11 +10,18 @@ import store from "../store";
 import { IpcHandler } from "./types";
 
 export class DatabaseUpdateConnectionHandler implements IpcHandler {
-  getName(): IpcMainChannel {
+  getChannel(): IpcMainChannel {
     return "database_update_connection";
   }
 
-  async handle(
+  async handleSync(
+    event: IpcMainInvokeEvent,
+    request: IpcRequest
+  ): Promise<IpcResponse> {
+    return null;
+  }
+
+  async handleAsync(
     event: Electron.IpcMainEvent,
     request: IpcRequest
   ): Promise<void> {
@@ -38,7 +46,7 @@ export class DatabaseUpdateConnectionHandler implements IpcHandler {
         data: "connected",
       });
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

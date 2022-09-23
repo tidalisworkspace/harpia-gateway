@@ -8,7 +8,10 @@ export class SaveUserRightHandler implements DataHandler {
     return "setupRightWeekPlan";
   }
 
-  async handle(connectionId: string, request: UserRightRequest): Promise<void> {
+  async handleAsync(
+    connectionId: string,
+    request: UserRightRequest
+  ): Promise<void> {
     const { client, rightPlans } = request.payload;
 
     const errors = [];

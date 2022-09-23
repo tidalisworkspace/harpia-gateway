@@ -1,7 +1,8 @@
-import { IpcMainEvent } from "electron";
+import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
 import {
   HardwareCommandIpcRequest,
   IpcMainChannel,
+  IpcRequest,
   IpcResponse,
 } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
@@ -9,11 +10,18 @@ import { deviceClients } from "../device-clients";
 import { IpcHandler } from "./types";
 
 export default class HardwareRebootHandler implements IpcHandler {
-  getName(): IpcMainChannel {
+  getChannel(): IpcMainChannel {
     return "hardware_reboot";
   }
 
-  async handle(
+  async handleSync(
+    event: IpcMainInvokeEvent,
+    request: IpcRequest
+  ): Promise<IpcResponse> {
+    return null;
+  }
+
+  async handleAsync(
     event: IpcMainEvent,
     request: HardwareCommandIpcRequest
   ): Promise<void> {
@@ -27,7 +35,7 @@ export default class HardwareRebootHandler implements IpcHandler {
 
         if (!deviceClient) {
           logger.error(
-            `ipcMain:${this.getName()} device client not found by ip ${ip}`
+            `ipcMain:${this.getChannel()} device client not found by ip ${ip}`
           );
 
           errors.push(ip);
@@ -39,7 +47,7 @@ export default class HardwareRebootHandler implements IpcHandler {
           await deviceClient.reboot();
         } catch (e) {
           logger.error(
-            `ipcMain:${this.getName()} error ${ip} ${e.name}:${e.message}`
+            `ipcMain:${this.getChannel()} error ${ip} ${e.name}:${e.message}`
           );
 
           errors.push(ip);
@@ -68,7 +76,7 @@ export default class HardwareRebootHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

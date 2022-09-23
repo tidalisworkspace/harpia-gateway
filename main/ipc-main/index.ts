@@ -11,16 +11,16 @@ import HttpIpHandler from "./http-ip-handler";
 import HttpPortHandler from "./http-port-handler";
 import HttpStateHandler from "./http-state-handler";
 import IpcMain from "./ipc-main";
-import { LoggerFileCleanHandle } from "./logger-file-clean-handle";
+import { LoggerFileCleanHandler } from "./logger-file-clean-handler";
 import { LoggerFileOpenHandler } from "./logger-file-open-handler.ipc";
 import { LoggerFileSizeHandler } from "./logger-file-size-handler";
 import SocketConnectionsAmountHandler from "./socket-connections-amount-handler";
 import SocketPortHandler from "./socket-port-handler";
 import SocketStateHandler from "./socket-state-handler";
 
-const ipcMain = new IpcMain([
+const asyncHandlers = [
   new LoggerFileOpenHandler(),
-  new LoggerFileCleanHandle(),
+  new LoggerFileCleanHandler(),
   new LoggerFileSizeHandler(),
 
   new HardwareFindAllHandler(),
@@ -42,6 +42,10 @@ const ipcMain = new IpcMain([
   new HttpStateHandler(),
 
   new AppVersionHandler(),
-]);
+];
+
+const syncHandlers = [];
+
+const ipcMain = new IpcMain(asyncHandlers, syncHandlers);
 
 export default ipcMain;

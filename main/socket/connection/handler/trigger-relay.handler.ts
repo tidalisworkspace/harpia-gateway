@@ -8,7 +8,7 @@ export class TriggerRelayHandler implements DataHandler {
     return "triggerRelay";
   }
 
-  async handle(
+  async handleAsync(
     connectionId: string,
     request: TriggerRelayRequest
   ): Promise<void> {

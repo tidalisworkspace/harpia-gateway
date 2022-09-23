@@ -1,4 +1,4 @@
-import { IpcMainEvent } from "electron";
+import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
 import {
   IpcMainChannel,
   IpcRequest,
@@ -12,8 +12,15 @@ import store from "../store";
 import { IpcHandler } from "./types";
 
 export default class HardwareFindAllHandler implements IpcHandler {
-  getName(): IpcMainChannel {
+  getChannel(): IpcMainChannel {
     return "hardware_find_all";
+  }
+
+  async handleSync(
+    event: IpcMainInvokeEvent,
+    request: IpcRequest
+  ): Promise<IpcResponse> {
+    return null;
   }
 
   private toHardware(equipamento: Equipamento) {
@@ -29,7 +36,7 @@ export default class HardwareFindAllHandler implements IpcHandler {
     };
   }
 
-  async handle(event: IpcMainEvent, request: IpcRequest): Promise<void> {
+  async handleAsync(event: IpcMainEvent, request: IpcRequest): Promise<void> {
     const attributes = ["id", "nome", "ip", "porta", "fabricante"];
 
     try {
@@ -45,7 +52,7 @@ export default class HardwareFindAllHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

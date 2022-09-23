@@ -8,7 +8,7 @@ export class DeleteAllUserHandler implements DataHandler {
     return "deleteAll";
   }
 
-  async handle(
+  async handleAsync(
     connectionId: string,
     request: DeleteAllUserRequest
   ): Promise<void> {

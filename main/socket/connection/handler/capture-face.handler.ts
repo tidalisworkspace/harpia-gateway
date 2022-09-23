@@ -10,7 +10,7 @@ export class CaptureFaceHandler implements DataHandler {
     return "captureFace";
   }
 
-  async handle(
+  async handleAsync(
     connectionId: string,
     request: CaptureFaceRequest
   ): Promise<void> {

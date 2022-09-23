@@ -1,3 +1,4 @@
+import { IpcMainInvokeEvent } from "electron";
 import {
   IpcMainChannel,
   IpcRequest,
@@ -8,12 +9,19 @@ import logger from "../../shared/logger";
 import formatFileSize from "../helpers/format-file-size";
 import { IpcHandler } from "./types";
 
-export class LoggerFileCleanHandle implements IpcHandler {
-  getName(): IpcMainChannel {
+export class LoggerFileCleanHandler implements IpcHandler {
+  getChannel(): IpcMainChannel {
     return "logger_file_clean";
   }
 
-  async handle(
+  async handleSync(
+    event: IpcMainInvokeEvent,
+    request: IpcRequest
+  ): Promise<IpcResponse> {
+    return null;
+  }
+
+  async handleAsync(
     event: Electron.IpcMainEvent,
     request: IpcRequest
   ): Promise<void> {
@@ -33,7 +41,7 @@ export class LoggerFileCleanHandle implements IpcHandler {
       event.sender.send(request.responseChannel, response);
       event.sender.send("logger_file_size_change", response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getName()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

@@ -8,7 +8,10 @@ export class RebootHandler implements DataHandler {
     return "reboot";
   }
 
-  async handle(connectionId: string, request: RebootRequest): Promise<void> {
+  async handleAsync(
+    connectionId: string,
+    request: RebootRequest
+  ): Promise<void> {
     const { client, devices } = request.payload;
 
     const errors = [];

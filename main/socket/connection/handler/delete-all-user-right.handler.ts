@@ -8,7 +8,7 @@ export class DeleteAllUserRightHandler implements DataHandler {
     return "clearRightWeekPlan";
   }
 
-  async handle(
+  async handleAsync(
     connectionId: string,
     request: DeleteUserRightRequest
   ): Promise<void> {

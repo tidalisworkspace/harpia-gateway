@@ -8,7 +8,7 @@ export class DeleteUserHandler implements DataHandler {
     return "delete";
   }
 
-  async handle(
+  async handleAsync(
     connectionId: string,
     request: DeleteUserRequest
   ): Promise<void> {
