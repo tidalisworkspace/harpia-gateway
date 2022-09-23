@@ -1,6 +1,5 @@
 import { Layout, Space, Tabs, Typography } from "antd";
 import { useEffect, useState } from "react";
-import logger from "../../shared/logger";
 import CardsTabContent from "../components/tabcontents/CardsTabContent";
 import ConfiguracoesTabContent from "../components/tabcontents/ConfiguracoesTabContent";
 import HardwaresTabContent from "../components/tabcontents/HardwaresTabContent";
@@ -19,8 +18,6 @@ function Version() {
 
   async function loadVersion() {
     const response = await ipc.send("app_version");
-
-    logger.info(response)
 
     setVersion(response.data || version);
 
