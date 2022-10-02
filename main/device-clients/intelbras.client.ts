@@ -57,11 +57,9 @@ export class IntelbrasClient implements DeviceClient {
 
       this.httpClient = new DigestFetch(username, password);
 
-      logger.info(`intelbrasClient:init:${this.host} initilized`);
+      logger.info(`intelbrasClient:${this.host} initilized`);
     } catch (e) {
-      logger.error(
-        `intelbrasClient:init:${this.host} error ${e.name}:${e.message}`
-      );
+      logger.error(`intelbrasClient:${this.host} error ${e.name}:${e.message}`);
 
       this.httpClient = new DigestFetch("admin", "admin123");
     }
@@ -69,23 +67,46 @@ export class IntelbrasClient implements DeviceClient {
     return this;
   }
 
+  private async fetchAndLog(
+    path: string,
+    options: RequestInit = null
+  ): Promise<Response> {
+    const url = `http://${this.host}${path}`;
+
+    const request: Promise<Response> = options
+      ? this.httpClient.fetch(url, options)
+      : this.httpClient.fetch(url);
+
+    const response = await request;
+
+    if (!response.ok) {
+      const responseBody = await response.text();
+
+      logger.debug(
+        `intelbrasClient:${this.host} fetch not ok ${path} ${response.status} ${response.statusText} ${responseBody}`
+      );
+    }
+
+    return response;
+  }
+
   openDoor(): Promise<Response> {
-    return this.httpClient.fetch(
-      `http://${this.host}/cgi-bin/accessControl.cgi?action=openDoor&channel=1&Type=Remote`
+    return this.fetchAndLog(
+      "/cgi-bin/accessControl.cgi?action=openDoor&channel=1&Type=Remote"
     );
   }
 
   updateTime(): Promise<Response> {
     const time = format(new Date(), "yyyy-MM-dd HH:mm:ss");
 
-    return this.httpClient.fetch(
-      `http://${this.host}/cgi-bin/global.cgi?action=setCurrentTime&time=${time}`
+    return this.fetchAndLog(
+      `/cgi-bin/global.cgi?action=setCurrentTime&time=${time}`
     );
   }
 
   async captureFace(): Promise<string> {
-    await this.httpClient.fetch(
-      `http://${this.host}/cgi-bin/accessControl.cgi?action=captureCmd&type=1&heartbeat=5&timeout=10`
+    await this.fetchAndLog(
+      "/cgi-bin/accessControl.cgi?action=captureCmd&type=1&heartbeat=5&timeout=10"
     );
 
     const request = new Promise<FileResult>(async (resolve, reject) => {
@@ -134,14 +155,11 @@ export class IntelbrasClient implements DeviceClient {
       ],
     };
 
-    return this.httpClient.fetch(
-      `http://${this.host}/cgi-bin/AccessFace.cgi?action=insertMulti`,
-      {
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      }
-    );
+    return this.fetchAndLog("/cgi-bin/AccessFace.cgi?action=insertMulti", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
   }
 
   deleteFaces(params: DeleteFacesParams): Promise<Response> {
@@ -151,7 +169,7 @@ export class IntelbrasClient implements DeviceClient {
       .map((id, index) => `UserID[${index}]=${id}`)
       .join("&");
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/cgi-bin/FaceInfoManager.cgi?action=remove&${userIdParam}`
     );
   }
@@ -170,7 +188,7 @@ export class IntelbrasClient implements DeviceClient {
       ],
     };
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/cgi-bin/AccessCard.cgi?action=insertMulti`,
       {
         method: "post",
@@ -187,7 +205,7 @@ export class IntelbrasClient implements DeviceClient {
       .map((id, index) => `CardNoList[${index}]=${id}`)
       .join("&");
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/cgi-bin/AccessCard.cgi?action=removeMulti&${cardNumberParam}`
     );
   }
@@ -214,7 +232,7 @@ export class IntelbrasClient implements DeviceClient {
       ],
     };
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/cgi-bin/AccessUser.cgi?action=insertMulti`,
       {
         method: "post",
@@ -232,12 +250,12 @@ export class IntelbrasClient implements DeviceClient {
         .map((id, index) => `UserIDList[${index}]=${id}`)
         .join("&");
 
-      return this.httpClient.fetch(
+      return this.fetchAndLog(
         `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeMulti&${userIdParam}`
       );
     }
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeAll`
     );
   }
@@ -266,7 +284,7 @@ export class IntelbrasClient implements DeviceClient {
 
     const userRightsParam = userRights.join("&");
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&AccessTimeSchedule[${id}].Enable=true&${userRightsParam}`
     );
   }
@@ -277,7 +295,7 @@ export class IntelbrasClient implements DeviceClient {
         .map((id) => `AccessTimeSchedule[${id}].Enable=false`)
         .join("&");
 
-      await this.httpClient.fetch(
+      await this.fetchAndLog(
         `http://${this.host}/cgi-bin/configManager.cgi?action=setConfig&${configParam}`
       );
 
@@ -286,12 +304,12 @@ export class IntelbrasClient implements DeviceClient {
   }
 
   reboot(): Promise<Response> {
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/cgi-bin/magicBox.cgi?action=reboot`
     );
   }
 
-  setEventsServer(params: SetEventsServerParams): Promise<void> {
+  async setEventsServer(params: SetEventsServerParams): Promise<void> {
     const { ip, port } = params;
 
     const query = [
@@ -302,9 +320,11 @@ export class IntelbrasClient implements DeviceClient {
       "PictureHttpUpload.UploadServerList[0].Uploadpath=/intelbras/events",
     ].join("&");
 
-    return this.httpClient.fetch(
+    await this.fetchAndLog(
       `http://${this.host}/cgi-bin/configManager.cgi?${query}`
     );
+
+    return;
   }
 
   async testConnection(): Promise<void> {
@@ -317,9 +337,9 @@ export class IntelbrasClient implements DeviceClient {
     let response: Response;
 
     try {
-      response = await this.httpClient.fetch(`http://${this.host}`);
+      response = await this.fetchAndLog(`http://${this.host}`);
     } catch (e) {
-      logger.error(`deviceClient:intelbras error ${e.name}:${e.message}`);
+      logger.error(`intelbrasClient:${this.host} ${e.name}:${e.message}`);
       throw new DeviceRequestError();
     }
 

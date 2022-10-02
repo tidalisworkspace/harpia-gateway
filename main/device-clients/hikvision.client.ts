@@ -56,11 +56,9 @@ export class HikvisionClient implements DeviceClient {
 
       this.httpClient = new DigestFetch(username, password);
 
-      logger.info(`hikvisionClient:init:${this.host} initilized`);
+      logger.info(`hikvisionClient:${this.host} initilized`);
     } catch (e) {
-      logger.error(
-        `hikvisionClient:init:${this.host} error ${e.name}:${e.message}`
-      );
+      logger.error(`hikvisionClient:${this.host} ${e.name}:${e.message}`);
 
       this.httpClient = new DigestFetch("admin", "admin");
     }
@@ -68,10 +66,33 @@ export class HikvisionClient implements DeviceClient {
     return this;
   }
 
+  private async fetchAndLog(
+    path: string,
+    options: RequestInit = null
+  ): Promise<Response> {
+    const url = `http://${this.host}${path}`;
+
+    const request: Promise<Response> = options
+      ? this.httpClient.fetch(url, options)
+      : this.httpClient.fetch(url);
+
+    const response = await request;
+
+    if (!response.ok) {
+      const responseBody = await response.text();
+
+      logger.debug(
+        `hikvisionClient:${this.host} fetch not ok ${path} ${response.status} ${response.statusText} ${responseBody}`
+      );
+    }
+
+    return response;
+  }
+
   saveCard(params: SaveCardParams): Promise<Response> {
     const { id, number } = params;
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/CardInfo/SetUp?format=json`,
       {
         method: "put",
@@ -95,7 +116,7 @@ export class HikvisionClient implements DeviceClient {
       };
     });
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/CardInfo/Delete?format=json`,
       {
         method: "put",
@@ -157,13 +178,13 @@ export class HikvisionClient implements DeviceClient {
       bytes7,
     ]);
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/ISAPI/Intelligent/FDLib/FaceDataRecord?format=json`,
       {
         method: "post",
         headers: {
           "Content-Type": `multipart/form-data; boundary=${boundary}`,
-          "Content-Length": stream.length,
+          "Content-Length": stream.length.toString(),
         },
         body: stream,
       }
@@ -179,7 +200,7 @@ export class HikvisionClient implements DeviceClient {
       };
     });
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/ISAPI/Intelligent/FDLib/FDSearch/Delete?format=json&FDID=1&faceLibType=blackFD`,
       {
         method: "put",
@@ -191,7 +212,7 @@ export class HikvisionClient implements DeviceClient {
   }
 
   openDoor(): Promise<Response> {
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/RemoteControl/door/1`,
       {
         method: "put",
@@ -201,17 +222,14 @@ export class HikvisionClient implements DeviceClient {
   }
 
   async updateTime(): Promise<Response> {
-    await this.httpClient.fetch(
-      `http://${this.host}/ISAPI/System/time/timeZone`,
-      {
-        method: "put",
-        body: "GMT+3",
-      }
-    );
+    await this.fetchAndLog(`http://${this.host}/ISAPI/System/time/timeZone`, {
+      method: "put",
+      body: "GMT+3",
+    });
 
     const datetime = formatISO(new Date());
 
-    return this.httpClient.fetch(`http://${this.host}/ISAPI/System/time`, {
+    return this.fetchAndLog(`http://${this.host}/ISAPI/System/time`, {
       method: "put",
       body: `<Time version="2.0" xmlns="http://www.isapi.org/ver20/XMLSchema"><timeMode>manual</timeMode><localTime>${datetime}</localTime><timeZone>GMT+3</timeZone></Time>`,
     });
@@ -228,7 +246,7 @@ export class HikvisionClient implements DeviceClient {
       ? { enable: true, ...expiration }
       : { enable: false };
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/UserInfo/SetUp?format=json`,
       {
         method: "put",
@@ -257,7 +275,7 @@ export class HikvisionClient implements DeviceClient {
           }
         : { mode: "all" };
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/UserInfoDetail/Delete?format=json`,
       {
         method: "put",
@@ -318,7 +336,7 @@ export class HikvisionClient implements DeviceClient {
       },
     }));
 
-    const response: Response = await this.httpClient.fetch(
+    const response: Response = await this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/UserRightWeekPlanCfg/${id}?format=json`,
       {
         method: "put",
@@ -335,7 +353,7 @@ export class HikvisionClient implements DeviceClient {
       return Promise.reject("Error to create user right");
     }
 
-    return this.httpClient.fetch(
+    return this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/UserRightPlanTemplate/${id}?format=json`,
       {
         method: "put",
@@ -352,7 +370,7 @@ export class HikvisionClient implements DeviceClient {
   }
 
   async deleteAllUserRight(): Promise<void> {
-    return this.httpClient.fetch(
+    await this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/ClearPlansCfg?format=json`,
       {
         method: "put",
@@ -366,12 +384,12 @@ export class HikvisionClient implements DeviceClient {
   }
 
   reboot(): Promise<Response> {
-    return this.httpClient.fetch(`http://${this.host}/ISAPI/System/reboot`, {
+    return this.fetchAndLog(`http://${this.host}/ISAPI/System/reboot`, {
       method: "put",
     });
   }
 
-  setEventsServer(params: SetEventsServerParams): Promise<void> {
+  async setEventsServer(params: SetEventsServerParams): Promise<void> {
     const { ip, port } = params;
 
     const body = `
@@ -396,7 +414,7 @@ export class HikvisionClient implements DeviceClient {
     </HttpHostNotificationList>
     `.trim();
 
-    return this.httpClient.fetch(
+    await this.fetchAndLog(
       `http://${this.host}/ISAPI/Event/notification/httpHosts`,
       {
         method: "put",
@@ -415,9 +433,9 @@ export class HikvisionClient implements DeviceClient {
     let response: Response;
 
     try {
-      response = await this.httpClient.fetch(`http://${this.host}`);
+      response = await this.fetchAndLog(`http://${this.host}`);
     } catch (e) {
-      logger.error(`deviceClient:hikvision error ${e.name}:${e.message}`);
+      logger.error(`hikvisionClient:${this.host} ${e.name}:${e.message}`);
       throw new DeviceRequestError();
     }
 
