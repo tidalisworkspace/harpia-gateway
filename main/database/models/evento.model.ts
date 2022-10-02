@@ -23,7 +23,7 @@ export interface Evento extends Model {
   modeloEquipamento: string;
   offline: string;
 }
-
+// pk based on pessoaId, data, hora
 export default function eventoModel() {
   return database.getConnection().define<Evento>(
     "evento",

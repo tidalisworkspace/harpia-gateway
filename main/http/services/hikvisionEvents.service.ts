@@ -149,7 +149,7 @@ async function create(event: HikvisionEvent): Promise<void> {
 
   const message = `${tag}${pessoaId}@${ipWithPad}@0@0@${timestamp}@1`;
 
-  socket.sendMessageToAll(message);
+  socket.broadcast(message);
 }
 
 export default {
