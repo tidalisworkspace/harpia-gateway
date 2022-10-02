@@ -4,7 +4,9 @@ import parametroModel from "../database/models/parametro.model";
 import { handleConnection } from "./connection";
 import storage from "./connection/storage";
 
-class Socket {
+type SendMode = "LOG_AND_SEND" | "JUST_SEND";
+
+class SocketServer {
   private defaultPort: number = 5000;
   private port: number;
   private state: string = "stopped";
@@ -75,14 +77,20 @@ class Socket {
     server.listen({ host: "0.0.0.0", port: this.port });
   }
 
-  private send(connectionId: string, message: string) {
+  private send(
+    connectionId: string,
+    message: string,
+    mode: SendMode = "LOG_AND_SEND"
+  ) {
     const connection = storage.get(connectionId);
 
     if (!connection) {
       return;
     }
 
-    logger.debug(`socket:server:${connectionId} sending message ${message}`);
+    if (mode === "LOG_AND_SEND") {
+      logger.debug(`socket:server:${connectionId} sending message ${message}`);
+    }
 
     try {
       connection.write(message, "utf-8");
@@ -122,19 +130,16 @@ class Socket {
     this.send(connectionId, `<HKER>${message}`);
   }
 
-  sendMessageToAll(message: string) {
+  sendAliveMessage() {
+    const message = "<HKVI>@ESTOU VIVO@";
     const connectionIds = storage.getIds();
 
     for (const connectionId of connectionIds) {
-      this.send(connectionId, message);
+      this.send(connectionId, message, "JUST_SEND");
     }
-  }
-
-  sendAliveMessage() {
-    this.sendMessageToAll("<HKVI>@ESTOU VIVO@");
   }
 }
 
-const socket = new Socket();
+const socket = new SocketServer();
 
 export default socket;
