@@ -23,10 +23,6 @@ export default function LogsPanelContent() {
   const [fileSize, setFileSize] = useState("0 Bytes");
   const ipcRenderer = useIpcRenderer();
 
-  ipcRenderer.listen("logger_file_size_change", (response) =>
-    setFileSize(response.data)
-  );
-
   async function loadFileSize(): Promise<IpcResponse> {
     const response = await ipcRenderer.request(LOGGER_FILE_SIZE);
 

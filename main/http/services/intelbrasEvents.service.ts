@@ -1,5 +1,6 @@
 import { differenceInMinutes, format, parse } from "date-fns";
 import { Sequelize } from "sequelize";
+import { CARDS_CONTENT_ADD } from "../../../shared/constants/ipc-renderer-channels.constants";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
@@ -85,7 +86,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
         data,
       };
 
-      ipcMain.sendToRenderer("cards_content_add", response);
+      ipcMain.sendToRenderer(CARDS_CONTENT_ADD, response);
     }
 
     if (isIrrelevant(eventInfo)) {

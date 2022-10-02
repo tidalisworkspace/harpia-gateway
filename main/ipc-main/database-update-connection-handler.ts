@@ -1,5 +1,10 @@
 import { IpcMainInvokeEvent } from "electron";
+import ipcMain from ".";
 import { DATABASE_CONNECTION_UPDATE } from "../../shared/constants/ipc-main-channels.constants";
+import {
+  DATABASE_CONNECTION_CHANGE,
+  SETTINGS_TAB_DOT,
+} from "../../shared/constants/ipc-renderer-channels.constants";
 import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import database from "../database";
@@ -22,12 +27,12 @@ export class DatabaseConnectionUpdateHandler implements IpcHandler {
     try {
       await database.start();
 
-      event.sender.send("settings_tab_dot", {
+      ipcMain.sendToRenderer(SETTINGS_TAB_DOT, {
         status: "success",
         data: "hide",
       });
 
-      event.sender.send("database_connection_change", {
+      ipcMain.sendToRenderer(DATABASE_CONNECTION_CHANGE, {
         status: "success",
         data: "connected",
       });
@@ -39,9 +44,9 @@ export class DatabaseConnectionUpdateHandler implements IpcHandler {
     } catch (e) {
       logger.error(`ipcMain:${this.channel} ${e.name}:${e.message}`);
 
-      event.sender.send("settings_tab_dot", { status: "error", data: "show" });
+      ipcMain.sendToRenderer(SETTINGS_TAB_DOT, { status: "error", data: "show" });
 
-      event.sender.send("database_connection_change", {
+      ipcMain.sendToRenderer(DATABASE_CONNECTION_CHANGE, {
         status: "error",
         data: "disconnected",
       });

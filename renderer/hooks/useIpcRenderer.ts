@@ -1,10 +1,7 @@
 import electron from "electron";
-import {
-  IpcRendererChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
+import { IpcRendererListener } from "../types";
 
 export class IpcRenderer {
   async request(channel: string, input?: IpcRequest): Promise<IpcResponse> {
@@ -17,7 +14,9 @@ export class IpcRenderer {
     }
   }
 
-  listen(channel: IpcRendererChannel, listener: any): void {
+  listen(channel: string, listener: IpcRendererListener): void {
+    electron.ipcRenderer?.removeAllListeners(channel);
+
     electron.ipcRenderer?.on(channel, (event, args) => {
       listener(args);
     });

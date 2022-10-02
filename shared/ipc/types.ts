@@ -1,7 +1,3 @@
-export interface IpcRequest {
-  params?: any;
-}
-
 export type IpcResponseStatus = "success" | "error";
 
 export interface IpcResponse {
@@ -10,12 +6,9 @@ export interface IpcResponse {
   data?: any;
 }
 
-export type IpcRendererChannel =
-  | "settings_tab_dot"
-  | "cards_content_add"
-  | "socket_connections_change"
-  | "database_connection_change"
-  | "logger_file_size_change";
+export interface IpcRequest {
+  params?: any;
+}
 
 export interface HardwareAddress {
   ip: string;

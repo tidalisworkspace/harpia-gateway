@@ -1,5 +1,5 @@
 import { ipcMain, IpcMainInvokeEvent } from "electron";
-import { IpcRendererChannel, IpcRequest, IpcResponse } from "../../shared/ipc/types";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { getMainMenubar } from "../helpers/create-window";
 
@@ -12,7 +12,11 @@ export default class IpcMain {
     this.handlers = handlers;
   }
 
-  private async handleWrapper(event: IpcMainInvokeEvent, request: IpcRequest, handler: IpcHandler): Promise<IpcResponse> {
+  private async handleWrapper(
+    event: IpcMainInvokeEvent,
+    request: IpcRequest,
+    handler: IpcHandler
+  ): Promise<IpcResponse> {
     try {
       const response = await handler.handle(event, request);
       return response;
@@ -42,7 +46,7 @@ export default class IpcMain {
     return;
   }
 
-  sendToRenderer(channel: IpcRendererChannel, response: IpcResponse): void {
+  sendToRenderer(channel: string, response: IpcResponse): void {
     getMainMenubar()?.window?.webContents?.send(channel, response);
   }
 }

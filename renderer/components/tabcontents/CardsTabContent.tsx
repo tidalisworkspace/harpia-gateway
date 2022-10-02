@@ -1,5 +1,7 @@
 import { Space, Timeline, Typography } from "antd";
 import { useState } from "react";
+import { CARDS_CONTENT_ADD } from "../../../shared/constants/ipc-renderer-channels.constants";
+import { IpcResponse } from "../../../shared/ipc/types";
 import { useIpcRenderer } from "../../hooks/useIpcRenderer";
 
 const { Text } = Typography;
@@ -9,9 +11,11 @@ export default function CardsTabContent() {
   const ipcRenderer = useIpcRenderer();
   const [cards, setCards] = useState([]);
 
-  ipcRenderer.listen("cards_content_add", (response) => {
+  function addCardsListener(response: IpcResponse) {
     setCards([response.data, ...cards].slice(0, 12));
-  });
+  }
+
+  ipcRenderer.listen(CARDS_CONTENT_ADD, addCardsListener);
 
   return (
     <Space direction="vertical" size="middle">

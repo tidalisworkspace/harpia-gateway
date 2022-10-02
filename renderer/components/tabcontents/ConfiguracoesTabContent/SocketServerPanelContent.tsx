@@ -5,6 +5,7 @@ import {
   SOCKET_PORT,
   SOCKET_STATE,
 } from "../../../../shared/constants/ipc-main-channels.constants";
+import { SOCKET_CONNECTIONS_CHANGE } from "../../../../shared/constants/ipc-renderer-channels.constants";
 import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 import Status from "../../Status";
 
@@ -49,7 +50,7 @@ export default function SocketServerPanelContent() {
     setPort(response.data || port);
   }
 
-  ipcRenderer.listen("socket_connections_change", (response) =>
+  ipcRenderer.listen(SOCKET_CONNECTIONS_CHANGE, (response) =>
     setConnectionsAmout(response.data)
   );
 
