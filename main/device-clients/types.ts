@@ -18,7 +18,7 @@ export interface DeviceClient {
   deleteAllUserRight(): Promise<void>;
   reboot(): Promise<Response>;
   setEventsServer(params: SetEventsServerParams): Promise<void>;
-  testConnection(): Promise<void>;
+  testConnection(): Promise<string>;
 }
 
 export interface Boundary {
@@ -70,22 +70,4 @@ export interface SaveUserRightParams {
 export interface SetEventsServerParams {
   ip: string;
   port: number;
-}
-
-export class DevicePingError extends Error {
-  constructor() {
-    super("no pakcets received");
-  }
-}
-
-export class DeviceRequestError extends Error {
-  constructor() {
-    super("request fail");
-  }
-}
-
-export class DeviceResponseError extends Error {
-  constructor() {
-    super("unexpected response")
-  }
 }

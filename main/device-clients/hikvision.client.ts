@@ -12,9 +12,6 @@ import {
   DeleteFacesParams,
   DeleteUsersParams,
   DeviceClient,
-  DevicePingError,
-  DeviceRequestError,
-  DeviceResponseError,
   Manufacturer,
   SaveCardParams,
   SaveFaceParams,
@@ -421,24 +418,25 @@ export class HikvisionClient implements DeviceClient {
     );
   }
 
-  async testConnection(): Promise<void> {
+  async testConnection(): Promise<string> {
     const { alive } = await ping.promise.probe(this.ip);
 
     if (!alive) {
-      throw new DevicePingError();
+      return "ping_failed";
     }
 
-    let response: Response;
+    let response = await this.fetchAndLog(`http://${this.host}`);
 
-    try {
-      response = await this.fetchAndLog(`http://${this.host}`);
-    } catch (e) {
-      logger.error(`hikvisionClient:${this.host} ${e.name}:${e.message}`);
-      throw new DeviceRequestError();
+    if (!response.ok) {
+      return "response_not_ok";
     }
 
-    if (response.status !== 200) {
-      throw new DeviceResponseError();
+    response = await this.fetchAndLog(`http://${this.host}/ISAPI/System/time`);
+
+    if (!response.ok) {
+      return "invalid_credentials";
     }
+
+    return "connected";
   }
 }

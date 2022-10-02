@@ -7,11 +7,6 @@ import {
 } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { deviceClients } from "../device-clients";
-import {
-  DevicePingError,
-  DeviceRequestError,
-  DeviceResponseError,
-} from "../device-clients/types";
 import store from "../store";
 import { IpcHandler } from "./types";
 
@@ -50,27 +45,14 @@ export default class HardwareTestConnection implements IpcHandler {
         }
 
         try {
-          await deviceClient.testConnection();
+          const connection = await deviceClient.testConnection();
 
-          store.setHardwareConnection(ip, "connected");
+          store.setHardwareConnection(ip, connection);
 
           continue;
         } catch (e) {
-          if (e instanceof DevicePingError) {
-            store.setHardwareConnection(ip, "disconnected");
-            continue;
-          }
-
-          if (
-            e instanceof DeviceRequestError ||
-            e instanceof DeviceResponseError
-          ) {
-            store.setHardwareConnection(ip, "need_attention");
-            continue;
-          }
-
           logger.error(
-            `ipcMain:${this.getChannel()} error ${ip} ${e.name}:${e.message}`
+            `ipcMain:${this.getChannel()} ${ip} ${e.name}:${e.message}`
           );
 
           errors.push(ip);

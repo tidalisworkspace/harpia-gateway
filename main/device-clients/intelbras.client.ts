@@ -13,9 +13,6 @@ import {
   DeleteFacesParams,
   DeleteUsersParams,
   DeviceClient,
-  DevicePingError,
-  DeviceRequestError,
-  DeviceResponseError,
   Manufacturer,
   SaveCardParams,
   SaveFaceParams,
@@ -153,11 +150,14 @@ export class IntelbrasClient implements DeviceClient {
       ],
     };
 
-    return this.fetchAndLog(`http://${this.host}/cgi-bin/AccessFace.cgi?action=insertMulti`, {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    return this.fetchAndLog(
+      `http://${this.host}/cgi-bin/AccessFace.cgi?action=insertMulti`,
+      {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }
+    );
   }
 
   deleteFaces(params: DeleteFacesParams): Promise<Response> {
@@ -325,24 +325,27 @@ export class IntelbrasClient implements DeviceClient {
     return;
   }
 
-  async testConnection(): Promise<void> {
+  async testConnection(): Promise<string> {
     const { alive } = await ping.promise.probe(this.ip);
 
     if (!alive) {
-      throw new DevicePingError();
+      return "ping_failed";
     }
 
-    let response: Response;
+    let response = await this.fetchAndLog(`http://${this.host}`);
 
-    try {
-      response = await this.fetchAndLog(`http://${this.host}`);
-    } catch (e) {
-      logger.error(`intelbrasClient:${this.host} ${e.name}:${e.message}`);
-      throw new DeviceRequestError();
+    if (!response.ok) {
+      return "response_not_ok";
     }
 
-    if (response.status !== 200) {
-      throw new DeviceResponseError();
+    response = await this.fetchAndLog(
+      `http//${this.host}/cgi-bin/magicBox.cgi?action=getSoftwareVersion`
+    );
+
+    if (!response.ok) {
+      return "invalid_credentials";
     }
+
+    return "connected";
   }
 }

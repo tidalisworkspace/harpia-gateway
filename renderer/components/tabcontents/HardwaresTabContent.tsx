@@ -20,7 +20,8 @@ import {
 } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { TableRowSelection } from "antd/lib/table/interface";
-import { useEffect, useState } from "react";
+import { PresetStatusColorType } from "antd/lib/_util/colors";
+import { ReactNode, useEffect, useState } from "react";
 import { IpcRequest, IpcResponse } from "../../../shared/ipc/types";
 import { useIpc } from "../../hooks/useIpc";
 
@@ -35,27 +36,46 @@ function getManufacturerName(manufacturer) {
   return manufacturers[manufacturer] || "Desconhecido";
 }
 
-const connectionInfos = {
-  none: {
-    color: "gray",
-    tip: "Nenhum teste de conexão realizado ou nenhum resultado disponível",
+interface ConnectionInfo {
+  status: PresetStatusColorType;
+  tip: ReactNode;
+}
+
+const connectionInfos: { [key: string]: ConnectionInfo } = {
+  default: {
+    status: "default",
+    tip: "Sem informações sobre a conexão, teste a conexão para obter um resultado",
+  },
+  ping_failed: {
+    status: "error",
+    tip: "Não encontrado na rede",
+  },
+  response_not_ok: {
+    status: "warning",
+    tip: (
+      <>
+        Encontrado na rede e <strong>dispositivo não responde</strong>
+      </>
+    ),
+  },
+  invalid_credentials: {
+    status: "processing",
+    tip: (
+      <>
+        Encontrado na rede, dispositivo respondendo e{" "}
+        <strong>credenciais inválidas</strong>
+      </>
+    ),
   },
   connected: {
-    color: "green",
-    tip: "Endereço IP existe na rede e dispositivo respondendo normalmente",
-  },
-  disconnected: {
-    color: "red",
-    tip: "Endereço IP não existe na rede",
-  },
-  need_attention: {
-    color: "orange",
-    tip: "Endereço IP existe na rede e dispositivo não responde",
+    status: "success",
+    tip: "Endereço IP encontrado na rede, dispositivo respondendo e credenciais válidas",
   },
 };
 
-function getConnectionInfo(connection) {
-  return connectionInfos[connection] || connectionInfos.none;
+function getConnectionInfo(connection): ConnectionInfo {
+  // return connectionInfos[connection] || connectionInfos.default;
+  return connectionInfos.response_not_ok;
 }
 
 interface Hardware {
@@ -91,7 +111,7 @@ const columns: ColumnsType<Hardware> = [
     width: "10%",
     render: (_, { connection }) => (
       <Tooltip title={getConnectionInfo(connection).tip} placement="left">
-        <Badge color={getConnectionInfo(connection).color} />
+        <Badge status={getConnectionInfo(connection).status} />
       </Tooltip>
     ),
   },
