@@ -1,11 +1,11 @@
 import { IpcMainInvokeEvent } from "electron";
-import { HARDWARE_DATETIME_UPDATE } from "../../shared/constants/ipc-main-channels.constants";
-import { HardwareCommandIpcRequest, IpcResponse } from "../../shared/ipc/types";
-import logger from "../../shared/logger";
-import { deviceClients } from "../device-clients";
-import { IpcHandler } from "./types";
+import { HARDWARE_DATETIME_UPDATE } from "../../../../shared/constants/ipc-main-channels.constants";
+import { HardwareCommandIpcRequest, IpcResponse } from "../../../../shared/ipc/types";
+import logger from "../../../../shared/logger";
+import { deviceClients } from "../../../device-clients";
+import { IpcHandler } from "../../types";
 
-export default class HardwareUpdateDatetimeHandler implements IpcHandler {
+export default class HardwareDatetimeUpdateHandler implements IpcHandler {
   channel = HARDWARE_DATETIME_UPDATE;
 
   async handle(

@@ -1,10 +1,10 @@
 import { IpcMainInvokeEvent } from "electron";
-import { HARDWARE_EVENTS_SERVER_UPDATE } from "../../shared/constants/ipc-main-channels.constants";
-import { HardwareCommandIpcRequest, IpcResponse } from "../../shared/ipc/types";
-import logger from "../../shared/logger";
-import { deviceClients } from "../device-clients";
-import http from "../http";
-import { IpcHandler } from "./types";
+import { HARDWARE_EVENTS_SERVER_UPDATE } from "../../../../shared/constants/ipc-main-channels.constants";
+import { HardwareCommandIpcRequest, IpcResponse } from "../../../../shared/ipc/types";
+import logger from "../../../../shared/logger";
+import { deviceClients } from "../../../device-clients";
+import http from "../../../http";
+import { IpcHandler } from "../../types";
 
 export default class HardwareEventsServerUpdateHandler implements IpcHandler {
   channel = HARDWARE_EVENTS_SERVER_UPDATE;

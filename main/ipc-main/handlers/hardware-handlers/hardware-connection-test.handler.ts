@@ -1,11 +1,14 @@
 import { IpcMainInvokeEvent } from "electron";
-import { HARDWARE_CONNECTION_TEST } from "../../shared/constants/ipc-main-channels.constants";
-import { HardwareCommandIpcRequest, IpcResponse } from "../../shared/ipc/types";
-import { deviceClients } from "../device-clients";
-import store from "../store";
-import { IpcHandler } from "./types";
+import { HARDWARE_CONNECTION_TEST } from "../../../../shared/constants/ipc-main-channels.constants";
+import {
+  HardwareCommandIpcRequest,
+  IpcResponse,
+} from "../../../../shared/ipc/types";
+import { deviceClients } from "../../../device-clients";
+import store from "../../../store";
+import { IpcHandler } from "../../types";
 
-export default class HardwareTestConnection implements IpcHandler {
+export default class HardwareConnectionTestHandler implements IpcHandler {
   channel = HARDWARE_CONNECTION_TEST;
 
   async handle(

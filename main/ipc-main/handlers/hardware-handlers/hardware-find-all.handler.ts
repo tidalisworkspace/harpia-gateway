@@ -1,11 +1,10 @@
-import { HARDWARE_FIND_ALL } from "../../shared/constants/ipc-main-channels.constants";
-import { IpcResponse } from "../../shared/ipc/types";
-import logger from "../../shared/logger";
-import equipamentoModel, {
-  Equipamento,
-} from "../database/models/equipamento.model";
-import store from "../store";
-import { IpcHandler } from "./types";
+import { HARDWARE_FIND_ALL } from "../../../../shared/constants/ipc-main-channels.constants";
+import { IpcResponse } from "../../../../shared/ipc/types";
+import logger from "../../../../shared/logger";
+import equipamentoModel, { Equipamento } from "../../../database/models/equipamento.model";
+import store from "../../../store";
+import { IpcHandler } from "../../types";
+
 
 export default class HardwareFindAllHandler implements IpcHandler {
   channel = HARDWARE_FIND_ALL;
