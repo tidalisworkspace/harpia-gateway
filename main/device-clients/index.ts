@@ -14,7 +14,7 @@ class DeviceClients {
     const equipamento = await equipamentoModel().findOne({ where: { ip } });
 
     if (!equipamento) {
-      logger.warn(`deviceClients:get:${ip} device not found by ip ${ip}`);
+      logger.warn(`deviceClients:${ip} hardware not found`);
       return null;
     }
 
@@ -24,7 +24,7 @@ class DeviceClients {
 
     if (!client) {
       logger.warn(
-        `deviceClients:get:${ip} client for manufacturer ${equipamento.fabricante} not found`
+        `deviceClients:${ip} client for manufacturer ${equipamento.fabricante} not found`
       );
       return null;
     }

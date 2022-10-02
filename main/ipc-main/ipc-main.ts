@@ -1,41 +1,45 @@
-import { ipcMain } from "electron";
-import { IpcRendererChannel, IpcResponse } from "../../shared/ipc/types";
+import { ipcMain, IpcMainInvokeEvent } from "electron";
+import { IpcRendererChannel, IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { getMainMenubar } from "../helpers/create-window";
 
 import { IpcHandler } from "./types";
 
 export default class IpcMain {
-  private asyncHandlers: IpcHandler[];
-  private syncHandlers: IpcHandler[];
+  private handlers: IpcHandler[];
 
-  constructor(asyncHandlers: IpcHandler[], syncHandlers: IpcHandler[]) {
-    this.asyncHandlers = asyncHandlers;
-    this.syncHandlers = syncHandlers;
+  constructor(handlers: IpcHandler[]) {
+    this.handlers = handlers;
   }
 
-  private addAsyncHandler(handler: IpcHandler) {
-    ipcMain.on(handler.channel, (event, input) =>
-      handler.handleAsync(event, input)
+  private async handleWrapper(event: IpcMainInvokeEvent, request: IpcRequest, handler: IpcHandler): Promise<IpcResponse> {
+    try {
+      const response = await handler.handle(event, request);
+      return response;
+    } catch (e) {
+      logger.error(`ipcMain:${handler.channel} ${e.name}:${e.message}`);
+
+      return {
+        status: "error",
+        message: "Erro inesperado",
+      };
+    }
+  }
+
+  private addHandler(handler: IpcHandler) {
+    ipcMain.handle(handler.channel, (event, input) =>
+      this.handleWrapper(event, input, handler)
     );
   }
 
-  private addSyncHandler(handler: IpcHandler) {
-    ipcMain.handle(handler.channel, async (event, input) => {
-      const output = await handler.handleSync(event, input);
-      return output;
-    });
-  }
+  async start(): Promise<void> {
+    logger.info(`ipcMain:start starting ${this.handlers.length} handlers`);
 
-  start() {
-    const totalAsync = this.asyncHandlers.length;
-    const totalSync = this.syncHandlers.length;
-    const message = `${totalAsync} async and ${totalSync} sync handlers`;
+    for (const handler of this.handlers) {
+      this.addHandler(handler);
+    }
 
-    logger.info(`ipcMain:start starting ${message}`);
-
-    this.asyncHandlers.forEach(this.addAsyncHandler);
-    this.syncHandlers.forEach(this.addSyncHandler);
+    return;
   }
 
   sendToRenderer(channel: IpcRendererChannel, response: IpcResponse): void {

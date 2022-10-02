@@ -9,51 +9,47 @@ import { IpcHandler } from "./types";
 export class DatabaseConnectionUpdateHandler implements IpcHandler {
   channel = DATABASE_CONNECTION_UPDATE;
 
-  async handleSync(
+  async handle(
     event: IpcMainInvokeEvent,
     request: IpcRequest
   ): Promise<IpcResponse> {
-    return null;
-  }
+    const { host, port, username, password, dialect } = request.params;
 
-  async handleAsync(
-    event: Electron.IpcMainEvent,
-    request: IpcRequest
-  ): Promise<void> {
+    store.set("database", { host, port, dialect });
+    store.setSecret("database.username", username);
+    store.setSecret("database.password", password);
+
     try {
-      const { host, port, username, password, dialect } = request.params;
+      await database.start();
 
-      store.set("database", { host, port, dialect });
-      store.setSecret("database.username", username);
-      store.setSecret("database.password", password);
+      event.sender.send("settings_tab_dot", {
+        status: "success",
+        data: "hide",
+      });
 
-      database.start();
+      event.sender.send("database_connection_change", {
+        status: "success",
+        data: "connected",
+      });
 
-      const response: IpcResponse = {
+      return {
         status: "success",
         message: "Dados de conexão atualizados",
       };
-
-      event.sender.send(request.responseChannel, response);
-      event.sender.send("settings_tab_dot", { ...response, data: "hide" });
-      event.sender.send("database_connection_change", {
-        ...response,
-        data: "connected",
-      });
     } catch (e) {
-      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} ${e.name}:${e.message}`);
 
-      const response: IpcResponse = {
+      event.sender.send("settings_tab_dot", { status: "error", data: "show" });
+
+      event.sender.send("database_connection_change", {
+        status: "error",
+        data: "disconnected",
+      });
+
+      return {
         status: "error",
         message: "Impossível conectar",
       };
-
-      event.sender.send(request.responseChannel, response);
-      event.sender.send("settings_tab_dot", { ...response, data: "show" });
-      event.sender.send("database_connection_change", {
-        ...response,
-        data: "disconnected",
-      });
     }
   }
 }

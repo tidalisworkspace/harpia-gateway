@@ -1,15 +1,7 @@
-import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
-import {
-  IpcMainChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { IpcMainInvokeEvent } from "electron";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 
 export interface IpcHandler {
   readonly channel: string;
-  handleAsync(event: IpcMainEvent, request: IpcRequest): Promise<void>;
-  handleSync(
-    event: IpcMainInvokeEvent,
-    request: IpcRequest
-  ): Promise<IpcResponse>;
+  handle(event: IpcMainInvokeEvent, request?: IpcRequest): Promise<IpcResponse>;
 }

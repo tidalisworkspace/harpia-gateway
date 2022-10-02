@@ -1,10 +1,6 @@
-import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
+import { IpcMainInvokeEvent } from "electron";
 import { HARDWARE_REBOOT } from "../../shared/constants/ipc-main-channels";
-import {
-  HardwareCommandIpcRequest,
-  IpcRequest,
-  IpcResponse
-} from "../../shared/ipc/types";
+import { HardwareCommandIpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { deviceClients } from "../device-clients";
 import { IpcHandler } from "./types";
@@ -12,76 +8,46 @@ import { IpcHandler } from "./types";
 export default class HardwareRebootHandler implements IpcHandler {
   channel = HARDWARE_REBOOT;
 
-  async handleSync(
+  async handle(
     event: IpcMainInvokeEvent,
-    request: IpcRequest
-  ): Promise<IpcResponse> {
-    return null;
-  }
-
-  async handleAsync(
-    event: IpcMainEvent,
     request: HardwareCommandIpcRequest
-  ): Promise<void> {
-    try {
-      const errors = [];
+  ): Promise<IpcResponse> {
+    const errors = [];
 
-      for (const deviceAddress of request.params) {
-        const { ip, port } = deviceAddress;
+    for (const deviceAddress of request.params) {
+      const { ip, port } = deviceAddress;
 
-        const deviceClient = await deviceClients.get(ip, port);
+      const deviceClient = await deviceClients.get(ip, port);
 
-        if (!deviceClient) {
-          logger.error(
-            `ipcMain:${this.channel} device client not found by ip ${ip}`
-          );
+      if (!deviceClient) {
+        errors.push(ip);
 
-          errors.push(ip);
-
-          continue;
-        }
-
-        try {
-          await deviceClient.reboot();
-        } catch (e) {
-          logger.error(
-            `ipcMain:${this.channel} error ${ip} ${e.name}:${e.message}`
-          );
-
-          errors.push(ip);
-
-          continue;
-        }
+        continue;
       }
 
-      if (errors.length) {
-        const error = errors.join(",");
+      try {
+        await deviceClient.reboot();
+      } catch (e) {
+        logger.error(`ipcMain:${this.channel} ${ip} ${e.name}:${e.message}`);
 
-        const response: IpcResponse = {
-          status: "error",
-          message: `Erro para reiniciar: ${error}`,
-        };
+        errors.push(ip);
 
-        event.sender.send(request.responseChannel, response);
-
-        return;
+        continue;
       }
-
-      const response: IpcResponse = {
-        status: "success",
-        message: "Reiniciado(s)",
-      };
-
-      event.sender.send(request.responseChannel, response);
-    } catch (e) {
-      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
-
-      const response: IpcResponse = {
-        status: "error",
-        message: "Impossível reiniciar",
-      };
-
-      event.sender.send(request.responseChannel, response);
     }
+
+    if (errors.length) {
+      const error = errors.join(",");
+
+      return {
+        status: "error",
+        message: `Erro para reiniciar: ${error}`,
+      };
+    }
+
+    return {
+      status: "success",
+      message: "Reiniciado(s)",
+    };
   }
 }

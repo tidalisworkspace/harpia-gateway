@@ -1,15 +1,15 @@
 import { Space, Timeline, Typography } from "antd";
 import { useState } from "react";
-import { useIpc } from "../../hooks/useIpc";
+import { useIpcRenderer } from "../../hooks/useIpcRenderer";
 
 const { Text } = Typography;
 const { Item: Dot } = Timeline;
 
 export default function CardsTabContent() {
-  const ipc = useIpc();
+  const ipcRenderer = useIpcRenderer();
   const [cards, setCards] = useState([]);
 
-  ipc.listen("cards_content_add", (response) => {
+  ipcRenderer.listen("cards_content_add", (response) => {
     setCards([response.data, ...cards].slice(0, 12));
   });
 

@@ -20,7 +20,7 @@ logger.info(`app:main user data path ${app.getPath("userData")}`);
 (async () => {
   await app.whenReady();
   await database.start();
-  ipcMain.start();
+  await ipcMain.start();
   await socket.start();
   await http.start();
   job.start();

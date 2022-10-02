@@ -3,15 +3,15 @@ import { useEffect, useState } from "react";
 import {
   SOCKET_CONNECTIONS_AMOUNT,
   SOCKET_PORT,
-  SOCKET_STATE
+  SOCKET_STATE,
 } from "../../../../shared/constants/ipc-main-channels";
-import { useIpc } from "../../../hooks/useIpc";
+import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 import Status from "../../Status";
 
 const { Text } = Typography;
 
 function State() {
-  const ipc = useIpc();
+  const ipcRenderer = useIpcRenderer();
   const [type, setType] = useState("loading");
 
   const types = {
@@ -23,7 +23,7 @@ function State() {
   };
 
   async function loadState() {
-    const response = await ipc.send(SOCKET_STATE);
+    const response = await ipcRenderer.request(SOCKET_STATE);
     setType(response.data || types.error);
   }
 
@@ -35,21 +35,21 @@ function State() {
 }
 
 export default function SocketServerPanelContent() {
-  const ipc = useIpc();
+  const ipcRenderer = useIpcRenderer();
   const [connectionsAmount, setConnectionsAmout] = useState(0);
   const [port, setPort] = useState(0);
 
   async function loadConnectionsAmount() {
-    const response = await ipc.send(SOCKET_CONNECTIONS_AMOUNT);
+    const response = await ipcRenderer.request(SOCKET_CONNECTIONS_AMOUNT);
     setConnectionsAmout(response.data);
   }
 
   async function loadPort() {
-    const response = await ipc.send(SOCKET_PORT);
+    const response = await ipcRenderer.request(SOCKET_PORT);
     setPort(response.data || port);
   }
 
-  ipc.listen("socket_connections_change", (response) =>
+  ipcRenderer.listen("socket_connections_change", (response) =>
     setConnectionsAmout(response.data)
   );
 

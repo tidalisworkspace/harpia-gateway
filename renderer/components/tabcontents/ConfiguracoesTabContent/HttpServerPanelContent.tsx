@@ -5,13 +5,13 @@ import {
   HTTP_PORT,
   HTTP_STATE,
 } from "../../../../shared/constants/ipc-main-channels";
-import { useIpc } from "../../../hooks/useIpc";
+import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 import Status from "../../Status";
 
 const { Text } = Typography;
 
 function State() {
-  const ipc = useIpc();
+  const ipcRenderer = useIpcRenderer();
   const [type, setType] = useState("loading");
 
   const types = {
@@ -22,7 +22,7 @@ function State() {
   };
 
   async function loadState() {
-    const response = await ipc.send(HTTP_STATE);
+    const response = await ipcRenderer.request(HTTP_STATE);
     setType(response.data || types.error);
   }
 
@@ -34,17 +34,17 @@ function State() {
 }
 
 export default function HttpServerPanelContent() {
-  const ipc = useIpc();
+  const ipcRenderer = useIpcRenderer();
   const [port, setPort] = useState(0);
   const [ip, setIp] = useState("0.0.0.0");
 
   async function loadIp() {
-    const response = await ipc.send(HTTP_IP);
+    const response = await ipcRenderer.request(HTTP_IP);
     setIp(response.data || ip);
   }
 
   async function loadPort() {
-    const response = await ipc.send(HTTP_PORT);
+    const response = await ipcRenderer.request(HTTP_PORT);
     setPort(response.data || port);
   }
 

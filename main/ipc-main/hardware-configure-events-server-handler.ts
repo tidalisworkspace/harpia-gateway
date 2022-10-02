@@ -1,10 +1,6 @@
-import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
+import { IpcMainInvokeEvent } from "electron";
 import { HARDWARE_EVENTS_SERVER_UPDATE } from "../../shared/constants/ipc-main-channels";
-import {
-  HardwareCommandIpcRequest,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { HardwareCommandIpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { deviceClients } from "../device-clients";
 import http from "../http";
@@ -13,79 +9,52 @@ import { IpcHandler } from "./types";
 export default class HardwareEventsServerUpdateHandler implements IpcHandler {
   channel = HARDWARE_EVENTS_SERVER_UPDATE;
 
-  async handleSync(
+  async handle(
     event: IpcMainInvokeEvent,
-    request: IpcRequest
-  ): Promise<IpcResponse> {
-    return null;
-  }
-
-  async handleAsync(
-    event: IpcMainEvent,
     request: HardwareCommandIpcRequest
-  ): Promise<void> {
-    try {
-      const errors = [];
+  ): Promise<IpcResponse> {
+    const errors = [];
 
-      for (const deviceAddress of request.params) {
-        const { ip, port } = deviceAddress;
+    for (const deviceAddress of request.params) {
+      const { ip, port } = deviceAddress;
 
-        const deviceClient = await deviceClients.get(ip, port);
+      const deviceClient = await deviceClients.get(ip, port);
 
-        if (!deviceClient) {
-          logger.error(
-            `ipcMain:${this.channel} device client not found by ip ${ip}`
-          );
+      if (!deviceClient) {
+        errors.push(ip);
 
-          errors.push(ip);
-
-          continue;
-        }
-
-        try {
-          const ip = http.getIp();
-          const port = http.getPort();
-
-          await deviceClient.setEventsServer({ ip, port });
-        } catch (e) {
-          logger.error(
-            `ipcMain:${this.channel} error ${ip} ${e.name}:${e.message}`
-          );
-
-          errors.push(ip);
-
-          continue;
-        }
+        continue;
       }
 
-      if (errors.length) {
-        const error = errors.join(",");
+      const eventsServerIp = http.getIp();
+      const eventsServerPort = http.getPort();
 
-        const response: IpcResponse = {
-          status: "error",
-          message: `Erro para configurar servidor de eventos: ${error}`,
-        };
+      try {
+        await deviceClient.setEventsServer({
+          ip: eventsServerIp,
+          port: eventsServerPort,
+        });
+      } catch (e) {
+        logger.error(`ipcMain:${this.channel} ${ip} ${e.name}:${e.message}`);
 
-        event.sender.send(request.responseChannel, response);
+        errors.push(ip);
 
-        return;
+        continue;
       }
-
-      const response: IpcResponse = {
-        status: "success",
-        message: "Servidor de eventos configurado",
-      };
-
-      event.sender.send(request.responseChannel, response);
-    } catch (e) {
-      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
-
-      const response: IpcResponse = {
-        status: "error",
-        message: "Impossível configurar servidor de eventos",
-      };
-
-      event.sender.send(request.responseChannel, response);
     }
+
+    if (errors.length) {
+      const error = errors.join(",");
+
+      return {
+        status: "error",
+        message: `Erro para configurar servidor de eventos: ${error}`,
+      };
+    }
+
+    return {
+      status: "success",
+      message: "Servidor de eventos configurado",
+    };
   }
 }

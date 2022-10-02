@@ -1,9 +1,13 @@
 import { ClearOutlined, FileFilled, ReloadOutlined } from "@ant-design/icons";
 import { Button, message, Popconfirm, Row, Space, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { LOGGER_FILE_CLEAN, LOGGER_FILE_OPEN, LOGGER_FILE_SIZE } from "../../../../shared/constants/ipc-main-channels";
+import {
+  LOGGER_FILE_CLEAN,
+  LOGGER_FILE_OPEN,
+  LOGGER_FILE_SIZE,
+} from "../../../../shared/constants/ipc-main-channels";
 import { IpcResponse } from "../../../../shared/ipc/types";
-import { useIpc } from "../../../hooks/useIpc";
+import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 
 const { Text } = Typography;
 
@@ -17,14 +21,14 @@ function showMessage(response: IpcResponse) {
 
 export default function LogsPanelContent() {
   const [fileSize, setFileSize] = useState("0 Bytes");
-  const ipc = useIpc();
+  const ipcRenderer = useIpcRenderer();
 
-  ipc.listen("logger_file_size_change", (response) =>
+  ipcRenderer.listen("logger_file_size_change", (response) =>
     setFileSize(response.data)
   );
 
   async function loadFileSize(): Promise<IpcResponse> {
-    const response = await ipc.send(LOGGER_FILE_SIZE);
+    const response = await ipcRenderer.request(LOGGER_FILE_SIZE);
 
     setFileSize(response.data || fileSize);
 
@@ -41,14 +45,16 @@ export default function LogsPanelContent() {
   async function handleOpenLogs() {
     await message.loading("Abrindo logs");
 
-    const response = await ipc.send(LOGGER_FILE_OPEN);
+    const response = await ipcRenderer.request(LOGGER_FILE_OPEN);
     showMessage(response);
   }
 
   async function handleCleanLogs() {
     await message.loading("Limpando logs");
 
-    const response = await ipc.send(LOGGER_FILE_CLEAN);
+    const response = await ipcRenderer.request(LOGGER_FILE_CLEAN);
+    loadFileSize();
+
     showMessage(response);
   }
 

@@ -1,22 +1,14 @@
-import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
 import { HARDWARE_FIND_ALL } from "../../shared/constants/ipc-main-channels";
-import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
+import { IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import equipamentoModel, {
-  Equipamento
+  Equipamento,
 } from "../database/models/equipamento.model";
 import store from "../store";
 import { IpcHandler } from "./types";
 
 export default class HardwareFindAllHandler implements IpcHandler {
   channel = HARDWARE_FIND_ALL;
-
-  async handleSync(
-    event: IpcMainInvokeEvent,
-    request: IpcRequest
-  ): Promise<IpcResponse> {
-    return null;
-  }
 
   private toHardware(equipamento: Equipamento) {
     const connection = store.getHardwareConnection(equipamento.ip);
@@ -31,30 +23,26 @@ export default class HardwareFindAllHandler implements IpcHandler {
     };
   }
 
-  async handleAsync(event: IpcMainEvent, request: IpcRequest): Promise<void> {
-    const attributes = ["id", "nome", "ip", "porta", "fabricante"];
-
+  async handle(): Promise<IpcResponse> {
     try {
+      const attributes = ["id", "nome", "ip", "porta", "fabricante"];
+
       const equipamentos = await equipamentoModel().findAll({ attributes });
 
       const hardwares = equipamentos.map(this.toHardware);
 
-      const response: IpcResponse = {
+      return {
         status: "success",
         message: "Dispositivos obtidos",
         data: hardwares,
       };
-
-      event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} ${e.name}:${e.message}`);
 
-      const response: IpcResponse = {
+      return {
         status: "error",
         message: "Impossível buscar dispositivos",
       };
-
-      event.sender.send(request.responseChannel, response);
     }
   }
 }

@@ -1,48 +1,24 @@
-import { IpcMainEvent, IpcMainInvokeEvent, shell } from "electron";
+import { shell } from "electron";
 import { LOGGER_FILE_OPEN } from "../../shared/constants/ipc-main-channels";
-import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
+import { IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { IpcHandler } from "./types";
 
 export class LoggerFileOpenHandler implements IpcHandler {
   channel = LOGGER_FILE_OPEN;
 
-  async handleSync(
-    event: IpcMainInvokeEvent,
-    request: IpcRequest
-  ): Promise<IpcResponse> {
-    return null;
-  }
+  async handle(): Promise<IpcResponse> {
+    const message = await shell.openPath(logger.transports.file.getFile().path);
 
-  async handleAsync(event: IpcMainEvent, request: IpcRequest): Promise<void> {
-    try {
-      const message = await shell.openPath(
-        logger.transports.file.getFile().path
-      );
+    if (message) {
+      logger.error(`ipcMain:${this.channel} ${message}`);
 
-      if (!message) {
-        event.sender.send(request.responseChannel, { status: "success" });
-      }
-
-      if (message) {
-        logger.error(`ipcMain:${this.channel} error ${message}`);
-
-        const response: IpcResponse = {
-          status: "error",
-          message: "Impossível abrir os logs",
-        };
-
-        event.sender.send(request.responseChannel, response);
-      }
-    } catch (e) {
-      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
-
-      const response: IpcResponse = {
+      return {
         status: "error",
         message: "Impossível abrir os logs",
       };
-
-      event.sender.send(request.responseChannel, response);
     }
+
+    return { status: "success" };
   }
 }

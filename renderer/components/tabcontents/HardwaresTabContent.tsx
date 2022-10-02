@@ -29,7 +29,7 @@ import {
   HARDWARE_REBOOT,
 } from "../../../shared/constants/ipc-main-channels";
 import { IpcRequest, IpcResponse } from "../../../shared/ipc/types";
-import { useIpc } from "../../hooks/useIpc";
+import { useIpcRenderer } from "../../hooks/useIpcRenderer";
 
 const { Text } = Typography;
 
@@ -131,7 +131,7 @@ function showMessage(response: IpcResponse) {
 }
 
 export default function HardwaresTabContent() {
-  const ipc = useIpc();
+  const ipcRenderer = useIpcRenderer();
   const [hardwares, setHardwares] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -154,7 +154,7 @@ export default function HardwaresTabContent() {
   }
 
   async function loadHardwares(): Promise<IpcResponse> {
-    const response = await ipc.send(HARDWARE_FIND_ALL);
+    const response = await ipcRenderer.request(HARDWARE_FIND_ALL);
 
     setHardwares(response.data || hardwares);
 
@@ -166,7 +166,7 @@ export default function HardwaresTabContent() {
 
     const request: IpcRequest = { params };
 
-    const response = await ipc.send(HARDWARE_REBOOT, request);
+    const response = await ipcRenderer.request(HARDWARE_REBOOT, request);
 
     return response;
   }
@@ -181,7 +181,10 @@ export default function HardwaresTabContent() {
 
     const request: IpcRequest = { params };
 
-    const response = await ipc.send(HARDWARE_DATETIME_UPDATE, request);
+    const response = await ipcRenderer.request(
+      HARDWARE_DATETIME_UPDATE,
+      request
+    );
 
     return response;
   }
@@ -191,7 +194,7 @@ export default function HardwaresTabContent() {
 
     const request: IpcRequest = { params };
 
-    const response = await ipc.send(
+    const response = await ipcRenderer.request(
       "hardware_configure_events_server",
       request
     );
@@ -204,7 +207,10 @@ export default function HardwaresTabContent() {
 
     const request: IpcRequest = { params };
 
-    const response = await ipc.send(HARDWARE_CONNECTION_TEST, request);
+    const response = await ipcRenderer.request(
+      HARDWARE_CONNECTION_TEST,
+      request
+    );
 
     return response;
   }

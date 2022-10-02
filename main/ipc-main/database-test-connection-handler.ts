@@ -8,43 +8,32 @@ import { IpcHandler } from "./types";
 export class DatabaseTestConnectionHandler implements IpcHandler {
   channel = DATABASE_CONNECTION_TEST;
 
-  async handleSync(
+  async handle(
     event: IpcMainInvokeEvent,
     request: IpcRequest
   ): Promise<IpcResponse> {
-    return null;
-  }
+    const { host, port, username, password, dialect } = request.params;
 
-  async handleAsync(
-    event: Electron.IpcMainEvent,
-    request: IpcRequest
-  ): Promise<void> {
+    const sequelize = new Sequelize("cdav4", username, password, {
+      host,
+      port,
+      dialect,
+    });
+
     try {
-      const { host, port, username, password, dialect } = request.params;
-
-      const sequelize = new Sequelize("cdav4", username, password, {
-        host,
-        port,
-        dialect,
-      });
-
       await sequelize.authenticate();
 
-      const response: IpcResponse = {
+      return {
         status: "success",
         message: "Conexão estabelecida",
       };
-
-      event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} ${e.name}:${e.message}`);
 
-      const response: IpcResponse = {
+      return {
         status: "error",
         message: "Impossível conectar",
       };
-
-      event.sender.send(request.responseChannel, response);
     }
   }
 }

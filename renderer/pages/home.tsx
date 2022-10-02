@@ -1,24 +1,24 @@
 import { Layout, Space, Tabs, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { APP_VERSION } from '../../shared/constants/ipc-main-channels';
+import { APP_VERSION } from "../../shared/constants/ipc-main-channels";
 import CardsTabContent from "../components/tabcontents/CardsTabContent";
 import ConfiguracoesTabContent from "../components/tabcontents/ConfiguracoesTabContent";
 import HardwaresTabContent from "../components/tabcontents/HardwaresTabContent";
 import CardsTab from "../components/tabs/CardsTab";
 import ConfigsTab from "../components/tabs/ConfigsTab";
 import HardwaresTab from "../components/tabs/HardwaresTab";
-import { useIpc } from "../hooks/useIpc";
+import { useIpcRenderer } from "../hooks/useIpcRenderer";
 
 const { Title, Text } = Typography;
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
 function Version() {
-  const ipc = useIpc();
+  const ipcRenderer = useIpcRenderer();
   const [version, setVersion] = useState(null);
 
   async function loadVersion() {
-    const response = await ipc.send(APP_VERSION);
+    const response = await ipcRenderer.request(APP_VERSION);
 
     setVersion(response.data || version);
 
