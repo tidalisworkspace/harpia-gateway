@@ -31,6 +31,13 @@ export class Ipc {
     });
   }
 
+  request(
+    channel: IpcMainChannel,
+    input: IpcRequest = null
+  ): Promise<IpcResponse> {
+    return electron.ipcRenderer.invoke(channel, input);
+  }
+
   listen(channel: IpcRendererChannel, listener: any): void {
     electron.ipcRenderer?.on(channel, (event, args) => {
       listener(args);
