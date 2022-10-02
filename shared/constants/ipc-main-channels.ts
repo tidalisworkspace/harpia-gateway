@@ -1,23 +1,23 @@
-export const LOGGER_FILE_OPEN = "ef6a1e08";
-export const LOGGER_FILE_CLEAN = "4ccc6339";
-export const LOGGER_FILE_SIZE = "347bdda4";
+export const LOGGER_FILE_OPEN = "logger-file-open";
+export const LOGGER_FILE_CLEAN = "logger-file-clean";
+export const LOGGER_FILE_SIZE = "logger-file-size";
 
-export const HARDWARE_FIND_ALL = "cb020207";
-export const HARDWARE_REBOOT = "26d95abd";
-export const HARDWARE_DATETIME_UPDATE = "ec954240";
-export const HARDWARE_EVENTS_SERVER_UPDATE = "b18f52a0";
-export const HARDWARE_CONNECTION_TEST = "a0818b5b";
+export const HARDWARE_FIND_ALL = "hardware-find-all";
+export const HARDWARE_REBOOT = "hardware-reboot";
+export const HARDWARE_DATETIME_UPDATE = "hardware-datetime-update";
+export const HARDWARE_EVENTS_SERVER_UPDATE = "hardware-events-server-update";
+export const HARDWARE_CONNECTION_TEST = "hardware-connection-test";
 
-export const DATABASE_CONNECTION_STATUS = "90f2b0bb";
-export const DATABASE_CONNECTION_TEST = "c81ebdba";
-export const DATABASE_CONNECTION_UPDATE = "119c24d9";
+export const DATABASE_CONNECTION_STATUS = "database-connection-status";
+export const DATABASE_CONNECTION_TEST = "database-connection-test";
+export const DATABASE_CONNECTION_UPDATE = "database-connection-update";
 
-export const SOCKET_CONNECTIONS_AMOUNT = "8774f246";
-export const SOCKET_PORT = "c42dd07e";
-export const SOCKET_STATE = "79df3431";
+export const SOCKET_CONNECTIONS_AMOUNT = "socket-connections-amount";
+export const SOCKET_PORT = "socket-port";
+export const SOCKET_STATE = "socket-state";
 
-export const HTTP_IP = "87674481";
-export const HTTP_PORT = "3b0f5d14";
-export const HTTP_STATE = "a0dfa051";
+export const HTTP_IP = "http-ip";
+export const HTTP_PORT = "http-port";
+export const HTTP_STATE = "http-state";
 
-export const APP_VERSION = "4f59f00f";
+export const APP_VERSION = "app-version";
