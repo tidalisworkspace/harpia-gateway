@@ -38,7 +38,7 @@ export class SaveUserHandler implements DataHandler {
     }
   }
 
-  async handleAsync(
+  async handle(
     connectionId: string,
     request: RecordPeoplesRequest
   ): Promise<void> {
