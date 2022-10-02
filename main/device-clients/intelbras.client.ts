@@ -68,11 +68,9 @@ export class IntelbrasClient implements DeviceClient {
   }
 
   private async fetchAndLog(
-    path: string,
+    url: string,
     options: RequestInit = null
   ): Promise<Response> {
-    const url = `http://${this.host}${path}`;
-
     const request: Promise<Response> = options
       ? this.httpClient.fetch(url, options)
       : this.httpClient.fetch(url);
@@ -83,7 +81,7 @@ export class IntelbrasClient implements DeviceClient {
       const responseBody = await response.text();
 
       logger.debug(
-        `intelbrasClient:${this.host} fetch not ok ${path} ${response.status} ${response.statusText} ${responseBody}`
+        `intelbrasClient:${this.host} fetch not ok ${url} ${response.status} ${response.statusText} ${responseBody}`
       );
     }
 
@@ -92,7 +90,7 @@ export class IntelbrasClient implements DeviceClient {
 
   openDoor(): Promise<Response> {
     return this.fetchAndLog(
-      "/cgi-bin/accessControl.cgi?action=openDoor&channel=1&Type=Remote"
+      `http://${this.host}/cgi-bin/accessControl.cgi?action=openDoor&channel=1&Type=Remote`
     );
   }
 
@@ -100,13 +98,13 @@ export class IntelbrasClient implements DeviceClient {
     const time = format(new Date(), "yyyy-MM-dd HH:mm:ss");
 
     return this.fetchAndLog(
-      `/cgi-bin/global.cgi?action=setCurrentTime&time=${time}`
+      `http://${this.host}/cgi-bin/global.cgi?action=setCurrentTime&time=${time}`
     );
   }
 
   async captureFace(): Promise<string> {
     await this.fetchAndLog(
-      "/cgi-bin/accessControl.cgi?action=captureCmd&type=1&heartbeat=5&timeout=10"
+      `http://${this.host}/cgi-bin/accessControl.cgi?action=captureCmd&type=1&heartbeat=5&timeout=10`
     );
 
     const request = new Promise<FileResult>(async (resolve, reject) => {
@@ -155,7 +153,7 @@ export class IntelbrasClient implements DeviceClient {
       ],
     };
 
-    return this.fetchAndLog("/cgi-bin/AccessFace.cgi?action=insertMulti", {
+    return this.fetchAndLog(`http://${this.host}/cgi-bin/AccessFace.cgi?action=insertMulti`, {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

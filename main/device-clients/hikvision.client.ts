@@ -67,11 +67,9 @@ export class HikvisionClient implements DeviceClient {
   }
 
   private async fetchAndLog(
-    path: string,
+    url: string,
     options: RequestInit = null
   ): Promise<Response> {
-    const url = `http://${this.host}${path}`;
-
     const request: Promise<Response> = options
       ? this.httpClient.fetch(url, options)
       : this.httpClient.fetch(url);
@@ -82,7 +80,7 @@ export class HikvisionClient implements DeviceClient {
       const responseBody = await response.text();
 
       logger.debug(
-        `hikvisionClient:${this.host} fetch not ok ${path} ${response.status} ${response.statusText} ${responseBody}`
+        `hikvisionClient:${this.host} fetch not ok ${url} ${response.status} ${response.statusText} ${responseBody}`
       );
     }
 
