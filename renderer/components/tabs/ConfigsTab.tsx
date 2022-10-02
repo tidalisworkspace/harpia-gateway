@@ -1,7 +1,7 @@
 import { SettingOutlined } from "@ant-design/icons";
 import { Badge } from "antd";
 import { useEffect, useState } from "react";
-import { IpcResponse } from "../../../shared/ipc/types";
+import { DATABASE_CONNECTION_STATUS } from "../../../shared/constants/ipc-main-channels";
 import { useIpc } from "../../hooks/useIpc";
 
 export default function ConfigsTab() {
@@ -14,7 +14,7 @@ export default function ConfigsTab() {
   );
 
   async function loadDatabaseConnectionStatus() {
-    const response = await ipc.send("database_connection_status");
+    const response = await ipc.send(DATABASE_CONNECTION_STATUS);
     setShowDot(response.data !== "connected");
   }
 

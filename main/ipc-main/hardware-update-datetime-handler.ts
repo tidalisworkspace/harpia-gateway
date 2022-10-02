@@ -1,7 +1,7 @@
 import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
+import { HARDWARE_DATETIME_UPDATE } from "../../shared/constants/ipc-main-channels";
 import {
   HardwareCommandIpcRequest,
-  IpcMainChannel,
   IpcRequest,
   IpcResponse,
 } from "../../shared/ipc/types";
@@ -10,9 +10,7 @@ import { deviceClients } from "../device-clients";
 import { IpcHandler } from "./types";
 
 export default class HardwareUpdateDatetimeHandler implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "hardware_update_datetime";
-  }
+  channel = HARDWARE_DATETIME_UPDATE;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -35,7 +33,7 @@ export default class HardwareUpdateDatetimeHandler implements IpcHandler {
 
         if (!deviceClient) {
           logger.error(
-            `ipcMain:${this.getChannel()} device client not found by ip ${ip}`
+            `ipcMain:${this.channel} device client not found by ip ${ip}`
           );
 
           errors.push(ip);
@@ -47,7 +45,7 @@ export default class HardwareUpdateDatetimeHandler implements IpcHandler {
           await deviceClient.updateTime();
         } catch (e) {
           logger.error(
-            `ipcMain:${this.getChannel()} error ${ip} ${e.name}:${e.message}`
+            `ipcMain:${this.channel} error ${ip} ${e.name}:${e.message}`
           );
 
           errors.push(ip);
@@ -76,7 +74,7 @@ export default class HardwareUpdateDatetimeHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

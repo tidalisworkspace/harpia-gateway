@@ -1,17 +1,12 @@
 import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
-import {
-  IpcMainChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { DATABASE_CONNECTION_STATUS } from "../../shared/constants/ipc-main-channels";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import database from "../database";
 import { IpcHandler } from "./types";
 
 export class DatabaseConnectionStatusHandler implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "database_connection_status";
-  }
+  channel = DATABASE_CONNECTION_STATUS;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -31,7 +26,7 @@ export class DatabaseConnectionStatusHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

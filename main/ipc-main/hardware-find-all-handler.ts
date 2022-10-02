@@ -1,20 +1,15 @@
 import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
-import {
-  IpcMainChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { HARDWARE_FIND_ALL } from "../../shared/constants/ipc-main-channels";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import equipamentoModel, {
-  Equipamento,
+  Equipamento
 } from "../database/models/equipamento.model";
 import store from "../store";
 import { IpcHandler } from "./types";
 
 export default class HardwareFindAllHandler implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "hardware_find_all";
-  }
+  channel = HARDWARE_FIND_ALL;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -52,7 +47,7 @@ export default class HardwareFindAllHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

@@ -22,6 +22,12 @@ import { ColumnsType } from "antd/lib/table";
 import { TableRowSelection } from "antd/lib/table/interface";
 import { PresetStatusColorType } from "antd/lib/_util/colors";
 import { ReactNode, useEffect, useState } from "react";
+import {
+  HARDWARE_CONNECTION_TEST,
+  HARDWARE_DATETIME_UPDATE,
+  HARDWARE_FIND_ALL,
+  HARDWARE_REBOOT,
+} from "../../../shared/constants/ipc-main-channels";
 import { IpcRequest, IpcResponse } from "../../../shared/ipc/types";
 import { useIpc } from "../../hooks/useIpc";
 
@@ -148,7 +154,7 @@ export default function HardwaresTabContent() {
   }
 
   async function loadHardwares(): Promise<IpcResponse> {
-    const response = await ipc.send("hardware_find_all");
+    const response = await ipc.send(HARDWARE_FIND_ALL);
 
     setHardwares(response.data || hardwares);
 
@@ -160,7 +166,7 @@ export default function HardwaresTabContent() {
 
     const request: IpcRequest = { params };
 
-    const response = await ipc.send("hardware_reboot", request);
+    const response = await ipc.send(HARDWARE_REBOOT, request);
 
     return response;
   }
@@ -175,7 +181,7 @@ export default function HardwaresTabContent() {
 
     const request: IpcRequest = { params };
 
-    const response = await ipc.send("hardware_update_datetime", request);
+    const response = await ipc.send(HARDWARE_DATETIME_UPDATE, request);
 
     return response;
   }
@@ -198,7 +204,7 @@ export default function HardwaresTabContent() {
 
     const request: IpcRequest = { params };
 
-    const response = await ipc.send("hardware_test_connection", request);
+    const response = await ipc.send(HARDWARE_CONNECTION_TEST, request);
 
     return response;
   }

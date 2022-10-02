@@ -1,17 +1,12 @@
 import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
-import {
-  IpcMainChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { SOCKET_CONNECTIONS_AMOUNT } from "../../shared/constants/ipc-main-channels";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import storage from "../socket/connection/storage";
 import { IpcHandler } from "./types";
 
 export default class SocketConnectionsAmountHandler implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "socket_connections_amount";
-  }
+  channel = SOCKET_CONNECTIONS_AMOUNT;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -27,7 +22,7 @@ export default class SocketConnectionsAmountHandler implements IpcHandler {
         data: storage.count(),
       });
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       event.sender.send(request.responseChannel, {
         status: "error",

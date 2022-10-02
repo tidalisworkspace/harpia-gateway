@@ -1,17 +1,12 @@
 import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
-import {
-  IpcMainChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { HTTP_STATE } from "../../shared/constants/ipc-main-channels";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import http from "../http";
 import { IpcHandler } from "./types";
 
 export default class HttpStateHandler implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "http_state";
-  }
+  channel = HTTP_STATE;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -27,7 +22,7 @@ export default class HttpStateHandler implements IpcHandler {
         data: http.getState(),
       });
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       event.sender.send(request.responseChannel, {
         status: "error",

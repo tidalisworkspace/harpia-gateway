@@ -8,7 +8,7 @@ import {
 import logger from "../../shared/logger";
 
 export class Ipc {
-  send(channel: IpcMainChannel, request?: IpcRequest): Promise<IpcResponse> {
+  send(channel: string, request?: IpcRequest): Promise<IpcResponse> {
     if (!request) {
       request = {
         responseChannel: `${channel}_response_${new Date().getTime()}`,
@@ -32,7 +32,7 @@ export class Ipc {
   }
 
   request(
-    channel: IpcMainChannel,
+    channel: string,
     input: IpcRequest = null
   ): Promise<IpcResponse> {
     return electron.ipcRenderer.invoke(channel, input);

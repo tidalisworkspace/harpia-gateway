@@ -11,6 +11,11 @@ import {
   Space,
 } from "antd";
 import { useEffect, useState } from "react";
+import {
+  DATABASE_CONNECTION_STATUS,
+  DATABASE_CONNECTION_TEST,
+  DATABASE_CONNECTION_UPDATE,
+} from "../../../../shared/constants/ipc-main-channels";
 import { IpcResponse } from "../../../../shared/ipc/types";
 import { useIpc } from "../../../hooks/useIpc";
 import Status from "../../Status";
@@ -19,6 +24,10 @@ function ConnectionStatus() {
   const ipc = useIpc();
   const [type, setType] = useState("loading");
 
+  ipc.listen("database_connection_change", (response) =>
+    setType(response.data)
+  );
+
   const types = {
     connected: <Status title="Conexão" text="Conectado" success />,
     disconnected: <Status title="Conexão" text="Desconectado" failed />,
@@ -26,18 +35,17 @@ function ConnectionStatus() {
     error: <Status title="Conexão" text="Erro" failed />,
   };
 
-  ipc.listen("database_connection_change", (response) =>
-    setType(response.data)
-  );
+  async function loadStatus() {
+    const response = await ipc.send(DATABASE_CONNECTION_STATUS);
+    setType(response.data || types.error)
+  }
 
   useEffect(() => {
-    ipc
-      .send("database_connection_status")
-      .then((response) => setType(response.data || "error"));
+    loadStatus();
   }, []);
 
   return types[type];
-};
+}
 
 function showMessage(response: IpcResponse) {
   if (!response.message) {
@@ -52,11 +60,11 @@ export default function DatabasePanelContent() {
   const [form] = Form.useForm();
 
   function testDatabaseConnection(params: any): Promise<IpcResponse> {
-    return ipc.send("database_test_connection", { params });
+    return ipc.send(DATABASE_CONNECTION_TEST, { params });
   }
 
   function updateDatabaseConnection(params: any): Promise<IpcResponse> {
-    return ipc.send("database_update_connection", { params });
+    return ipc.send(DATABASE_CONNECTION_UPDATE, { params });
   }
 
   async function handleSubmit() {

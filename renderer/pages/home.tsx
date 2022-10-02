@@ -1,5 +1,6 @@
 import { Layout, Space, Tabs, Typography } from "antd";
 import { useEffect, useState } from "react";
+import { APP_VERSION } from '../../shared/constants/ipc-main-channels';
 import CardsTabContent from "../components/tabcontents/CardsTabContent";
 import ConfiguracoesTabContent from "../components/tabcontents/ConfiguracoesTabContent";
 import HardwaresTabContent from "../components/tabcontents/HardwaresTabContent";
@@ -17,7 +18,7 @@ function Version() {
   const [version, setVersion] = useState(null);
 
   async function loadVersion() {
-    const response = await ipc.send("app_version");
+    const response = await ipc.send(APP_VERSION);
 
     setVersion(response.data || version);
 

@@ -15,13 +15,13 @@ export default class IpcMain {
   }
 
   private addAsyncHandler(handler: IpcHandler) {
-    ipcMain.on(handler.getChannel(), (event, input) =>
+    ipcMain.on(handler.channel, (event, input) =>
       handler.handleAsync(event, input)
     );
   }
 
   private addSyncHandler(handler: IpcHandler) {
-    ipcMain.handle(handler.getChannel(), async (event, input) => {
+    ipcMain.handle(handler.channel, async (event, input) => {
       const output = await handler.handleSync(event, input);
       return output;
     });

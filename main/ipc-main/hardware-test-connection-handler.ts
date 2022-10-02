@@ -1,9 +1,9 @@
 import { IpcMainEvent, IpcMainInvokeEvent } from "electron";
+import { HARDWARE_CONNECTION_TEST } from "../../shared/constants/ipc-main-channels";
 import {
   HardwareCommandIpcRequest,
-  IpcMainChannel,
   IpcRequest,
-  IpcResponse,
+  IpcResponse
 } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { deviceClients } from "../device-clients";
@@ -11,9 +11,7 @@ import store from "../store";
 import { IpcHandler } from "./types";
 
 export default class HardwareTestConnection implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "hardware_test_connection";
-  }
+  channel = HARDWARE_CONNECTION_TEST;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -36,7 +34,7 @@ export default class HardwareTestConnection implements IpcHandler {
 
         if (!deviceClient) {
           logger.error(
-            `ipcMain:${this.getChannel()} device client not found by ip ${ip}`
+            `ipcMain:${this.channel} device client not found by ip ${ip}`
           );
 
           errors.push(ip);
@@ -51,9 +49,7 @@ export default class HardwareTestConnection implements IpcHandler {
 
           continue;
         } catch (e) {
-          logger.error(
-            `ipcMain:${this.getChannel()} ${ip} ${e.name}:${e.message}`
-          );
+          logger.error(`ipcMain:${this.channel} ${ip} ${e.name}:${e.message}`);
 
           errors.push(ip);
 
@@ -81,7 +77,7 @@ export default class HardwareTestConnection implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

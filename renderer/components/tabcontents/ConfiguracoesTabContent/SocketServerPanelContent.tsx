@@ -1,5 +1,10 @@
 import { Space, Typography } from "antd";
 import { useEffect, useState } from "react";
+import {
+  SOCKET_CONNECTIONS_AMOUNT,
+  SOCKET_PORT,
+  SOCKET_STATE
+} from "../../../../shared/constants/ipc-main-channels";
 import { useIpc } from "../../../hooks/useIpc";
 import Status from "../../Status";
 
@@ -17,14 +22,17 @@ function State() {
     error: <Status title="Estado" text="Erro" failed />,
   };
 
+  async function loadState() {
+    const response = await ipc.send(SOCKET_STATE);
+    setType(response.data || types.error);
+  }
+
   useEffect(() => {
-    ipc
-      .send("socket_state")
-      .then((response) => setType(response.data || "error"));
+    loadState();
   }, []);
 
   return types[type];
-};
+}
 
 export default function SocketServerPanelContent() {
   const ipc = useIpc();
@@ -32,12 +40,12 @@ export default function SocketServerPanelContent() {
   const [port, setPort] = useState(0);
 
   async function loadConnectionsAmount() {
-    const response = await ipc.send("socket_connections_amount");
+    const response = await ipc.send(SOCKET_CONNECTIONS_AMOUNT);
     setConnectionsAmout(response.data);
   }
 
   async function loadPort() {
-    const response = await ipc.send("socket_port");
+    const response = await ipc.send(SOCKET_PORT);
     setPort(response.data || port);
   }
 

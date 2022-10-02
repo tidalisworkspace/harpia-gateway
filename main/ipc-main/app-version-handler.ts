@@ -1,16 +1,11 @@
 import { app, IpcMainEvent, IpcMainInvokeEvent } from "electron";
-import {
-  IpcMainChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { APP_VERSION } from "../../shared/constants/ipc-main-channels";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { IpcHandler } from "./types";
 
 export default class AppVersionHandler implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "app_version";
-  }
+  channel = APP_VERSION;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -26,7 +21,7 @@ export default class AppVersionHandler implements IpcHandler {
         data: app.getVersion(),
       });
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       event.sender.send(request.responseChannel, {
         status: "error",

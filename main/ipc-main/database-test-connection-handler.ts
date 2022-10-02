@@ -1,17 +1,12 @@
 import { IpcMainInvokeEvent } from "electron";
 import { Sequelize } from "sequelize";
-import {
-  IpcMainChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { DATABASE_CONNECTION_TEST } from "../../shared/constants/ipc-main-channels";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { IpcHandler } from "./types";
 
 export class DatabaseTestConnectionHandler implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "database_test_connection";
-  }
+  channel = DATABASE_CONNECTION_TEST;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -42,7 +37,7 @@ export class DatabaseTestConnectionHandler implements IpcHandler {
 
       event.sender.send(request.responseChannel, response);
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

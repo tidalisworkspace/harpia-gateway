@@ -1,16 +1,11 @@
 import { IpcMainEvent, IpcMainInvokeEvent, shell } from "electron";
-import {
-  IpcMainChannel,
-  IpcRequest,
-  IpcResponse,
-} from "../../shared/ipc/types";
+import { LOGGER_FILE_OPEN } from "../../shared/constants/ipc-main-channels";
+import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { IpcHandler } from "./types";
 
 export class LoggerFileOpenHandler implements IpcHandler {
-  getChannel(): IpcMainChannel {
-    return "logger_file_open";
-  }
+  channel = LOGGER_FILE_OPEN;
 
   async handleSync(
     event: IpcMainInvokeEvent,
@@ -30,7 +25,7 @@ export class LoggerFileOpenHandler implements IpcHandler {
       }
 
       if (message) {
-        logger.error(`ipcMain:${this.getChannel()} error ${message}`);
+        logger.error(`ipcMain:${this.channel} error ${message}`);
 
         const response: IpcResponse = {
           status: "error",
@@ -40,7 +35,7 @@ export class LoggerFileOpenHandler implements IpcHandler {
         event.sender.send(request.responseChannel, response);
       }
     } catch (e) {
-      logger.error(`ipcMain:${this.getChannel()} error ${e.name}:${e.message}`);
+      logger.error(`ipcMain:${this.channel} error ${e.name}:${e.message}`);
 
       const response: IpcResponse = {
         status: "error",

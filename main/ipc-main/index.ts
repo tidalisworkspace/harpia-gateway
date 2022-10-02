@@ -1,8 +1,8 @@
 import AppVersionHandler from "./app-version-handler";
 import { DatabaseConnectionStatusHandler } from "./database-connection-status-handler";
 import { DatabaseTestConnectionHandler } from "./database-test-connection-handler";
-import { DatabaseUpdateConnectionHandler } from "./database-update-connection-handler";
-import HardwareConfigureEventsServerHandler from "./hardware-configure-events-server-handler";
+import { DatabaseConnectionUpdateHandler } from "./database-update-connection-handler";
+import HardwareEventsServerUpdateHandler from "./hardware-configure-events-server-handler";
 import HardwareFindAllHandler from "./hardware-find-all-handler";
 import HardwareRebootHandler from "./hardware-reboot-handler";
 import HardwareTestConnection from "./hardware-test-connection-handler";
@@ -26,12 +26,12 @@ const asyncHandlers = [
   new HardwareFindAllHandler(),
   new HardwareRebootHandler(),
   new HardwareUpdateDatetimeHandler(),
-  new HardwareConfigureEventsServerHandler(),
+  new HardwareEventsServerUpdateHandler(),
   new HardwareTestConnection(),
 
   new DatabaseConnectionStatusHandler(),
   new DatabaseTestConnectionHandler(),
-  new DatabaseUpdateConnectionHandler(),
+  new DatabaseConnectionUpdateHandler(),
 
   new SocketConnectionsAmountHandler(),
   new SocketPortHandler(),
