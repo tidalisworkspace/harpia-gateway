@@ -74,8 +74,7 @@ const connectionInfos: { [key: string]: ConnectionInfo } = {
 };
 
 function getConnectionInfo(connection): ConnectionInfo {
-  // return connectionInfos[connection] || connectionInfos.default;
-  return connectionInfos.response_not_ok;
+  return connectionInfos[connection] || connectionInfos.default;
 }
 
 interface Hardware {
