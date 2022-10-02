@@ -1,4 +1,4 @@
-import { HARDWARE_FIND_ALL } from "../../shared/constants/ipc-main-channels";
+import { HARDWARE_FIND_ALL } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import equipamentoModel, {

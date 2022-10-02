@@ -1,4 +1,4 @@
-import { DATABASE_CONNECTION_STATUS } from "../../shared/constants/ipc-main-channels";
+import { DATABASE_CONNECTION_STATUS } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../shared/ipc/types";
 import database from "../database";
 import { IpcHandler } from "./types";

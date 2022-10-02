@@ -1,6 +1,6 @@
 import { IpcMainInvokeEvent } from "electron";
 import { Sequelize } from "sequelize";
-import { DATABASE_CONNECTION_TEST } from "../../shared/constants/ipc-main-channels";
+import { DATABASE_CONNECTION_TEST } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { IpcHandler } from "./types";

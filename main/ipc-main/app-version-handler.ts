@@ -1,5 +1,5 @@
 import { app } from "electron";
-import { APP_VERSION } from "../../shared/constants/ipc-main-channels";
+import { APP_VERSION } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../shared/ipc/types";
 import { IpcHandler } from "./types";
 

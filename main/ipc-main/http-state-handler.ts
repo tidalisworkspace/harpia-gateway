@@ -1,4 +1,4 @@
-import { HTTP_STATE } from "../../shared/constants/ipc-main-channels";
+import { HTTP_STATE } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../shared/ipc/types";
 import http from "../http";
 import { IpcHandler } from "./types";

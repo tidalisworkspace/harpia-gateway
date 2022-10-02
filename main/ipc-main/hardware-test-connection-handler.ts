@@ -1,5 +1,5 @@
 import { IpcMainInvokeEvent } from "electron";
-import { HARDWARE_CONNECTION_TEST } from "../../shared/constants/ipc-main-channels";
+import { HARDWARE_CONNECTION_TEST } from "../../shared/constants/ipc-main-channels.constants";
 import { HardwareCommandIpcRequest, IpcResponse } from "../../shared/ipc/types";
 import { deviceClients } from "../device-clients";
 import store from "../store";

@@ -1,5 +1,5 @@
 import { IpcMainInvokeEvent } from "electron";
-import { HARDWARE_EVENTS_SERVER_UPDATE } from "../../shared/constants/ipc-main-channels";
+import { HARDWARE_EVENTS_SERVER_UPDATE } from "../../shared/constants/ipc-main-channels.constants";
 import { HardwareCommandIpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import { deviceClients } from "../device-clients";

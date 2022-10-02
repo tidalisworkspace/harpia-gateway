@@ -4,7 +4,7 @@ import {
   HTTP_IP,
   HTTP_PORT,
   HTTP_STATE,
-} from "../../../../shared/constants/ipc-main-channels";
+} from "../../../../shared/constants/ipc-main-channels.constants";
 import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 import Status from "../../Status";
 

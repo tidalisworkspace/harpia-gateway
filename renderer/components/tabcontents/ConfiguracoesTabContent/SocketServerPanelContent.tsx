@@ -4,7 +4,7 @@ import {
   SOCKET_CONNECTIONS_AMOUNT,
   SOCKET_PORT,
   SOCKET_STATE,
-} from "../../../../shared/constants/ipc-main-channels";
+} from "../../../../shared/constants/ipc-main-channels.constants";
 import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 import Status from "../../Status";
 

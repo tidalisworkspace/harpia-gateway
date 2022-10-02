@@ -1,6 +1,6 @@
 import { Layout, Space, Tabs, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { APP_VERSION } from "../../shared/constants/ipc-main-channels";
+import { APP_VERSION } from "../../shared/constants/ipc-main-channels.constants";
 import CardsTabContent from "../components/tabcontents/CardsTabContent";
 import ConfiguracoesTabContent from "../components/tabcontents/ConfiguracoesTabContent";
 import HardwaresTabContent from "../components/tabcontents/HardwaresTabContent";

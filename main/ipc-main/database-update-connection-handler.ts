@@ -1,5 +1,5 @@
 import { IpcMainInvokeEvent } from "electron";
-import { DATABASE_CONNECTION_UPDATE } from "../../shared/constants/ipc-main-channels";
+import { DATABASE_CONNECTION_UPDATE } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import database from "../database";

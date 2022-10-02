@@ -1,5 +1,5 @@
 import { IpcMainInvokeEvent } from "electron";
-import { LOGGER_FILE_CLEAN } from "../../shared/constants/ipc-main-channels";
+import { LOGGER_FILE_CLEAN } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse, IpcResponseStatus } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
 import formatFileSize from "../helpers/format-file-size";

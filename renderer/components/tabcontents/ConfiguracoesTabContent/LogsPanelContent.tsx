@@ -5,7 +5,7 @@ import {
   LOGGER_FILE_CLEAN,
   LOGGER_FILE_OPEN,
   LOGGER_FILE_SIZE,
-} from "../../../../shared/constants/ipc-main-channels";
+} from "../../../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../../../shared/ipc/types";
 import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 

@@ -1,4 +1,4 @@
-import { SOCKET_CONNECTIONS_AMOUNT } from "../../shared/constants/ipc-main-channels";
+import { SOCKET_CONNECTIONS_AMOUNT } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../shared/ipc/types";
 import storage from "../socket/connection/storage";
 import { IpcHandler } from "./types";

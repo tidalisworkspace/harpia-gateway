@@ -1,4 +1,4 @@
-import { SOCKET_PORT } from "../../shared/constants/ipc-main-channels";
+import { SOCKET_PORT } from "../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../shared/ipc/types";
 import socket from "../socket";
 import { IpcHandler } from "./types";

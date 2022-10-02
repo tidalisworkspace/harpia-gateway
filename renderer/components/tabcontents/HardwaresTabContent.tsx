@@ -27,7 +27,7 @@ import {
   HARDWARE_DATETIME_UPDATE,
   HARDWARE_FIND_ALL,
   HARDWARE_REBOOT,
-} from "../../../shared/constants/ipc-main-channels";
+} from "../../../shared/constants/ipc-main-channels.constants";
 import { IpcRequest, IpcResponse } from "../../../shared/ipc/types";
 import { useIpcRenderer } from "../../hooks/useIpcRenderer";
 
