@@ -18,7 +18,7 @@ import SocketConnectionsAmountHandler from "./socket-connections-amount-handler"
 import SocketPortHandler from "./socket-port-handler";
 import SocketStateHandler from "./socket-state-handler";
 
-const asyncHandlers = [
+const handlers = [
   new LoggerFileOpenHandler(),
   new LoggerFileCleanHandler(),
   new LoggerFileSizeHandler(),
@@ -44,8 +44,6 @@ const asyncHandlers = [
   new AppVersionHandler(),
 ];
 
-const syncHandlers = [];
-
-const ipcMain = new IpcMain(asyncHandlers, syncHandlers);
+const ipcMain = new IpcMain(handlers);
 
 export default ipcMain;
