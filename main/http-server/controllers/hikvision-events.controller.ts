@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { v4 as uuid } from "uuid";
 import logger from "../../../shared/logger";
 import responseReader from "../../helpers/response-reader";
-import service from "../services/hikvisionEvents.service";
+import service from "../services/hikvision-events.service";
 
 async function create(req: Request, res: Response, next): Promise<void> {
   const logId = uuid();

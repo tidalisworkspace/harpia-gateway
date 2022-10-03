@@ -1,6 +1,6 @@
 import { HTTP_STATE } from "../../../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../../../shared/ipc/types";
-import http from "../../../http";
+import httpServer from "../../../http-server";
 import { IpcHandler } from "../../types";
 
 export default class HttpStateHandler implements IpcHandler {
@@ -9,7 +9,7 @@ export default class HttpStateHandler implements IpcHandler {
   async handle(): Promise<IpcResponse> {
     return {
       status: "success",
-      data: http.getState(),
+      data: httpServer.getState(),
     };
   }
 }

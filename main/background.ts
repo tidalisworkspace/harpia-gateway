@@ -6,7 +6,7 @@ import { createWindow } from "./helpers";
 import { isProd } from "./helpers/environment";
 import ipcMain from "./ipc-main";
 import job from "./job";
-import http from "./http";
+import httpServer from "./http-server";
 import socket from "./socket";
 
 if (isProd) {
@@ -22,7 +22,7 @@ logger.info(`app:main user data path ${app.getPath("userData")}`);
   await database.start();
   await ipcMain.start();
   await socket.start();
-  await http.start();
+  await httpServer.start();
   job.start();
   createWindow();
 })();

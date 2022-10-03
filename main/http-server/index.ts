@@ -2,10 +2,10 @@ import bodyParser from "body-parser";
 import express, { Express } from "express";
 import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
-import hikvisionEventsRoute from "./routes/hikvisionEvents.route";
-import intelbrasEventsRoute from "./routes/intelbrasEvents.route";
+import hikvisionEventsRoute from "./routes/hikvision-events.route";
+import intelbrasEventsRoute from "./routes/intelbras-events.route";
 
-class Http {
+class HttpServer {
   private ip: string = "0.0.0.0";
   private port: number = 9000;
   private state: string = "stopped";
@@ -118,6 +118,6 @@ class Http {
   }
 }
 
-const http = new Http();
+const httpServer = new HttpServer();
 
-export default http;
+export default httpServer;

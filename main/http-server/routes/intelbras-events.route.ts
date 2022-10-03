@@ -1,5 +1,5 @@
 import express from "express";
-import controller from "../controllers/hikvisionEvents.controller";
+import controller from "../controllers/intelbras-events.controller";
 
 const router = express.Router();
 

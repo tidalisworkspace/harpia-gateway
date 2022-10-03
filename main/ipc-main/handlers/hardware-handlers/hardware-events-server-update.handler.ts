@@ -1,9 +1,12 @@
 import { IpcMainInvokeEvent } from "electron";
 import { HARDWARE_EVENTS_SERVER_UPDATE } from "../../../../shared/constants/ipc-main-channels.constants";
-import { HardwareCommandIpcRequest, IpcResponse } from "../../../../shared/ipc/types";
+import {
+  HardwareCommandIpcRequest,
+  IpcResponse,
+} from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
 import { deviceClients } from "../../../device-clients";
-import http from "../../../http";
+import httpServer from "../../../http-server";
 import { IpcHandler } from "../../types";
 
 export default class HardwareEventsServerUpdateHandler implements IpcHandler {
@@ -26,8 +29,8 @@ export default class HardwareEventsServerUpdateHandler implements IpcHandler {
         continue;
       }
 
-      const eventsServerIp = http.getIp();
-      const eventsServerPort = http.getPort();
+      const eventsServerIp = httpServer.getIp();
+      const eventsServerPort = httpServer.getPort();
 
       try {
         await deviceClient.setEventsServer({

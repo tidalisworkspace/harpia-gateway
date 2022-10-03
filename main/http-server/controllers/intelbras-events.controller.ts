@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { v4 as uuid } from "uuid";
 import logger from "../../../shared/logger";
 import responseReader from "../../helpers/response-reader";
-import service from "../services/intelbrasEvents.service";
+import service from "../services/intelbras-events.service";
 
 function getIp(req: Request) {
   return req.socket.remoteAddress.split(":")[3];
