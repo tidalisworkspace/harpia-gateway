@@ -341,7 +341,7 @@ export class IntelbrasClient implements DeviceClient {
     }
 
     response = await this.fetchAndLog(
-      `http//${this.host}/cgi-bin/magicBox.cgi?action=getSoftwareVersion`
+      `http://${this.host}/cgi-bin/magicBox.cgi?action=getSoftwareVersion`
     );
 
     if (!response.ok) {
