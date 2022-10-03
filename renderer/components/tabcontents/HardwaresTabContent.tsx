@@ -25,6 +25,7 @@ import { ReactNode, useEffect, useState } from "react";
 import {
   HARDWARE_CONNECTION_TEST,
   HARDWARE_DATETIME_UPDATE,
+  HARDWARE_EVENTS_SERVER_UPDATE,
   HARDWARE_FIND_ALL,
   HARDWARE_REBOOT,
 } from "../../../shared/constants/ipc-main-channels.constants";
@@ -195,7 +196,7 @@ export default function HardwaresTabContent() {
     const request: IpcRequest = { params };
 
     const response = await ipcRenderer.request(
-      "hardware_configure_events_server",
+      HARDWARE_EVENTS_SERVER_UPDATE,
       request
     );
 
