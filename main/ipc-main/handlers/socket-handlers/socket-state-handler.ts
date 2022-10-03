@@ -1,6 +1,6 @@
 import { SOCKET_STATE } from "../../../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../../../shared/ipc/types";
-import socket from "../../../socket";
+import socketServer from "../../../socket-server";
 import { IpcHandler } from "../../types";
 
 export default class SocketStateHandler implements IpcHandler {
@@ -9,7 +9,7 @@ export default class SocketStateHandler implements IpcHandler {
   async handle(): Promise<IpcResponse> {
     return {
       status: "success",
-      data: socket.getState(),
+      data: socketServer.getState(),
     };
   }
 }

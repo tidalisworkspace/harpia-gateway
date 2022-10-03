@@ -1,15 +1,19 @@
 import net, { Server } from "net";
 import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
-import { handleConnection } from "./connection";
-import storage from "./connection/storage";
+import ConnectionManager from "./connection-manager/connection-manager";
+import storage from "./connection-manager/storage";
+import { SendMode } from "./types/socket-server.types";
 
-type SendMode = "LOG_AND_SEND" | "JUST_SEND";
-
-class SocketServer {
+export default class SocketServer {
   private defaultPort: number = 5000;
   private port: number;
   private state: string = "stopped";
+  private connectionManager: ConnectionManager;
+
+  constructor(connectionManager: ConnectionManager) {
+    this.connectionManager = connectionManager;
+  }
 
   getPort() {
     return this.port;
@@ -51,7 +55,11 @@ class SocketServer {
 
   private createServer(): Server {
     const server = net.createServer();
-    server.on("connection", handleConnection);
+
+    server.on("connection", (connection) =>
+      this.connectionManager.handleConnection(connection)
+    );
+
     server.on("close", () => logger.info("socket:server connection closed"));
 
     server.on("error", (e: NodeJS.ErrnoException) => {
@@ -147,7 +155,3 @@ class SocketServer {
     this.broadcast(message, "JUST_SEND");
   }
 }
-
-const socket = new SocketServer();
-
-export default socket;

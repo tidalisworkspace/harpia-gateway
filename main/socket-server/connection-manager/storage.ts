@@ -26,7 +26,7 @@ function get(connectionId: string): Socket {
   const connection = connections[connectionId];
 
   if (!connection) {
-    logger.warn(`connectionStorage connection not found by id ${connectionId}`);
+    logger.warn(`socket:connection-manager:storage:${connectionId} not found`);
     return null;
   }
 

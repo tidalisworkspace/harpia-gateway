@@ -1,4 +1,4 @@
-import { TimeRange } from "../socket/connection/handler/types";
+import { TimeRange } from "../socket-server/types/handler.types";
 
 export type Manufacturer = "<HIKV>" | "<ITBF>";
 

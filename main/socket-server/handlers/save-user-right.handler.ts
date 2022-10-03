@@ -1,12 +1,13 @@
-import socket from "../..";
-import logger from "../../../../shared/logger";
-import { deviceClients } from "../../../device-clients";
-import { DataHandler, UserRightRequest } from "./types";
+import socketServer from "..";
+import logger from "../../../shared/logger";
+import { deviceClients } from "../../device-clients";
+import {
+  SocketConnectionHandler,
+  UserRightRequest,
+} from "../types/handler.types";
 
-export class SaveUserRightHandler implements DataHandler {
-  getName(): string {
-    return "setupRightWeekPlan";
-  }
+export class SaveUserRightHandler implements SocketConnectionHandler {
+  name = "setupRightWeekPlan";
 
   async handle(connectionId: string, request: UserRightRequest): Promise<void> {
     const { client, rightPlans } = request.payload;
@@ -31,9 +32,7 @@ export class SaveUserRightHandler implements DataHandler {
           await deviceClient.saveUserRight(rightPlan);
         } catch (e) {
           logger.error(
-            `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
-              e.message
-            }`
+            `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`
           );
 
           errors.push(`IP:${ip}:${port}`);
@@ -44,10 +43,14 @@ export class SaveUserRightHandler implements DataHandler {
     }
 
     if (errors.length) {
-      socket.sendFailureMessage(connectionId, client, ...errors);
+      socketServer.sendFailureMessage(connectionId, client, ...errors);
       return;
     }
 
-    socket.sendSuccessMessage(connectionId, client, "CADASTRADO COM SUCESSO");
+    socketServer.sendSuccessMessage(
+      connectionId,
+      client,
+      "CADASTRADO COM SUCESSO"
+    );
   }
 }

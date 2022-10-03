@@ -1,15 +1,16 @@
 import path from "path";
-import socket from "../..";
-import logger from "../../../../shared/logger";
-import equipamentoModel from "../../../database/models/equipamento.model";
-import { deviceClients } from "../../../device-clients";
-import { DeleteUsersParams } from "../../../device-clients/types";
-import { DataHandler, RecordPeoplesRequest } from "./types";
+import socketServer from "..";
+import logger from "../../../shared/logger";
+import equipamentoModel from "../../database/models/equipamento.model";
+import { deviceClients } from "../../device-clients";
+import { DeleteUsersParams } from "../../device-clients/types";
+import {
+  SocketConnectionHandler,
+  RecordPeoplesRequest,
+} from "../types/handler.types";
 
-export class SaveUserHandler implements DataHandler {
-  getName(): string {
-    return "record";
-  }
+export class SaveUserHandler implements SocketConnectionHandler {
+  name = "record";
 
   private async deleteUsersFromAllDevices(
     connectionId: string,
@@ -30,9 +31,7 @@ export class SaveUserHandler implements DataHandler {
         await deviceClient.deleteUsers({ ids });
       } catch (e) {
         logger.error(
-          `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
-            e.message
-          }`
+          `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`
         );
       }
     }
@@ -72,9 +71,7 @@ export class SaveUserHandler implements DataHandler {
           });
         } catch (e) {
           logger.error(
-            `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
-              e.message
-            }`
+            `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`
           );
 
           errors.push(`IP:${ip}:${port}`);
@@ -89,9 +86,7 @@ export class SaveUserHandler implements DataHandler {
             await deviceClient.saveCard({ id, number });
           } catch (e) {
             logger.error(
-              `socket:handler:${this.getName()}:${connectionId} error ${
-                e.name
-              }:${e.message}`
+              `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`
             );
           }
         }
@@ -105,19 +100,21 @@ export class SaveUserHandler implements DataHandler {
           });
         } catch (e) {
           logger.error(
-            `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
-              e.message
-            }`
+            `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`
           );
         }
       }
     }
 
     if (errors.length) {
-      socket.sendFailureMessage(connectionId, client, ...errors);
+      socketServer.sendFailureMessage(connectionId, client, ...errors);
       return;
     }
 
-    socket.sendSuccessMessage(connectionId, client, "CADASTRADO COM SUCESSO");
+    socketServer.sendSuccessMessage(
+      connectionId,
+      client,
+      "CADASTRADO COM SUCESSO"
+    );
   }
 }

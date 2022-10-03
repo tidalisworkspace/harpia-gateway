@@ -6,7 +6,7 @@ import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
 import range from "../helpers/range";
 import responseReader from "../helpers/response-reader";
-import { TimeRange } from "../socket/connection/handler/types";
+import { TimeRange } from "../socket-server/types/handler.types";
 import {
   DeleteCardsParams,
   DeleteFacesParams,

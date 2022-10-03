@@ -1,5 +1,5 @@
-export interface DataHandler {
-  getName(): string;
+export interface SocketConnectionHandler {
+  readonly name: string;
   handle(connectionId: string, request: Request): Promise<void>;
 }
 
@@ -104,7 +104,7 @@ export interface DeleteUserRightRequest extends Request {
 }
 
 export interface RebootPayload extends Payload {
-  devices: Device[]
+  devices: Device[];
 }
 
 export interface RebootRequest extends Request {

@@ -1,12 +1,13 @@
-import socket from "../..";
-import logger from "../../../../shared/logger";
-import { deviceClients } from "../../../device-clients";
-import { DataHandler, DeleteUserRequest } from "./types";
+import socketServer from "..";
+import logger from "../../../shared/logger";
+import { deviceClients } from "../../device-clients";
+import {
+  DeleteUserRequest,
+  SocketConnectionHandler,
+} from "../types/handler.types";
 
-export class DeleteUserHandler implements DataHandler {
-  getName(): string {
-    return "delete";
-  }
+export class DeleteUserHandler implements SocketConnectionHandler {
+  name = "delete";
 
   async handle(
     connectionId: string,
@@ -34,9 +35,7 @@ export class DeleteUserHandler implements DataHandler {
           await deviceClient.deleteUsers({ ids: [id] });
         } catch (e) {
           logger.error(
-            `socket:handler:${this.getName()}:${connectionId} error ${e.name}:${
-              e.message
-            }`
+            `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`
           );
 
           errors.push(`IP:${ip}:${port}`);
@@ -47,10 +46,14 @@ export class DeleteUserHandler implements DataHandler {
     }
 
     if (errors.length) {
-      socket.sendFailureMessage(connectionId, client, ...errors);
+      socketServer.sendFailureMessage(connectionId, client, ...errors);
       return;
     }
 
-    socket.sendSuccessMessage(connectionId, client, "APAGADO(S) COM SUCESSO");
+    socketServer.sendSuccessMessage(
+      connectionId,
+      client,
+      "APAGADO(S) COM SUCESSO"
+    );
   }
 }

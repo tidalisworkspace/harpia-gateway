@@ -1,12 +1,10 @@
-import socket from "../..";
-import logger from "../../../../shared/logger";
-import { deviceClients } from "../../../device-clients";
-import { DataHandler, RebootRequest } from "./types";
+import socketServer from "..";
+import logger from "../../../shared/logger";
+import { deviceClients } from "../../device-clients";
+import { SocketConnectionHandler, RebootRequest } from "../types/handler.types";
 
-export class RebootHandler implements DataHandler {
-  getName(): string {
-    return "reboot";
-  }
+export class RebootHandler implements SocketConnectionHandler {
+  name = "reboot";
 
   async handle(connectionId: string, request: RebootRequest): Promise<void> {
     const { client, devices } = request.payload;
@@ -27,7 +25,7 @@ export class RebootHandler implements DataHandler {
         await deviceClient.reboot();
       } catch (e) {
         logger.info(
-          `socket:handler:${this.getName()}:${connectionId} error ${e.message}`,
+          `socket:handler:${this.name}:${connectionId} error ${e.message}`,
           e
         );
 
@@ -36,11 +34,11 @@ export class RebootHandler implements DataHandler {
     }
 
     if (errors.length) {
-      socket.sendFailureMessage(connectionId, client, ...errors);
+      socketServer.sendFailureMessage(connectionId, client, ...errors);
       return;
     }
 
-    socket.sendSuccessMessage(
+    socketServer.sendSuccessMessage(
       connectionId,
       client,
       "REINICIADO(S) COM SUCESSO"

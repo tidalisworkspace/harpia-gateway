@@ -1,6 +1,6 @@
 import { SOCKET_CONNECTIONS_AMOUNT } from "../../../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../../../shared/ipc/types";
-import storage from "../../../socket/connection/storage";
+import storage from "../../../socket-server/connection-manager/storage";
 import { IpcHandler } from "../../types";
 
 export default class SocketConnectionsAmountHandler implements IpcHandler {

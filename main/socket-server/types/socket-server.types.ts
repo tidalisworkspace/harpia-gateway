@@ -1,0 +1,1 @@
+export type SendMode = "LOG_AND_SEND" | "JUST_SEND";

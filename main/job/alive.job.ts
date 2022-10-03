@@ -1,9 +1,9 @@
 import cron from "node-cron";
-import socket from "../socket";
+import socketServer from "../socket-server";
 import defaultJobOptions from "./default-job-options";
 
 function execute() {
-  socket.sendAliveMessage();
+  socketServer.sendAliveMessage();
 }
 
 export default cron.schedule("*/30 * * * * *", execute, defaultJobOptions);

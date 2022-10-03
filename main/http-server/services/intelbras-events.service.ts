@@ -7,7 +7,7 @@ import equipamentoModel from "../../database/models/equipamento.model";
 import eventoModel from "../../database/models/evento.model";
 import pessoaModel from "../../database/models/pessoa.model";
 import ipcMain from "../../ipc-main";
-import socket from "../../socket";
+import socketServer from "../../socket-server";
 import IntelbrasEvent, { EventInfo } from "../types/IntelbrasEvent";
 import { TipoEvento } from "../types/TipoEvento";
 
@@ -142,7 +142,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
 
     const message = `${tag}${pessoaId}@${ipWithPad}@0@0@${timestamp}@1`;
 
-    socket.broadcast(message);
+    socketServer.broadcast(message);
   }
 }
 
