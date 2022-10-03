@@ -56,7 +56,9 @@ export class IntelbrasClient implements DeviceClient {
 
       logger.info(`intelbras-client:${this.host} initilized`);
     } catch (e) {
-      logger.error(`intelbras-client:${this.host} error ${e.name}:${e.message}`);
+      logger.error(
+        `intelbras-client:${this.host} error ${e.name}:${e.message}`
+      );
 
       this.httpClient = new DigestFetch("admin", "admin123");
     }
@@ -217,7 +219,11 @@ export class IntelbrasClient implements DeviceClient {
     beginTime = beginTime.replace("T", " ");
     endTime = endTime.replace("T", " ");
 
-    const timeSections = rightPlans || [0];
+    let timeSections = rightPlans || [0];
+
+    if (rightPlans && rightPlans.length) {
+      timeSections = rightPlans;
+    }
 
     const body = {
       UserList: [

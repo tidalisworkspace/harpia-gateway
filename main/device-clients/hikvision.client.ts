@@ -235,9 +235,13 @@ export class HikvisionClient implements DeviceClient {
   saveUser(params: SaveUserParams): Promise<Response> {
     const { id, name, rightPlans, expiration } = params;
 
-    const RightPlan = (rightPlans || [1]).map((rightPlan) => ({
-      planTemplateNo: rightPlan.toString(),
-    }));
+    let RightPlan: any = [{ planTemplateNo: ["1"] }];
+
+    if (rightPlans && rightPlans.length) {
+      RightPlan = rightPlans.map((rightPlan) => ({
+        planTemplateNo: rightPlan.toString(),
+      }));
+    }
 
     const Valid = expiration
       ? { enable: true, ...expiration }

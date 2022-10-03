@@ -35,7 +35,7 @@ export interface CaptureFaceRequest extends Request {
 export interface Device {
   ip: string;
   port: number;
-  rightPlans?: any[];
+  rightPlans?: number[];
 }
 
 export interface People {
