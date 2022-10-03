@@ -54,9 +54,9 @@ export class IntelbrasClient implements DeviceClient {
 
       this.httpClient = new DigestFetch(username, password);
 
-      logger.info(`intelbrasClient:${this.host} initilized`);
+      logger.info(`intelbras-client:${this.host} initilized`);
     } catch (e) {
-      logger.error(`intelbrasClient:${this.host} error ${e.name}:${e.message}`);
+      logger.error(`intelbras-client:${this.host} error ${e.name}:${e.message}`);
 
       this.httpClient = new DigestFetch("admin", "admin123");
     }
@@ -68,6 +68,8 @@ export class IntelbrasClient implements DeviceClient {
     url: string,
     options: RequestInit = null
   ): Promise<Response> {
+    logger.debug(`intelbras-client:${this.host} fetch ${url}`);
+
     const request: Promise<Response> = options
       ? this.httpClient.fetch(url, options)
       : this.httpClient.fetch(url);
@@ -78,7 +80,7 @@ export class IntelbrasClient implements DeviceClient {
       const responseBody = await response.text();
 
       logger.debug(
-        `intelbrasClient:${this.host} fetch not ok ${url} ${response.status} ${response.statusText} ${responseBody}`
+        `intelbras-client:${this.host} fetch not ok ${url} ${response.status} ${response.statusText} ${responseBody}`
       );
     }
 

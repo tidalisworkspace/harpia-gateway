@@ -53,9 +53,9 @@ export class HikvisionClient implements DeviceClient {
 
       this.httpClient = new DigestFetch(username, password);
 
-      logger.info(`hikvisionClient:${this.host} initilized`);
+      logger.info(`hikvision-client:${this.host} initilized`);
     } catch (e) {
-      logger.error(`hikvisionClient:${this.host} ${e.name}:${e.message}`);
+      logger.error(`hikvision-client:${this.host} ${e.name}:${e.message}`);
 
       this.httpClient = new DigestFetch("admin", "admin");
     }
@@ -67,6 +67,8 @@ export class HikvisionClient implements DeviceClient {
     url: string,
     options: RequestInit = null
   ): Promise<Response> {
+    logger.debug(`hikvision-client:${this.host} fetch ${url}`);
+
     const request: Promise<Response> = options
       ? this.httpClient.fetch(url, options)
       : this.httpClient.fetch(url);
@@ -76,8 +78,8 @@ export class HikvisionClient implements DeviceClient {
     if (!response.ok) {
       const responseBody = await response.text();
 
-      logger.debug(
-        `hikvisionClient:${this.host} fetch not ok ${url} ${response.status} ${response.statusText} ${responseBody}`
+      logger.error(
+        `hikvision-client:${this.host} fetch not ok ${url} ${response.status} ${response.statusText} ${responseBody}`
       );
     }
 
