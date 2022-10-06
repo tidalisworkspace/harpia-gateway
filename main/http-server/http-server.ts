@@ -28,25 +28,17 @@ export default class HttpServer {
         attributes: ["ipHttp"],
       });
 
-      if (!parametro) {
-        logger.warn(
-          `http:server parameter not found, using ${this.ip} as events server ip`
-        );
-
-        return this.ip;
-      }
-
-      if (!parametro.ipHttp) {
-        logger.warn(
-          `http:server ip value not found, using ${this.ip} as events server ip`
-        );
+      if (!parametro || !parametro.ipHttp) {
+        logger.warn(`http-server:load-ip using default ip`);
 
         return this.ip;
       }
 
       return parametro.ipHttp;
     } catch (e) {
-      logger.warn(`http:server error, using ${this.ip} as events server ip`);
+      logger.error(
+        `http-server:load-ip using default ip ${e.name}:${e.message}`
+      );
 
       return this.ip;
     }
@@ -58,18 +50,8 @@ export default class HttpServer {
         attributes: ["portaHttp"],
       });
 
-      if (!parametro) {
-        logger.warn(
-          `http:server parameter not found, using port ${this.port} (default)`
-        );
-
-        return this.port;
-      }
-
-      if (!parametro.portaHttp) {
-        logger.warn(
-          `http:server port value not found, using port ${this.port} (default)`
-        );
+      if (!parametro || !parametro.portaHttp) {
+        logger.warn(`http-server:load-port using default port`);
 
         return this.port;
       }
@@ -77,7 +59,7 @@ export default class HttpServer {
       return parametro.portaHttp;
     } catch (e) {
       logger.warn(
-        `http:server error, using port ${this.port} (default) ${e.name}:${e.message}`
+        `http-server:load-port using default port ${e.name}:${e.message}`
       );
 
       return this.port;
@@ -96,12 +78,12 @@ export default class HttpServer {
     const server = app.listen(this.port);
 
     server.on("listening", () => {
-      logger.info(`http:server listening at ${this.port}`);
+      logger.info(`http-server:create-server listening ${this.port}`);
       this.state = "running";
     });
 
     server.on("error", (e: NodeJS.ErrnoException) => {
-      logger.error(`http:server error ${e.name}:${e.message}`);
+      logger.error(`http-server:create-server ${e.name}:${e.message}`);
 
       if (e.code === "EADDRINUSE") {
         this.state = "error";

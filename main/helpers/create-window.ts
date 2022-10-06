@@ -24,7 +24,7 @@ function getIconFilePath() {
     iconPath = path.resolve(resourcesDir, "icon.ico");
   }
 
-  logger.debug(`app:main using icon ${iconPath}`);
+  logger.debug(`app:get-icon-file-path ${iconPath}`);
 
   return iconPath;
 }

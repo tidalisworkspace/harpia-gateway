@@ -12,10 +12,20 @@ import HikvisionEvent from "../types/HikvisionEvent";
 import { TipoEvento } from "../types/TipoEvento";
 
 function isIrrelevant(event: HikvisionEvent) {
-  return (
+  const irrelevant =
     event.AccessControllerEvent.majorEventType != 5 ||
-    event.AccessControllerEvent.subEventType != 75
-  );
+    event.AccessControllerEvent.subEventType != 75;
+
+  if (irrelevant) {
+    const major = event.AccessControllerEvent.majorEventType;
+    const minor = event.AccessControllerEvent.subEventType;
+
+    logger.warn(
+      `http-server:hikvision-events-service:create:${event.logId} irrelevant event major=${major} minor=${minor}`
+    );
+  }
+
+  return irrelevant;
 }
 
 function hasCardNumber(event: HikvisionEvent) {
@@ -35,7 +45,7 @@ function toTimestamp(dateTimeISO: string): string {
   return `${toDate(dateTimeISO)} ${toHour(dateTimeISO)}`;
 }
 
-function getTipoEvento(event: HikvisionEvent): TipoEvento {
+function getEventType(event: HikvisionEvent): TipoEvento {
   const dateTime = parseISO(event.dateTime);
   const now = new Date();
 
@@ -43,7 +53,7 @@ function getTipoEvento(event: HikvisionEvent): TipoEvento {
 
   if (minutes > 1) {
     logger.debug(
-      `http:hikvisionEventsService:${event.logId} ${minutes}min ago (offline event)`
+      `http-server:hikvision-events-service:get-event-type:${event.logId} offline event minutes=${minutes} dateTime=${dateTime}`
     );
 
     return "OFF";
@@ -65,14 +75,14 @@ async function create(event: HikvisionEvent): Promise<void> {
 
   if (!equipamento) {
     logger.warn(
-      `http:hikvisionEventsService:${logId} device with not found by ip ${ipAddress}`
+      `http-server:hikvision-events-service:create:${logId} device not found ip=${ipAddress}`
     );
     return;
   }
 
   if (equipamento.ignorarEvento) {
     logger.warn(
-      `http:hikvisionEventsService:${logId} device ${ipAddress} is ignoring events`
+      `http-server:hikvision-events-service:create:${logId} device ignoring events ip=${ipAddress}`
     );
     return;
   }
@@ -94,17 +104,10 @@ async function create(event: HikvisionEvent): Promise<void> {
   }
 
   if (isIrrelevant(event)) {
-    const major = event.AccessControllerEvent.majorEventType;
-    const minor = event.AccessControllerEvent.subEventType;
-
-    logger.warn(
-      `http:hikvisionEventsService:${logId} irrelevant event ${major}:${minor}`
-    );
-
     return;
   }
 
-  const tipoEvento = getTipoEvento(event);
+  const eventType = getEventType(event);
 
   const pessoaId = event.AccessControllerEvent.employeeNoString;
 
@@ -112,7 +115,7 @@ async function create(event: HikvisionEvent): Promise<void> {
 
   if (!pessoa) {
     logger.warn(
-      `http:hikvisionEventsService:${logId} people not found by id ${pessoaId}`
+      `http-server:hikvision-events-service:create:${logId} people not found id=${pessoaId}`
     );
   }
 
@@ -131,7 +134,7 @@ async function create(event: HikvisionEvent): Promise<void> {
       equipamentoId: equipamento.id,
       tipoCadastroPessoa: pessoa.tipoCadastro,
       sentido: equipamento.funcaoBotao1,
-      tipo: tipoEvento,
+      tipo: eventType,
       codigoEquipamento: "HK",
       fabricanteEquipamento: "<HICK>",
       modeloEquipamento: equipamento.modelo,
@@ -140,7 +143,7 @@ async function create(event: HikvisionEvent): Promise<void> {
     await eventoModel().create(evento);
   }
 
-  if (tipoEvento === "OFF") {
+  if (eventType === "OFF") {
     return;
   }
 

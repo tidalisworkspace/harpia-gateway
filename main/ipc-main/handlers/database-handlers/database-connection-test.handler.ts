@@ -28,7 +28,7 @@ export class DatabaseConnectionTestHandler implements IpcHandler {
         message: "Conexão estabelecida",
       };
     } catch (e) {
-      logger.error(`ipcMain:${this.channel} ${e.name}:${e.message}`);
+      logger.error(`ipc-main:${this.channel} ${e.name}:${e.message}`);
 
       return {
         status: "error",

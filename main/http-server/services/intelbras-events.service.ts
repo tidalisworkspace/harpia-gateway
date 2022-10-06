@@ -11,12 +11,20 @@ import socketServer from "../../socket-server";
 import IntelbrasEvent, { EventInfo } from "../types/IntelbrasEvent";
 import { TipoEvento } from "../types/TipoEvento";
 
-function isIrrelevant(eventInfo: EventInfo) {
-  return (
-    eventInfo.Code !== "AccessControl" ||
-    !eventInfo?.Data?.UserID ||
-    !!eventInfo?.Data?.ErrorCode
-  );
+function isIrrelevant(logId: string, eventInfo: EventInfo) {
+  const code = eventInfo.Code;
+  const userId = eventInfo?.Data?.UserID || "";
+  const errorCode = eventInfo?.Data?.ErrorCode || "";
+
+  const irrelevant = code !== "AccessControl" || !userId || !!errorCode;
+
+  if (irrelevant) {
+    logger.warn(
+      `http-server:intelbras-events-service:create:${logId} irrelevant event code=${code} userId=${userId} errorCode=${errorCode}`
+    );
+  }
+
+  return irrelevant;
 }
 
 function hasCardNumber(eventInfo: EventInfo) {
@@ -40,13 +48,21 @@ function toTimestamp(dateTimeISO: string): string {
   return `${toDate(dateTimeISO)} ${toHour(dateTimeISO)}`;
 }
 
-function getTipoEvento(event: IntelbrasEvent): TipoEvento {
+function getEventType(event: IntelbrasEvent): TipoEvento {
   const dateTime = fromDateTimeString(event.Time);
   const now = new Date();
 
   const minutes = differenceInMinutes(now, dateTime);
 
-  return minutes > 1 ? "OFF" : "ON";
+  if (minutes > 1) {
+    logger.debug(
+      `http-server:intelbras-events-service:get-event-type:${event.logId} offline event minutes=${minutes} dateTime=${dateTime}`
+    );
+
+    return "OFF";
+  }
+
+  return "ON";
 }
 
 function useStrToDate(str: string, format: string) {
@@ -60,14 +76,14 @@ async function create(event: IntelbrasEvent): Promise<void> {
 
   if (!equipamento) {
     logger.warn(
-      `http:intelbrasEventsService:${logId} device with not found by ip ${ip}`
+      `http-server:intelbras-events-service:create:${logId} device not found ip=${ip}`
     );
     return;
   }
 
   if (equipamento.ignorarEvento) {
     logger.warn(
-      `http:intelbrasEventsService:${logId} device ${ip} is ignoring events`
+      `http-server:intelbras-events-service:create:${logId} device ignoring events ip=${ip}`
     );
     return;
   }
@@ -89,12 +105,11 @@ async function create(event: IntelbrasEvent): Promise<void> {
       ipcMain.sendToRenderer(CARDS_CONTENT_ADD, response);
     }
 
-    if (isIrrelevant(eventInfo)) {
-      logger.warn(`http:intelbrasEventsService:${logId} irrelevant event`);
+    if (isIrrelevant(logId, eventInfo)) {
       continue;
     }
 
-    const tipoEvento = getTipoEvento(event);
+    const tipoEvento = getEventType(event);
 
     const pessoaId = eventInfo.Data.UserID;
 
@@ -102,7 +117,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
 
     if (!pessoa) {
       logger.warn(
-        `http:intelbrasEventsService:${logId} people not found by id ${pessoaId}`
+        `http-server:intelbras-events-service:create:${logId} people not found id=${pessoaId}`
       );
     }
 
@@ -131,8 +146,6 @@ async function create(event: IntelbrasEvent): Promise<void> {
     }
 
     if (tipoEvento === "OFF") {
-      logger.info(`http:intelbrasEventsService:${logId} offline event`);
-
       continue;
     }
 

@@ -38,7 +38,7 @@ export default class HardwareEventsServerUpdateHandler implements IpcHandler {
           port: eventsServerPort,
         });
       } catch (e) {
-        logger.error(`ipcMain:${this.channel} ${ip} ${e.name}:${e.message}`);
+        logger.error(`ipc-main:${this.channel}:${ip} ${e.name}:${e.message}`);
 
         errors.push(ip);
 

@@ -30,7 +30,7 @@ class Database {
   }
 
   async start(): Promise<void> {
-    log.info(`database:connection using ${this.env} env`);
+    log.info(`database:start ${this.env} environment`);
     const options = this.getOptions();
 
     const connection = new Sequelize(options);
@@ -39,7 +39,7 @@ class Database {
       await connection.authenticate();
       this.connection = connection;
     } catch (e) {
-      logger.error(`database:connection error (disconnected) ${e.name}:${e.message}`);
+      logger.error(`database:start disconnected ${e.name}:${e.message}`);
     }
   }
 }

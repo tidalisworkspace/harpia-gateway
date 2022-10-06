@@ -42,7 +42,7 @@ class ResponseReader {
       return i;
     }
 
-    logger.debug("responseReader:findIndex search not found")
+    logger.debug(`response-reader:find-index search not found index=${index}`);
 
     return index;
   }
@@ -115,9 +115,7 @@ class ResponseReader {
     );
 
     if (!boundary) {
-      logger.debug(
-        `responseReader:boundary boundary definition not found for ${manufacturer}`
-      );
+      logger.debug(`response-reader:boundary:${manufacturer} not found`);
     }
 
     return boundary;

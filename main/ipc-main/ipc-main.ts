@@ -21,7 +21,7 @@ export default class IpcMain {
       const response = await handler.handle(event, request);
       return response;
     } catch (e) {
-      logger.error(`ipc-main:${handler.channel} ${e.name}:${e.message}`);
+      logger.error(`ipc-main:handle-wrapper:${handler.channel} ${e.name}:${e.message}`);
 
       return {
         status: "error",
@@ -37,7 +37,7 @@ export default class IpcMain {
   }
 
   async start(): Promise<void> {
-    logger.info(`ipc-main:start starting ${this.handlers.length} handlers`);
+    logger.info(`ipc-main:start ${this.handlers.length} handlers`);
 
     for (const handler of this.handlers) {
       this.addHandler(handler);

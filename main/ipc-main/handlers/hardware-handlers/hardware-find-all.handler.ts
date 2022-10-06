@@ -1,10 +1,11 @@
 import { HARDWARE_FIND_ALL } from "../../../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
-import equipamentoModel, { Equipamento } from "../../../database/models/equipamento.model";
+import equipamentoModel, {
+  Equipamento,
+} from "../../../database/models/equipamento.model";
 import store from "../../../store";
 import { IpcHandler } from "../../types";
-
 
 export default class HardwareFindAllHandler implements IpcHandler {
   channel = HARDWARE_FIND_ALL;
@@ -36,7 +37,7 @@ export default class HardwareFindAllHandler implements IpcHandler {
         data: hardwares,
       };
     } catch (e) {
-      logger.error(`ipcMain:${this.channel} ${e.name}:${e.message}`);
+      logger.error(`ipc-main:${this.channel} ${e.name}:${e.message}`);
 
       return {
         status: "error",

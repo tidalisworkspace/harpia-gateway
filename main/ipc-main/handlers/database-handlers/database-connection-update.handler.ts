@@ -42,7 +42,7 @@ export class DatabaseConnectionUpdateHandler implements IpcHandler {
         message: "Dados de conexão atualizados",
       };
     } catch (e) {
-      logger.error(`ipcMain:${this.channel} ${e.name}:${e.message}`);
+      logger.error(`ipc-main:${this.channel} ${e.name}:${e.message}`);
 
       ipcMain.sendToRenderer(SETTINGS_TAB_DOT, {
         status: "error",

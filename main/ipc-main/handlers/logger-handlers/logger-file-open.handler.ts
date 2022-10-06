@@ -11,7 +11,7 @@ export class LoggerFileOpenHandler implements IpcHandler {
     const message = await shell.openPath(logger.transports.file.getFile().path);
 
     if (message) {
-      logger.error(`ipcMain:${this.channel} ${message}`);
+      logger.error(`ipc-main:${this.channel} ${message}`);
 
       return {
         status: "error",

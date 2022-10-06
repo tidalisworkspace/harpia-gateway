@@ -1,1 +1,1 @@
-export type TipoEvento = "OFF" | "ON"
+export type TipoEvento = "OFF" | "ON";
