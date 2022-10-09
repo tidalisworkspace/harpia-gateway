@@ -81,6 +81,9 @@ export default function equipamentoModel() {
             {
               modelo: "ITB FACE1",
             },
+            {
+              modelo: "ID FACE",
+            },
           ],
         },
       },
