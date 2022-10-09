@@ -49,8 +49,8 @@ export class IntelbrasClient implements DeviceClient {
 
     try {
       const parametro = await parametroModel().findOne();
-      const username = parametro?.usuarioIntelbras || "admin";
-      const password = parametro?.senhaIntelbras || "admin123";
+      const username = parametro?.usuarioDispositivo || "admin";
+      const password = parametro?.senhaDispositivo || "admin123";
 
       this.httpClient = new DigestFetch(username, password);
     } catch (e) {
