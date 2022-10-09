@@ -1,11 +1,12 @@
 import log from "electron-log";
-import {
-  ConnectionError, Options,
-  Sequelize
-} from "sequelize";
+import { ConnectionError, Options, Sequelize } from "sequelize";
 import logger from "../../shared/logger";
 import { envname } from "../helpers/environment";
 import Config from "./config";
+import equipamentoModel from "./models/equipamento.model";
+import eventoModel from "./models/evento.model";
+import parametroModel from "./models/parametro.model";
+import pessoaModel from "./models/pessoa.model";
 
 class Database {
   private config: Config;
@@ -37,7 +38,15 @@ class Database {
 
     try {
       await connection.authenticate();
+      
       this.connection = connection;
+
+      await Promise.all([
+        equipamentoModel().sync(),
+        eventoModel().sync(),
+        parametroModel().sync(),
+        pessoaModel().sync(),
+      ]);
     } catch (e) {
       logger.error(`database:start disconnected ${e.name}:${e.message}`);
     }
