@@ -37,6 +37,7 @@ const { Text } = Typography;
 const manufacturers = {
   "<HIKV>": "Hikvision",
   "<ITBF>": "Intelbras",
+  "<CIBM>": "Control iD"
 };
 
 function getManufacturerName(manufacturer) {
