@@ -21,7 +21,7 @@ import {
   SetEventsServerParams,
 } from "./types";
 
-export class IntelbrasClient implements DeviceClient {
+export class IntelbrasClient implements DeviceClient<Response> {
   private ip: string;
   private host: string;
   private httpClient: DigestFetch;
@@ -43,7 +43,7 @@ export class IntelbrasClient implements DeviceClient {
     return "<ITBF>";
   }
 
-  async init(ip: string, port: number): Promise<DeviceClient> {
+  async init(ip: string, port: number): Promise<DeviceClient<Response>> {
     this.ip = ip;
     this.host = `${ip}:${port}`;
 
