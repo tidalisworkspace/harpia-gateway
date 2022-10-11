@@ -20,7 +20,7 @@ import {
   SetEventsServerParams,
 } from "./types";
 
-export class HikvisionClient implements DeviceClient {
+export class HikvisionClient implements DeviceClient<Response> {
   private ip: string;
   private host: string;
   private httpClient: DigestFetch;
@@ -42,7 +42,7 @@ export class HikvisionClient implements DeviceClient {
     return "<HIKV>";
   }
 
-  async init(ip: string, port: number): Promise<DeviceClient> {
+  async init(ip: string, port: number): Promise<DeviceClient<Response>> {
     this.ip = ip;
     this.host = `${ip}:${port}`;
 
@@ -287,8 +287,8 @@ export class HikvisionClient implements DeviceClient {
     return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
-  private toPlanConfig(id, day, rightPlan) {
-    if (!rightPlan) {
+  private toPlanConfig(id: number, day: string, params: SaveUserRightParams) {
+    if (!params) {
       return {
         id,
         week: this.capitalize(day),
@@ -296,7 +296,7 @@ export class HikvisionClient implements DeviceClient {
       };
     }
 
-    const { beginTime, endTime } = rightPlan[day] || this.defaultTimeRange;
+    const { beginTime, endTime } = params[day] || this.defaultTimeRange;
 
     return {
       id,
@@ -306,9 +306,9 @@ export class HikvisionClient implements DeviceClient {
     };
   }
 
-  private getPlanConfigs(rightPlan) {
+  private getPlanConfigs(params: SaveUserRightParams) {
     return this.days.reduce((accumulator, current) => {
-      const planConfig = this.toPlanConfig(1, current, rightPlan);
+      const planConfig = this.toPlanConfig(1, current, params);
 
       const planConfigs = range(7, 2).map((id) =>
         this.toPlanConfig(id, current, null)
@@ -346,7 +346,7 @@ export class HikvisionClient implements DeviceClient {
       }
     );
 
-    if (response.status != 200) {
+    if (!response.ok) {
       return Promise.reject("Error to create user right");
     }
 
