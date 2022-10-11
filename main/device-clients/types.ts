@@ -2,21 +2,21 @@ import { TimeRange } from "../socket-server/types/handler.types";
 
 export type Manufacturer = "<HIKV>" | "<ITBF>" | "<CIBM>";
 
-export interface DeviceClient {
+export interface DeviceClient<R> {
   getManufacturer(): Manufacturer;
-  init(ip: string, port: number): Promise<DeviceClient>;
-  openDoor(): Promise<Response>;
-  updateTime(): Promise<Response>;
+  init(ip: string, port: number): Promise<DeviceClient<unknown>>;
+  openDoor(): Promise<R>;
+  updateTime(): Promise<R>;
   captureFace(): Promise<string>;
-  saveFace(params: SaveFaceParams): Promise<Response>;
-  deleteFaces(params: DeleteFacesParams): Promise<Response>;
-  saveCard(params: SaveCardParams): Promise<Response>;
-  deleteCards(params: DeleteCardsParams): Promise<Response>;
-  saveUser(params: SaveUserParams): Promise<Response>;
-  deleteUsers(params: DeleteUsersParams): Promise<Response>;
-  saveUserRight(params: SaveUserRightParams): Promise<Response>;
+  saveFace(params: SaveFaceParams): Promise<R>;
+  deleteFaces(params: DeleteFacesParams): Promise<R>;
+  saveCard(params: SaveCardParams): Promise<R>;
+  deleteCards(params: DeleteCardsParams): Promise<R>;
+  saveUser(params: SaveUserParams): Promise<R>;
+  deleteUsers(params: DeleteUsersParams): Promise<R>;
+  saveUserRight(params: SaveUserRightParams): Promise<R>;
   deleteAllUserRight(): Promise<void>;
-  reboot(): Promise<Response>;
+  reboot(): Promise<R>;
   setEventsServer(params: SetEventsServerParams): Promise<void>;
   testConnection(): Promise<string>;
 }

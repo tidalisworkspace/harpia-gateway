@@ -5,12 +5,12 @@ import { IntelbrasClient } from "./intelbras.client";
 import { DeviceClient } from "./types";
 
 class DeviceClients {
-  private clients: DeviceClient[] = [
+  private clients: DeviceClient<unknown>[] = [
     new HikvisionClient(),
     new IntelbrasClient(),
   ];
 
-  async get(ip: string, port: number): Promise<DeviceClient> {
+  async get(ip: string, port: number): Promise<DeviceClient<unknown>> {
     const equipamento = await equipamentoModel().findOne({ where: { ip } });
 
     if (!equipamento) {
