@@ -120,12 +120,12 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     login: string;
     password: string;
   }> {
-    const defaults = { login: "admin", password: "admin" };
+    const defaultCredentials = { login: "admin", password: "admin" };
 
     try {
       const parametro = await parametroModel().findOne();
-      const login = parametro?.usuarioDispositivo || defaults.login;
-      const password = parametro?.senhaDispositivo || defaults.password;
+      const login = parametro?.usuarioControlId || defaultCredentials.login;
+      const password = parametro?.senhaControlId || defaultCredentials.password;
 
       return { login, password };
     } catch (e) {
@@ -133,7 +133,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
         `controlid-client:${this.host}:get-login-and-password ${e.name}:${e.message}`
       );
 
-      return defaults;
+      return defaultCredentials;
     }
   }
 

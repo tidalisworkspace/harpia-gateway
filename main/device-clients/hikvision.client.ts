@@ -48,8 +48,8 @@ export class HikvisionClient implements DeviceClient<Response> {
 
     try {
       const parametro = await parametroModel().findOne();
-      const username = parametro?.usuarioDispositivo || "admin";
-      const password = parametro?.senhaDispositivo || "admin";
+      const username = parametro?.usuarioHikvision || "admin";
+      const password = parametro?.senhaIntelbras || "admin";
 
       this.httpClient = new DigestFetch(username, password);
     } catch (e) {

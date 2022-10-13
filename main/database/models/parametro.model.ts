@@ -7,8 +7,12 @@ export interface Parametro extends Model {
   portaSocket: number;
   ipHttp: string;
   portaHttp: number;
-  usuarioDispositivo: string;
-  senhaDispositivo: string;
+  usuarioHikvision: string;
+  senhaHikvision: string;
+  usuarioIntelbras: string;
+  senhaIntelbras: string;
+  usuarioControlId: string;
+  senhaControlId: string;
 }
 
 export default function parametroModel() {
@@ -35,20 +39,35 @@ export default function parametroModel() {
         type: DataTypes.STRING,
         field: "cd_ip_server_par",
       },
-      portaHttp: {
+      usuarioHikvision: {
         allowNull: false,
-        type: DataTypes.DOUBLE,
-        field: "cd_porta_http_par",
+        type: DataTypes.STRING(15),
+        field: "cd_usuario_hik_par",
       },
-      usuarioDispositivo: {
+      senhaHikvision: {
         allowNull: false,
-        type: DataTypes.STRING,
-        field: "cd_usuario_dispositivo_par",
+        type: DataTypes.STRING(15),
+        field: "cd_senha_hik_par",
       },
-      senhaDispositivo: {
+      usuarioIntelbras: {
         allowNull: false,
-        type: DataTypes.STRING,
-        field: "cd_senha_dispositivo_par",
+        type: DataTypes.STRING(15),
+        field: "cd_usuario_int_par",
+      },
+      senhaIntelbras: {
+        allowNull: false,
+        type: DataTypes.STRING(15),
+        field: "cd_senha_int_par",
+      },
+      usuarioControlId: {
+        allowNull: false,
+        type: DataTypes.STRING(15),
+        field: "cd_login_ctrlid_par",
+      },
+      senhaControlId: {
+        allowNull: false,
+        type: DataTypes.STRING(15),
+        field: "cd_senha_ctrlid_par",
       },
     },
     {
