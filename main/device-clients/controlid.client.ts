@@ -484,19 +484,17 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       return "ping_failed";
     }
 
-    let response = await this.fetchAndLog({ method: "get", url: "/" });
+    const response = await this.fetchAndLog({ method: "get", url: "/" });
 
     if (!this.isOk(response)) {
       return "response_not_ok";
     }
 
-    response = await this.fetchAndLogWithSession({
-      method: "post",
-      url: "/get_configuration.fcgi",
-      data: { general: ["beep_enabled"] },
-    });
+    const params = await this.getLoginAndPassword()
 
-    if (!this.isOk(response)) {
+    const session = await this.login(params);
+
+    if (Boolean(session)) {
       return "invalid_credentials";
     }
 
