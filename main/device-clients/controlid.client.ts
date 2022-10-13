@@ -1,4 +1,3 @@
-import { IdcardTwoTone } from "@ant-design/icons";
 import axios, { Axios, AxiosRequestConfig, AxiosResponse } from "axios";
 import { format, parse } from "date-fns";
 import fs from "fs";
@@ -189,7 +188,9 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   private async fetchAndLogWithSession(
     config: AxiosRequestConfig
   ): Promise<AxiosResponse> {
-    config.params.session = await this.generateSession();
+    const session = await this.generateSession();
+    config.params = config.params ? { ...config.params, session } : { session };
+
     return this.fetchAndLog(config);
   }
 
@@ -490,7 +491,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       return "response_not_ok";
     }
 
-    const params = await this.getLoginAndPassword()
+    const params = await this.getLoginAndPassword();
 
     const session = await this.login(params);
 
