@@ -1,5 +1,7 @@
 import { DataTypes, Model, Op } from "sequelize";
 import database from "..";
+import logger from "../../../shared/logger";
+import { Manufacturer } from "../../device-clients/types";
 
 export interface Equipamento extends Model {
   id: number;
@@ -11,6 +13,36 @@ export interface Equipamento extends Model {
   porta: number;
   funcaoBotao1: string;
   ignorarEvento: boolean;
+  codigoEvento: string;
+}
+
+const codigosEvento: { manufacturer: Manufacturer; codigo: string }[] = [
+  {
+    manufacturer: "<HIKV>",
+    codigo: "HK",
+  },
+  {
+    manufacturer: "<ITBF>",
+    codigo: "IB",
+  },
+  {
+    manufacturer: "<CIBM>",
+    codigo: "CI",
+  },
+];
+
+function getCodigoEvento(manufacturer: string) {
+  const codigoEvento = codigosEvento.find(
+    (codigoEvento) => codigoEvento.manufacturer === manufacturer
+  );
+
+  if (!codigoEvento) {
+    logger.warn(
+      `database:equipamento:get-codigo-evento not found manufacturer=${manufacturer}`
+    );
+  }
+
+  return codigoEvento;
 }
 
 export default function equipamentoModel() {
@@ -66,6 +98,15 @@ export default function equipamentoModel() {
         field: "ic_ignora_qq_evt_pos",
         get() {
           return this.getDataValue("ignorarEvento") === "S";
+        },
+      },
+      codigoEvento: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return getCodigoEvento(this.fabricante);
+        },
+        set() {
+          throw new Error("Do not try to set the `codigoEvento` value!");
         },
       },
     },
