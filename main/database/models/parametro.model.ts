@@ -39,6 +39,11 @@ export default function parametroModel() {
         type: DataTypes.STRING,
         field: "cd_ip_server_par",
       },
+      portaHttp: {
+        allowNull: false,
+        type: DataTypes.DOUBLE,
+        field: "cd_porta_http_par",
+      },
       usuarioHikvision: {
         allowNull: false,
         type: DataTypes.STRING(15),
