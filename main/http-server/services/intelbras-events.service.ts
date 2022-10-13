@@ -29,7 +29,7 @@ function isIrrelevant(logId: string, eventInfo: EventInfo) {
 
 function hasCardNumber(eventInfo: EventInfo) {
   const cardNumber = eventInfo?.Data?.CardNo;
-  return cardNumber && cardNumber.length && cardNumber.trim() !== "";
+  return cardNumber && cardNumber.length && cardNumber.trim();
 }
 
 function fromDateTimeString(str: string) {
@@ -137,8 +137,8 @@ async function create(event: IntelbrasEvent): Promise<void> {
         tipoCadastroPessoa: pessoa.tipoCadastro,
         sentido: equipamento.funcaoBotao1,
         tipo: tipoEvento,
-        codigoEquipamento: "IB",
-        fabricanteEquipamento: "<ITBF>",
+        codigoEquipamento: equipamento.codigoEvento,
+        fabricanteEquipamento: equipamento.fabricante,
         modeloEquipamento: equipamento.modelo,
       };
 

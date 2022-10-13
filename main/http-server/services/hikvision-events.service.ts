@@ -30,7 +30,7 @@ function isIrrelevant(event: HikvisionEvent) {
 
 function hasCardNumber(event: HikvisionEvent) {
   const cardNumber = event?.AccessControllerEvent?.cardNo;
-  return cardNumber && cardNumber.length && cardNumber.trim() !== "";
+  return cardNumber && cardNumber.length && cardNumber.trim();
 }
 
 function toDate(dateTimeISO: string): string {
@@ -135,8 +135,8 @@ async function create(event: HikvisionEvent): Promise<void> {
       tipoCadastroPessoa: pessoa.tipoCadastro,
       sentido: equipamento.funcaoBotao1,
       tipo: eventType,
-      codigoEquipamento: "HK",
-      fabricanteEquipamento: "<HICK>",
+      codigoEquipamento: equipamento.codigoEvento,
+      fabricanteEquipamento: equipamento.fabricante,
       modeloEquipamento: equipamento.modelo,
     };
 

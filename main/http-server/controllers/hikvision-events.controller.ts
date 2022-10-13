@@ -9,14 +9,12 @@ async function create(req: Request, res: Response, next): Promise<void> {
 
   try {
     const eventBuffer = responseReader.getEvent(req.body, "<HIKV>");
-    const eventString = eventBuffer.toString("utf-8");
-    const eventJson = JSON.parse(eventString);
+    const eventJson = JSON.parse(eventBuffer.toString("utf-8"));
     const event = { logId, ...eventJson };
+    const eventString = JSON.stringify(event);
 
     logger.debug(
-      `http-server:hikvision-events-controller:create:${logId} ${JSON.stringify(
-        event
-      )}`
+      `http-server:hikvision-events-controller:create:${logId} ${eventString}`
     );
 
     await service.create(event);
