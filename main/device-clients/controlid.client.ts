@@ -494,7 +494,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
     const session = await this.login(params);
 
-    if (Boolean(session)) {
+    if (!Boolean(session)) {
       return "invalid_credentials";
     }
 
