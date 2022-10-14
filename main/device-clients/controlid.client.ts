@@ -320,24 +320,8 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     });
   }
 
-  saveUser(params: SaveUserParams): Promise<AxiosResponse> {
+  async saveUser(params: SaveUserParams): Promise<AxiosResponse> {
     const { id, name, rightPlans, expiration } = params;
-
-    if (rightPlans && rightPlans.length) {
-      const userAccessRules = rightPlans.map((rightPlan) => ({
-        user_id: Number(id),
-        access_rule_id: rightPlan,
-      }));
-
-      this.fetchAndLogWithSession({
-        method: "post",
-        url: "/create_objects.fcgi",
-        data: {
-          object: "user_access_rules",
-          values: userAccessRules,
-        },
-      });
-    }
 
     let begin_time = null;
     let end_time = null;
@@ -347,7 +331,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       end_time = this.toUnixTimestamp(this.toDate(expiration.endTime));
     }
 
-    return this.fetchAndLogWithSession({
+    let response = await this.fetchAndLogWithSession({
       method: "post",
       url: "/create_objects.fcgi",
       data: {
@@ -365,6 +349,32 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
         ],
       },
     });
+
+    if (!this.isOk(response)) {
+      throw Error("failed to create user");
+    }
+
+    if (rightPlans && rightPlans.length) {
+      const userAccessRules = rightPlans.map((rightPlan) => ({
+        user_id: Number(id),
+        access_rule_id: rightPlan,
+      }));
+
+      response = await this.fetchAndLogWithSession({
+        method: "post",
+        url: "/create_objects.fcgi",
+        data: {
+          object: "user_access_rules",
+          values: userAccessRules,
+        },
+      });
+    }
+
+    if (!this.isOk(response)) {
+      throw Error("failed to create user access rule");
+    }
+
+    return response;
   }
 
   deleteUsers(params: DeleteUsersParams): Promise<AxiosResponse> {
@@ -432,7 +442,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     });
 
     if (!this.isOk(response)) {
-      throw Error("failed to create time zones");
+      throw Error("failed to create time zone");
     }
 
     const timeSpans = this.getTimeSpans(params);
