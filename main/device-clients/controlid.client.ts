@@ -481,7 +481,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
         monitor: {
           request_timeout: 3 * 1000,
           hostname: ip,
-          port,
+          port: port.toString(),
           path: "/controlid/events",
         },
       },
