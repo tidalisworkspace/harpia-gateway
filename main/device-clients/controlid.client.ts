@@ -479,7 +479,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       url: "/set_configuration.fcgi",
       data: {
         monitor: {
-          request_timeout: 3 * 1000,
+          request_timeout: "3000",
           hostname: ip,
           port: port.toString(),
           path: "/controlid/events",
