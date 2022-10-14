@@ -48,7 +48,9 @@ export class IntelbrasClient implements DeviceClient<Response> {
     this.host = `${ip}:${port}`;
 
     try {
-      const parametro = await parametroModel().findOne();
+      const parametro = await parametroModel().findOne({
+        attributes: ["usuarioIntelbras", "senhaIntelbras"],
+      });
       const username = parametro?.usuarioIntelbras || "admin";
       const password = parametro?.senhaIntelbras || "admin123";
 

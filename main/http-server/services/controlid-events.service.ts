@@ -62,6 +62,14 @@ async function create(event: ControlIdEvent): Promise<void> {
   const { logId, ip } = event;
 
   const equipamento = await equipamentoModel().findOne({
+    attributes: [
+      "id",
+      "funcaoBotao1",
+      "codigo",
+      "fabricante",
+      "modelo",
+      "ignorarEvento",
+    ],
     where: { ip },
   });
 
@@ -106,7 +114,9 @@ async function create(event: ControlIdEvent): Promise<void> {
 
     const pessoaId = objectChange.values.user_id;
 
-    const pessoa = await pessoaModel().findByPk(pessoaId);
+    const pessoa = await pessoaModel().findByPk(pessoaId, {
+      attributes: ["id", "departamento", "nomeGrupoHorario", "tipoCadastro"],
+    });
 
     if (!pessoa) {
       logger.warn(

@@ -70,6 +70,14 @@ async function create(event: HikvisionEvent): Promise<void> {
   const { dateTime, ipAddress, logId } = event;
 
   const equipamento = await equipamentoModel().findOne({
+    attributes: [
+      "id",
+      "funcaoBotao1",
+      "codigo",
+      "fabricante",
+      "modelo",
+      "ignorarEvento",
+    ],
     where: { ip: ipAddress },
   });
 
@@ -111,7 +119,9 @@ async function create(event: HikvisionEvent): Promise<void> {
 
   const pessoaId = event.AccessControllerEvent.employeeNoString;
 
-  const pessoa = await pessoaModel().findByPk(pessoaId);
+  const pessoa = await pessoaModel().findByPk(pessoaId, {
+    attributes: ["id", "departamento", "nomeGrupoHorario", "tipoCadastro"],
+  });
 
   if (!pessoa) {
     logger.warn(

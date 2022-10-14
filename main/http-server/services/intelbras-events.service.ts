@@ -72,7 +72,17 @@ function useStrToDate(str: string, format: string) {
 async function create(event: IntelbrasEvent): Promise<void> {
   const { logId, ip, Time: time } = event;
 
-  const equipamento = await equipamentoModel().findOne({ where: { ip } });
+  const equipamento = await equipamentoModel().findOne({
+    attributes: [
+      "id",
+      "funcaoBotao1",
+      "codigo",
+      "fabricante",
+      "modelo",
+      "ignorarEvento",
+    ],
+    where: { ip },
+  });
 
   if (!equipamento) {
     logger.warn(
@@ -113,7 +123,9 @@ async function create(event: IntelbrasEvent): Promise<void> {
 
     const pessoaId = eventInfo.Data.UserID;
 
-    const pessoa = await pessoaModel().findByPk(pessoaId);
+    const pessoa = await pessoaModel().findByPk(pessoaId, {
+      attributes: ["id", "departamento", "nomeGrupoHorario", "tipoCadastro"],
+    });
 
     if (!pessoa) {
       logger.warn(

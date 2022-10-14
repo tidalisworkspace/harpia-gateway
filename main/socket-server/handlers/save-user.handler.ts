@@ -3,10 +3,9 @@ import socketServer from "..";
 import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
 import { deviceClients } from "../../device-clients";
-import { DeleteUsersParams } from "../../device-clients/types";
 import {
-  SocketConnectionHandler,
   RecordPeoplesRequest,
+  SocketConnectionHandler,
 } from "../types/handler.types";
 
 export class SaveUserHandler implements SocketConnectionHandler {
@@ -16,7 +15,9 @@ export class SaveUserHandler implements SocketConnectionHandler {
     connectionId: string,
     ids: string[]
   ): Promise<void> {
-    const equipamentos = await equipamentoModel().findAll();
+    const equipamentos = await equipamentoModel().findAll({
+      attributes: ["ip", "porta"],
+    });
 
     for (const equipamento of equipamentos) {
       const { ip, porta } = equipamento;

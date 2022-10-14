@@ -25,9 +25,9 @@ export default class HardwareFindAllHandler implements IpcHandler {
 
   async handle(): Promise<IpcResponse> {
     try {
-      const attributes = ["id", "nome", "ip", "porta", "fabricante"];
-
-      const equipamentos = await equipamentoModel().findAll({ attributes });
+      const equipamentos = await equipamentoModel().findAll({
+        attributes: ["id", "nome", "ip", "porta", "fabricante"],
+      });
 
       const hardwares = equipamentos.map(this.toHardware);
 

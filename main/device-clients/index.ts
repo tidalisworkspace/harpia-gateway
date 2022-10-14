@@ -13,7 +13,10 @@ class DeviceClients {
   ];
 
   async get(ip: string, port: number): Promise<DeviceClient<unknown>> {
-    const equipamento = await equipamentoModel().findOne({ where: { ip } });
+    const equipamento = await equipamentoModel().findOne({
+      attributes: ["fabricante"],
+      where: { ip },
+    });
 
     if (!equipamento) {
       logger.warn(`device-clients:${ip} hardware not found`);

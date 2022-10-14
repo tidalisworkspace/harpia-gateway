@@ -25,7 +25,9 @@ export default class SocketServer {
 
   private async loadPort(): Promise<number> {
     try {
-      const parametro = await parametroModel().findOne();
+      const parametro = await parametroModel().findOne({
+        attributes: ["portaSocket"],
+      });
 
       if (!parametro) {
         logger.warn(

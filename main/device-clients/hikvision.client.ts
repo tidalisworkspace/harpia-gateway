@@ -47,7 +47,9 @@ export class HikvisionClient implements DeviceClient<Response> {
     this.host = `${ip}:${port}`;
 
     try {
-      const parametro = await parametroModel().findOne();
+      const parametro = await parametroModel().findOne({
+        attributes: ["usuarioHikvision", "senhaIntelbras"],
+      });
       const username = parametro?.usuarioHikvision || "admin";
       const password = parametro?.senhaIntelbras || "admin";
 

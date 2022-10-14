@@ -122,7 +122,9 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     const defaultCredentials = { login: "admin", password: "admin" };
 
     try {
-      const parametro = await parametroModel().findOne();
+      const parametro = await parametroModel().findOne({
+        attributes: ["usuarioControlId", "senhaControlId"],
+      });
       const login = parametro?.usuarioControlId || defaultCredentials.login;
       const password = parametro?.senhaControlId || defaultCredentials.password;
 
