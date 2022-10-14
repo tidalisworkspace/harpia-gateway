@@ -135,7 +135,7 @@ async function create(event: HikvisionEvent): Promise<void> {
       tipoCadastroPessoa: pessoa.tipoCadastro,
       sentido: equipamento.funcaoBotao1,
       tipo: eventType,
-      codigoEquipamento: equipamento.codigoEvento,
+      codigoEquipamento: equipamento.codigo,
       fabricanteEquipamento: equipamento.fabricante,
       modeloEquipamento: equipamento.modelo,
     };

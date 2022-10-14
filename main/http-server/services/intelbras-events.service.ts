@@ -137,7 +137,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
         tipoCadastroPessoa: pessoa.tipoCadastro,
         sentido: equipamento.funcaoBotao1,
         tipo: tipoEvento,
-        codigoEquipamento: equipamento.codigoEvento,
+        codigoEquipamento: equipamento.codigo,
         fabricanteEquipamento: equipamento.fabricante,
         modeloEquipamento: equipamento.modelo,
       };

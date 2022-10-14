@@ -13,36 +13,38 @@ export interface Equipamento extends Model {
   porta: number;
   funcaoBotao1: string;
   ignorarEvento: boolean;
-  codigoEvento: string;
+  codigo: string;
 }
 
-const codigosEvento: { manufacturer: Manufacturer; codigo: string }[] = [
+const codigos: { manufacturer: Manufacturer; sigla: string }[] = [
   {
     manufacturer: "<HIKV>",
-    codigo: "HK",
+    sigla: "HK",
   },
   {
     manufacturer: "<ITBF>",
-    codigo: "IB",
+    sigla: "IB",
   },
   {
     manufacturer: "<CIBM>",
-    codigo: "CI",
+    sigla: "CI",
   },
 ];
 
-function getCodigoEvento(manufacturer: string) {
-  const codigoEvento = codigosEvento.find(
-    (codigoEvento) => codigoEvento.manufacturer === manufacturer
+function getCodigo(manufacturer: string): string {
+  const codigo = codigos.find(
+    (codigo) => codigo.manufacturer === manufacturer
   );
 
-  if (!codigoEvento) {
+  if (!codigo) {
     logger.warn(
       `database:equipamento:get-codigo-evento not found manufacturer=${manufacturer}`
     );
+
+    throw Error(`codigo not found manufacturer=${manufacturer}`);
   }
 
-  return codigoEvento;
+  return codigo.sigla;
 }
 
 export default function equipamentoModel() {
@@ -100,10 +102,10 @@ export default function equipamentoModel() {
           return this.getDataValue("ignorarEvento") === "S";
         },
       },
-      codigoEvento: {
+      codigo: {
         type: DataTypes.VIRTUAL,
         get() {
-          return getCodigoEvento(this.fabricante);
+          return getCodigo(this.fabricante);
         },
         set() {
           throw new Error("Do not try to set the `codigoEvento` value!");
