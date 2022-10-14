@@ -47,12 +47,14 @@ function ConnectionStatus() {
   return types[type];
 }
 
-function showMessage(response: IpcResponse) {
+async function showMessage(response: IpcResponse): Promise<IpcResponse> {
   if (!response.message) {
-    return;
+    return response;
   }
 
-  message[response.status](response.message);
+  await message[response.status](response.message);
+
+  return response;
 }
 
 export default function DatabasePanelContent() {
@@ -72,21 +74,21 @@ export default function DatabasePanelContent() {
 
     const values = form.getFieldsValue();
 
-    await message.loading("Testando conexão");
+    message
+      .loading("Testando conexão")
+      .then(() => testDatabaseConnection(values))
+      .then(showMessage)
+      .then((response) => {
+        if (response.status !== "success") {
+          return;
+        }
 
-    let response = await testDatabaseConnection(values);
-
-    showMessage(response);
-
-    if (response.status !== "success") {
-      return;
-    }
-
-    await message.loading("Atualizando dados de conexão");
-
-    response = await updateDatabaseConnection(values);
-
-    showMessage(response);
+        message
+          .loading("Atualizando dados de conexão")
+          .then(() => updateDatabaseConnection(values))
+          .then(showMessage)
+          .then(() => form.resetFields());
+      });
   }
 
   return (

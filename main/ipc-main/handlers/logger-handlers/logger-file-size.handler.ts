@@ -13,6 +13,7 @@ export class LoggerFileSizeHandler implements IpcHandler {
 
     return {
       status: "success",
+      message: "Informações atualizadas",
       data,
     };
   }

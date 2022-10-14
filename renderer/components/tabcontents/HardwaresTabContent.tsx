@@ -18,6 +18,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import { MessageType } from "antd/lib/message";
 import { ColumnsType } from "antd/lib/table";
 import { TableRowSelection } from "antd/lib/table/interface";
 import { PresetStatusColorType } from "antd/lib/_util/colors";
@@ -37,7 +38,7 @@ const { Text } = Typography;
 const manufacturers = {
   "<HIKV>": "Hikvision",
   "<ITBF>": "Intelbras",
-  "<CIBM>": "Control iD"
+  "<CIBM>": "Control iD",
 };
 
 function getManufacturerName(manufacturer) {
@@ -124,12 +125,12 @@ const columns: ColumnsType<Hardware> = [
   },
 ];
 
-function showMessage(response: IpcResponse) {
+function showMessage(response: IpcResponse): MessageType {
   if (!response.message) {
     return;
   }
 
-  message[response.status](response.message);
+  return message[response.status](response.message);
 }
 
 export default function HardwaresTabContent() {
@@ -217,72 +218,63 @@ export default function HardwaresTabContent() {
     return response;
   }
 
-  async function handleLoad() {
+  function handleLoad() {
     toggleBusy();
 
     clearSelection();
 
-    await message.loading("Buscando dispositivos");
-
-    const response = await loadHardwares();
-
-    showMessage(response);
-
-    toggleBusy();
+    message
+      .loading("Buscando dispositivos")
+      .then(loadHardwares)
+      .then(showMessage)
+      .then(toggleBusy);
   }
 
-  async function handleReboot() {
+  function handleReboot() {
     toggleBusy();
 
-    await message.loading("Reiniciando dispositivos");
-
-    const response = await rebootHardwares();
-
-    showMessage(response);
-
-    toggleBusy();
+    message
+      .loading("Reiniciando dispositivos")
+      .then(rebootHardwares)
+      .then(showMessage)
+      .then(toggleBusy);
   }
 
   function handleClearSelection() {
     clearSelection();
   }
 
-  async function handleUpdateDateTime() {
+  function handleUpdateDateTime() {
     toggleBusy();
 
-    await message.loading("Atualizando data/hora dos dispositivos");
-
-    const response = await updateDateTime();
-
-    showMessage(response);
-
-    toggleBusy();
+    message
+      .loading("Atualizando data/hora dos dispositivos")
+      .then(updateDateTime)
+      .then(showMessage)
+      .then(toggleBusy);
   }
 
-  async function handleConfigureEventsServer() {
+  function handleConfigureEventsServer() {
     toggleBusy();
 
-    await message.loading("Configurando servidor de eventos nos dispositivos");
-
-    const response = await configureEventsServer();
-
-    showMessage(response);
-
-    toggleBusy();
+    message
+      .loading("Configurando servidor de eventos nos dispositivos")
+      .then(configureEventsServer)
+      .then(showMessage)
+      .then(toggleBusy);
   }
 
-  async function handleTestConnection() {
+  function handleTestConnection() {
     toggleBusy();
 
-    await message.loading("Testando conexão");
-
-    const response = await testConnection();
-
-    loadHardwares();
-
-    showMessage(response);
-
-    toggleBusy();
+    message
+      .loading("Testando conexão")
+      .then(testConnection)
+      .then(showMessage)
+      .then(() => message.loading("Buscando dispositivos"))
+      .then(loadHardwares)
+      .then(showMessage)
+      .then(toggleBusy);
   }
 
   useEffect(() => {

@@ -31,27 +31,23 @@ export default function LogsPanelContent() {
     return response;
   }
 
-  async function handleReload() {
-    await message.loading("Atualizando");
-
-    const response = await loadFileSize();
-    showMessage(response);
+  function handleReload() {
+    message.loading("Atualizando informações de log").then(loadFileSize).then(showMessage);
   }
 
-  async function handleOpenLogs() {
-    await message.loading("Abrindo logs");
-
-    const response = await ipcRenderer.request(LOGGER_FILE_OPEN);
-    showMessage(response);
+  function handleOpenLogs() {
+    message
+      .loading("Abrindo logs")
+      .then(() => ipcRenderer.request(LOGGER_FILE_OPEN))
+      .then(showMessage);
   }
 
-  async function handleCleanLogs() {
-    await message.loading("Limpando logs");
-
-    const response = await ipcRenderer.request(LOGGER_FILE_CLEAN);
-    loadFileSize();
-
-    showMessage(response);
+  function handleCleanLogs() {
+    message
+      .loading("Limpando logs")
+      .then(() => ipcRenderer.request(LOGGER_FILE_CLEAN))
+      .then(loadFileSize)
+      .then(showMessage);
   }
 
   useEffect(() => {
@@ -70,7 +66,7 @@ export default function LogsPanelContent() {
             size="small"
             onClick={handleReload}
           >
-            Atualizar
+            Atualizar informações
           </Button>
           <Text>Tamanho do arquivo: {fileSize}</Text>
         </Space>

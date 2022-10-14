@@ -50,7 +50,7 @@ export default class HardwareRebootHandler implements IpcHandler {
 
     return {
       status: "success",
-      message: "Reiniciado(s)",
+      message: "Reinicialização solicitada",
     };
   }
 }

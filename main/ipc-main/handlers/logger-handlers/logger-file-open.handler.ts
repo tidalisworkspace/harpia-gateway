@@ -19,6 +19,6 @@ export class LoggerFileOpenHandler implements IpcHandler {
       };
     }
 
-    return { status: "success" };
+    return { status: "success", message: "Arquivo de logs aberto" };
   }
 }

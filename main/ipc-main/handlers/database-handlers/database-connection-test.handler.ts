@@ -18,6 +18,7 @@ export class DatabaseConnectionTestHandler implements IpcHandler {
       host,
       port,
       dialect,
+      logging: false
     });
 
     try {
