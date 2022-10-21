@@ -1,4 +1,4 @@
-import { differenceInMinutes, format, fromUnixTime } from "date-fns";
+import { addHours, differenceInMinutes, format, fromUnixTime } from "date-fns";
 import { Sequelize } from "sequelize";
 import { CARDS_CONTENT_ADD } from "../../../shared/constants/ipc-renderer-channels.constants";
 import { IpcResponse } from "../../../shared/ipc/types";
@@ -38,14 +38,14 @@ function toTimestamp(unixTimestamp: string): string {
 }
 
 function getEventType(logId: string, objectChange: ObjectChange): TipoEvento {
-  const dateTime = fromUnixTime(Number(objectChange.values.time));
+  const dateTime = addHours(fromUnixTime(Number(objectChange.values.time)), 3);
   const now = new Date();
 
   const minutes = differenceInMinutes(now, dateTime);
 
   if (minutes > 1) {
     logger.debug(
-      `http-server:controlid-events-service:get-event-type:${logId} offline event minutes=${minutes} now=${now} time=${dateTime}`
+      `http-server:controlid-events-service:get-event-type:${logId} offline event minutes=${minutes} time=${dateTime}`
     );
 
     return "OFF";
