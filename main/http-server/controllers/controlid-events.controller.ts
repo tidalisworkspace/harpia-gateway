@@ -12,7 +12,8 @@ async function create(req: Request, res: Response, next): Promise<void> {
 
   try {
     const ip = getIp(req);
-    const eventJson = req.body;
+    const eventBuffer: Buffer = req.body;
+    const eventJson = JSON.parse(eventBuffer.toString());
     const event = { logId, ip, ...eventJson };
     const eventString = JSON.stringify(event);
 

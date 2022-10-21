@@ -15,7 +15,7 @@ async function create(req: Request, res: Response): Promise<void> {
     const ip = getIp(req);
 
     const eventBuffer = responseReader.getEvent(req.body, "<ITBF>");
-    const eventJson = JSON.parse(eventBuffer.toString("utf-8"));
+    const eventJson = JSON.parse(eventBuffer.toString());
     const event = { logId, ip, ...eventJson };
     const eventString = JSON.stringify(event);
 

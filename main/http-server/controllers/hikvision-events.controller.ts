@@ -5,11 +5,12 @@ import responseReader from "../../helpers/response-reader";
 import service from "../services/hikvision-events.service";
 
 async function create(req: Request, res: Response, next): Promise<void> {
+  logger.debug(JSON.stringify(req.headers))
   const logId = uuid();
 
   try {
     const eventBuffer = responseReader.getEvent(req.body, "<HIKV>");
-    const eventJson = JSON.parse(eventBuffer.toString("utf-8"));
+    const eventJson = JSON.parse(eventBuffer.toString());
     const event = { logId, ...eventJson };
     const eventString = JSON.stringify(event);
 
