@@ -45,7 +45,7 @@ function getEventType(logId: string, objectChange: ObjectChange): TipoEvento {
 
   if (minutes > 1) {
     logger.debug(
-      `http-server:controlid-events-service:get-event-type:${logId} offline event minutes=${minutes} time=${dateTime}`
+      `http-server:controlid-events-service:get-event-type:${logId} offline event minutes=${minutes} now=${now} time=${dateTime}`
     );
 
     return "OFF";
@@ -112,7 +112,7 @@ async function create(event: ControlIdEvent): Promise<void> {
 
     const eventType = getEventType(event.logId, objectChange);
 
-    const pessoaId = objectChange.values.user_id;
+    const pessoaId = objectChange.values.user_id.padStart(7, "0");
 
     const pessoa = await pessoaModel().findByPk(pessoaId, {
       attributes: ["id", "departamento", "nomeGrupoHorario", "tipoCadastro"],
