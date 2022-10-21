@@ -30,7 +30,7 @@ function toDate(unixTimestamp: string): string {
 }
 
 function toHour(unixTimestamp: string): string {
-  return format(fromUnixTime(Number(unixTimestamp)), "HH:mm:ss");
+  return format(addHours(fromUnixTime(Number(unixTimestamp)), 3), "HH:mm:ss");
 }
 
 function toTimestamp(unixTimestamp: string): string {
