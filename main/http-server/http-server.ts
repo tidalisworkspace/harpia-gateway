@@ -70,6 +70,7 @@ export default class HttpServer {
   private createApp(): Express {
     const app = express();
     app.use(bodyParser.raw({ type: "*/*" }));
+    app.use(bodyParser.json({ type: "application/json" }));
     app.use("/hikvision/events", hikvisionEventsRoute);
     app.use("/intelbras/events", intelbrasEventsRoute);
     app.use("/controlid/events", controlidEventsRoute);
