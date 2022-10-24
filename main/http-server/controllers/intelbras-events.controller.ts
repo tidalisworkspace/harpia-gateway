@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { v4 as uuid } from "uuid";
 import logger from "../../../shared/logger";
 import responseReader from "../../helpers/response-reader";
@@ -8,7 +8,11 @@ function getIp(req: Request) {
   return req.socket.remoteAddress.split(":")[3];
 }
 
-async function create(req: Request, res: Response): Promise<void> {
+async function create(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   const logId = uuid();
 
   try {
@@ -31,7 +35,7 @@ async function create(req: Request, res: Response): Promise<void> {
       `http-server:intelbras-events-controller:create:${logId} ${e.name}:${e.message}`
     );
 
-    res.status(500).end();
+    next(e);
   }
 }
 
