@@ -352,4 +352,12 @@ export class IntelbrasClient implements DeviceClient<Response> {
 
     return "connected";
   }
+
+  async getEvents(): Promise<any[]> {
+    throw new Error("method not implemented");
+  }
+
+  async deleteEvents(): Promise<void> {
+    throw new Error("method not implemented");
+  }
 }

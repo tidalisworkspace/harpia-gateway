@@ -7,6 +7,7 @@ import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
 import {
   DeleteCardsParams,
+  DeleteEventsParams,
   DeleteFacesParams,
   DeleteUsersParams,
   DeviceClient,
@@ -512,5 +513,43 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     }
 
     return "connected";
+  }
+
+  async getEvents(): Promise<any[]> {
+    const response = await this.fetchAndLogWithSession({
+      method: "post",
+      url: "/load_objects.fcgi",
+      data: {
+        object: "access_logs",
+        where: {
+          access_logs: {
+            event: { IN: [3, 7] },
+          },
+        },
+      },
+    });
+
+    if (!this.isOk(response)) {
+      return [];
+    }
+
+    return response.data.access_logs;
+  }
+
+  async deleteEvents(params: DeleteEventsParams): Promise<void> {
+    const ids = params.ids.map(Number);
+
+    this.fetchAndLogWithSession({
+      method: "post",
+      url: "/destroy_objects.fcgi",
+      data: {
+        object: "access_logs",
+        where: {
+          access_logs: {
+            id: { IN: ids },
+          },
+        },
+      },
+    });
   }
 }
