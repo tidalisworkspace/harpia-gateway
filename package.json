@@ -3,12 +3,15 @@
   "name": "harpia-gateway",
   "productName": "Harpia Gateway",
   "description": "Connection gateway of devices",
-  "version": "2.1.0",
+  "version": "1.1.1",
   "author": "Tidalis <tidalisworkspace@gmail.com>",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
     "build": "nextron build --win --x64",
+    "release-major": "npm run build && npm version major",
+    "release-minor": "npm run build && npm version minor",
+    "release-patch": "npm run build && npm version patch",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
