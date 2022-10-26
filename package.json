@@ -3,7 +3,7 @@
   "name": "harpia-gateway",
   "productName": "Harpia Gateway",
   "description": "Connection gateway of devices",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "Tidalis <tidalisworkspace@gmail.com>",
   "main": "app/background.js",
   "scripts": {
