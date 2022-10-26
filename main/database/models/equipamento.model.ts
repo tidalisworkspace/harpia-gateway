@@ -32,9 +32,7 @@ const codigos: { manufacturer: Manufacturer; sigla: string }[] = [
 ];
 
 function getCodigo(manufacturer: string): string {
-  const codigo = codigos.find(
-    (codigo) => codigo.manufacturer === manufacturer
-  );
+  const codigo = codigos.find((codigo) => codigo.manufacturer === manufacturer);
 
   if (!codigo) {
     logger.warn(
@@ -108,7 +106,7 @@ export default function equipamentoModel() {
           return getCodigo(this.fabricante);
         },
         set() {
-          throw new Error("Do not try to set the `codigoEvento` value!");
+          throw new Error("Do not try to set the `codigo` value!");
         },
       },
     },
