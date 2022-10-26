@@ -1,5 +1,5 @@
 import log from "electron-log";
-import { ConnectionError, Options, Sequelize } from "sequelize";
+import { ConnectionError, Dialect, Options, Sequelize } from "sequelize";
 import logger from "../../shared/logger";
 import { envname } from "../helpers/environment";
 import Config from "./config";
@@ -22,6 +22,10 @@ class Database {
     return this.config.get(this.env);
   }
 
+  getDialect(): Dialect {
+    return this.config.get(this.env).dialect;
+  }
+
   getConnection(): Sequelize {
     if (!this.connection) {
       throw new ConnectionError(new Error("not found database connection"));
@@ -38,7 +42,7 @@ class Database {
 
     try {
       await connection.authenticate();
-      
+
       this.connection = connection;
 
       await Promise.all([
