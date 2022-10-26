@@ -1,6 +1,7 @@
 import { ScheduledTask } from "node-cron";
 import logger from "../../shared/logger";
 import aliveJob from "./alive.job";
+import loadControlidEventsJob from "./load-controlid-events.job";
 
 class Job {
   private tasks: ScheduledTask[];
@@ -10,11 +11,11 @@ class Job {
   }
 
   start() {
-    logger.info(`cron:job starting ${this.tasks.length} tasks`);
+    logger.info(`job:start ${this.tasks.length} tasks`);
     this.tasks.forEach((task) => task.start());
   }
 }
 
-const job = new Job([aliveJob]);
+const job = new Job([aliveJob, loadControlidEventsJob]);
 
 export default job;

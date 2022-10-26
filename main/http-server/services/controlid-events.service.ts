@@ -1,11 +1,14 @@
 import { addHours, differenceInMinutes, format, fromUnixTime } from "date-fns";
-import { Sequelize } from "sequelize";
+import { Dialect, Sequelize } from "sequelize";
+import { Fn } from "sequelize/types/utils";
 import { CARDS_CONTENT_ADD } from "../../../shared/constants/ipc-renderer-channels.constants";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
+import database from "../../database";
 import equipamentoModel from "../../database/models/equipamento.model";
 import eventoModel from "../../database/models/evento.model";
 import pessoaModel from "../../database/models/pessoa.model";
+import { ControlidClient } from "../../device-clients/controlid.client";
 import ipcMain from "../../ipc-main";
 import socketServer from "../../socket-server";
 import ControlIdEvent, {
@@ -14,15 +17,46 @@ import ControlIdEvent, {
 } from "../types/ControlIdEvents";
 import { TipoEvento } from "../types/TipoEvento";
 
-function isIrrelevant(objectChange: ObjectChange) {
-  return (
-    objectChange.object !== "access_logs" && objectChange.type !== "inserted"
-  );
+function isIrrelevantChange(logId: string, objectChange: ObjectChange) {
+  const { object, type } = objectChange;
+  const irrelevant = object !== "access_logs" || type !== "inserted";
+
+  if (irrelevant) {
+    logger.warn(
+      `http-server:controlid-events-service:create:${logId} irrelevant change object=${object} type=${type}`
+    );
+  }
+
+  return irrelevant;
 }
 
-function hasCardNumber(objectChangeValues: ObjectChangeValues) {
-  const cardNumber = objectChangeValues.card_value;
-  return cardNumber && cardNumber.length && cardNumber.trim();
+function isIrrelevantValues(logId: string, values: ObjectChangeValues) {
+  const { event } = values;
+
+  const irrelevant = !event || !(event == "3" || event == "7");
+
+  if (irrelevant) {
+    logger.warn(
+      `http-server:controlid-events-service:create:${logId} irrelevant values event=${event}`
+    );
+  }
+
+  return irrelevant;
+}
+
+function hasCardNumber(logId: string, objectChangeValues: ObjectChangeValues) {
+  const hasCardNumber =
+    objectChangeValues &&
+    objectChangeValues.card_value &&
+    objectChangeValues.card_value.trim();
+
+  if (!hasCardNumber) {
+    logger.debug(
+      `http-server:controlid-events-service:get-event-type:${logId} card number not found`
+    );
+  }
+
+  return hasCardNumber;
 }
 
 function toDate(unixTimestamp: string): string {
@@ -54,8 +88,98 @@ function getEventType(logId: string, objectChange: ObjectChange): TipoEvento {
   return "ON";
 }
 
-function useStrToDate(str: string, format: string) {
-  return Sequelize.fn("STR_TO_DATE", str, format);
+type SqlFunction = (value: string) => Fn;
+
+interface SqlFunctionCreator {
+  name: string;
+  dialect: Dialect;
+  create: SqlFunction;
+}
+
+const sqlFunctionCreators: SqlFunctionCreator[] = [
+  {
+    name: "to_date",
+    dialect: "mysql",
+    create: (value) => Sequelize.fn("STR_TO_DATE", value, "%d/%m/%Y"),
+  },
+  {
+    name: "to_time",
+    dialect: "mysql",
+    create: (value) =>
+      Sequelize.fn("STR_TO_DATE", `30/12/1899 ${value}`, "%d/%m/%Y %H:%i:%S"),
+  },
+  {
+    name: "to_timestamp",
+    dialect: "mysql",
+    create: (value) => Sequelize.fn("STR_TO_DATE", value, "%d/%m/%Y %H:%i:%S"),
+  },
+  {
+    name: "to_date",
+    dialect: "postgres",
+    create: (value) => Sequelize.fn("TO_DATE", value, "DD/MM/YYYY"),
+  },
+  {
+    name: "to_time",
+    dialect: "postgres",
+    create: (value) =>
+      Sequelize.fn(
+        "TO_TIMESTAMP",
+        `30/12/1899 ${value}`,
+        "DD/MM/YYYY HH24:MI:SS"
+      ),
+  },
+  {
+    name: "to_timestamp",
+    dialect: "postgres",
+    create: (value) =>
+      Sequelize.fn("TO_TIMESTAMP", value, "DD/MM/YYYY HH24:MI:SS"),
+  },
+];
+
+function withName(name: string) {
+  return (sqlFunctionCreator: SqlFunctionCreator) =>
+    sqlFunctionCreator.name === name &&
+    sqlFunctionCreator.dialect === database.getDialect();
+}
+
+function useFunction(name: string, value: string) {
+  const sqlFunctionCreator = sqlFunctionCreators.find(withName(name));
+
+  if (!sqlFunctionCreator) {
+    logger.debug(
+      `http-server:controlid-events-service:use-function sql function not found name=${name}`
+    );
+
+    throw Error("sql function not found");
+  }
+
+  return sqlFunctionCreator.create(value);
+}
+
+async function checkIfExists(
+  logId: string,
+  pessoaId: string,
+  data: string,
+  hora: string
+): Promise<boolean> {
+  const evento = await eventoModel().findOne({
+    attributes: ["pessoaId"],
+    where: {
+      pessoaId,
+      data: useFunction("to_date", data),
+      hora: useFunction("to_time", hora),
+    },
+  });
+
+  const exists = Boolean(evento);
+
+  if (exists) {
+    logger.info(
+      `http-server:controlid-events-service:create:${logId} event already exists`
+    );
+  }
+
+  return exists;
 }
 
 async function create(event: ControlIdEvent): Promise<void> {
@@ -68,6 +192,7 @@ async function create(event: ControlIdEvent): Promise<void> {
       "codigo",
       "fabricante",
       "modelo",
+      "porta",
       "ignorarEvento",
     ],
     where: { ip },
@@ -88,13 +213,11 @@ async function create(event: ControlIdEvent): Promise<void> {
   }
 
   for (const objectChange of event.object_changes) {
-    const { time } = objectChange.values;
-
-    if (hasCardNumber(objectChange.values)) {
+    if (hasCardNumber(logId, objectChange.values)) {
       const cardNumber = objectChange.values.card_value;
 
       const data = {
-        timestamp: toTimestamp(time),
+        timestamp: toTimestamp(objectChange.values.time),
         code: cardNumber,
       };
 
@@ -106,13 +229,15 @@ async function create(event: ControlIdEvent): Promise<void> {
       ipcMain.sendToRenderer(CARDS_CONTENT_ADD, response);
     }
 
-    if (isIrrelevant(objectChange)) {
+    if (isIrrelevantChange(logId, objectChange)) {
       return;
     }
 
-    const eventType = getEventType(event.logId, objectChange);
+    if (isIrrelevantValues(logId, objectChange.values)) {
+      return;
+    }
 
-    const pessoaId = objectChange.values.user_id.padStart(7, "0");
+    const pessoaId = objectChange.values.user_id.toString().padStart(7, "0");
 
     const pessoa = await pessoaModel().findByPk(pessoaId, {
       attributes: ["id", "departamento", "nomeGrupoHorario", "tipoCadastro"],
@@ -124,16 +249,27 @@ async function create(event: ControlIdEvent): Promise<void> {
       );
     }
 
-    if (pessoa) {
-      const data = toDate(time);
-      const hora = toHour(time);
-      const dataHora = toTimestamp(time);
+    const { time } = objectChange.values;
 
+    const data = toDate(time);
+    const hora = toHour(time);
+
+    const exists = await checkIfExists(logId, pessoaId, data, hora);
+
+    if (exists) {
+      return;
+    }
+
+    const dataHora = toTimestamp(time);
+
+    const eventType = getEventType(event.logId, objectChange);
+
+    if (pessoa) {
       const evento = {
         pessoaId: pessoa.id,
-        data: useStrToDate(data, "%d/%m/%Y"),
-        hora: useStrToDate(`30/12/1899 ${hora}`, "%d/%m/%Y %H:%i:%S"),
-        dataHora: useStrToDate(dataHora, "%d/%m/%Y %H:%i:%S"),
+        data: useFunction("to_date", data),
+        hora: useFunction("to_time", data),
+        dataHora: useFunction("to_timestamp", dataHora),
         departamento: pessoa.departamento,
         nomeGrupoHorario: pessoa.nomeGrupoHorario,
         equipamentoId: equipamento.id,
@@ -148,17 +284,23 @@ async function create(event: ControlIdEvent): Promise<void> {
       await eventoModel().create(evento);
     }
 
+    const client = await new ControlidClient().init(ip, equipamento.porta);
+
+    const ids = event.object_changes.map((change) => change.values.id);
+
     if (eventType === "OFF") {
+      await client.deleteEvents({ ids });
       return;
     }
 
     const ipWithPad = ip.padEnd(15, " ");
-    const timestamp = toTimestamp(time);
     const tag = pessoa ? "<BLOF>" : "<HINI>";
 
-    const message = `${tag}${pessoaId}@${ipWithPad}@0@0@${timestamp}@1`;
+    const message = `${tag}${pessoaId}@${ipWithPad}@0@0@${dataHora}@1`;
 
     socketServer.broadcast(message);
+
+    await client.deleteEvents({ ids });
   }
 }
 
