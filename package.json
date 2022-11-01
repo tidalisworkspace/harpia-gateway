@@ -7,8 +7,8 @@
   "author": "Tidalis <tidalisworkspace@gmail.com>",
   "main": "app/background.js",
   "scripts": {
-    "dev": "docker compose up -d && nextron",
-    "build": "nvm i && nextron build --win --x64",
+    "dev": "nextron",
+    "build": "nextron build --win --x64",
     "release-major": "npm run build && npm version major",
     "release-minor": "npm run build && npm version minor",
     "release-patch": "npm run build && npm version patch",
