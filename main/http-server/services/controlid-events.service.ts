@@ -268,7 +268,7 @@ async function create(event: ControlIdEvent): Promise<void> {
       const evento = {
         pessoaId: pessoa.id,
         data: useFunction("to_date", data),
-        hora: useFunction("to_time", data),
+        hora: useFunction("to_time", hora),
         dataHora: useFunction("to_timestamp", dataHora),
         departamento: pessoa.departamento,
         nomeGrupoHorario: pessoa.nomeGrupoHorario,
