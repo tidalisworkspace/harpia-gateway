@@ -186,11 +186,19 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     const response = await this.httpClient.request(config);
 
     if (!this.isOk(response)) {
-      logger.warn(
-        `controlid-client:${this.host} response not ok ${config.url} ${
-          response.status
-        } ${response.statusText} ${JSON.stringify(response.data)}`
-      );
+      const details = JSON.stringify({
+        request: {
+          method: config.method,
+          url: config.url,
+          body: config.data,
+        },
+        response: {
+          status: `${response.status} ${response.statusText}`,
+          body: response.data,
+        },
+      });
+
+      logger.warn(`controlid-client:${this.host} response not ok ${details}`);
     }
 
     return response;
