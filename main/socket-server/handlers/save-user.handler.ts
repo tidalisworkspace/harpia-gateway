@@ -51,7 +51,7 @@ export class SaveUserHandler implements SocketConnectionHandler {
     await this.deleteUsersFromAllDevices(connectionId, ids);
 
     for (let i = 0; i < peoples.length; i++) {
-      const { id, name, expiration, devices, cards, photo } = peoples[i];
+      const { id, name, expiration, devices, cards, photo, role } = peoples[i];
 
       for (let j = 0; j < devices.length; j++) {
         const { ip, port, rightPlans } = devices[j];
@@ -69,6 +69,7 @@ export class SaveUserHandler implements SocketConnectionHandler {
             name,
             rightPlans,
             expiration,
+            role
           });
         } catch (e) {
           logger.error(

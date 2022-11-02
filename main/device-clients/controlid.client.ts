@@ -324,7 +324,8 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   }
 
   async saveUser(params: SaveUserParams): Promise<AxiosResponse> {
-    const { id, name, rightPlans, expiration } = params;
+    const { id, name, rightPlans, expiration, role } = params;
+    const objectId = Number(id);
 
     let begin_time = null;
     let end_time = null;
@@ -341,7 +342,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
         object: "users",
         values: [
           {
-            id: Number(id),
+            id: objectId,
             name,
             registration: "",
             password: "",
@@ -357,9 +358,29 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       throw Error("failed to create user");
     }
 
+    if (role === "admin") {
+      response = await this.fetchAndLogWithSession({
+        method: "post",
+        url: "/create_objects.fcgi",
+        data: {
+          object: "user_roles",
+          values: [
+            {
+              user_id: objectId,
+              role: 1,
+            },
+          ],
+        },
+      });
+
+      if (!this.isOk(response)) {
+        throw Error("failed to create user role");
+      }
+    }
+
     if (rightPlans && rightPlans.length) {
       const userAccessRules = rightPlans.map((rightPlan) => ({
-        user_id: Number(id),
+        user_id: objectId,
         access_rule_id: rightPlan,
       }));
 

@@ -45,6 +45,7 @@ export interface People {
   devices: Device[];
   expiration: TimeRange;
   photo: string;
+  role?: string;
 }
 
 export interface RecordPeoplesPayload extends Payload {
