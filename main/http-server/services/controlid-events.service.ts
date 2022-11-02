@@ -33,7 +33,7 @@ function isIrrelevantChange(logId: string, objectChange: ObjectChange) {
 function isIrrelevantValues(logId: string, values: ObjectChangeValues) {
   const { event } = values;
 
-  const irrelevant = !event || !(event == "6" || event == "7");
+  const irrelevant = !event || event != "7";
 
   if (irrelevant) {
     logger.warn(
