@@ -31,7 +31,7 @@ async function processEvents() {
     const events = await client.getEvents();
 
     if (!events.length) {
-      return;
+      continue;
     }
 
     logger.debug(
@@ -51,7 +51,11 @@ async function processEvents() {
       object_changes: objectChanges,
     };
 
-    await service.create(event);
+    try {
+      await service.create(event);
+    } catch (e) {
+      logger.error(`job:load-controlid-events:${ip} ${e.name}:${e.message}`);
+    }
   }
 }
 

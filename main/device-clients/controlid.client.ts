@@ -600,24 +600,28 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   }
 
   async getEvents(): Promise<any[]> {
-    const response = await this.fetchAndLogWithSession({
-      method: "post",
-      url: "/load_objects.fcgi",
-      data: {
-        object: "access_logs",
-        where: {
-          access_logs: {
-            event: { IN: [3, 7] },
+    try {
+      const response = await this.fetchAndLogWithSession({
+        method: "post",
+        url: "/load_objects.fcgi",
+        data: {
+          object: "access_logs",
+          where: {
+            access_logs: {
+              event: { IN: [3, 7] },
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!this.isOk(response)) {
+      if (!this.isOk(response)) {
+        return [];
+      }
+
+      return response.data.access_logs;
+    } catch (e) {
       return [];
     }
-
-    return response.data.access_logs;
   }
 
   async deleteEvents(params: DeleteEventsParams): Promise<void> {

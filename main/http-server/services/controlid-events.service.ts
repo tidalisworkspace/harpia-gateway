@@ -230,11 +230,11 @@ async function create(event: ControlIdEvent): Promise<void> {
     }
 
     if (isIrrelevantChange(logId, objectChange)) {
-      return;
+      continue;
     }
 
     if (isIrrelevantValues(logId, objectChange.values)) {
-      return;
+      continue;
     }
 
     const pessoaId = objectChange.values.user_id.toString().padStart(7, "0");
@@ -257,7 +257,7 @@ async function create(event: ControlIdEvent): Promise<void> {
     const exists = await checkIfExists(logId, pessoaId, data, hora);
 
     if (exists) {
-      return;
+      continue;
     }
 
     const dataHora = toTimestamp(time);
@@ -284,13 +284,8 @@ async function create(event: ControlIdEvent): Promise<void> {
       await eventoModel().create(evento);
     }
 
-    const client = await new ControlidClient().init(ip, equipamento.porta);
-
-    const ids = event.object_changes.map((change) => change.values.id);
-
     if (eventType === "OFF") {
-      await client.deleteEvents({ ids });
-      return;
+      continue;
     }
 
     const ipWithPad = ip.padEnd(15, " ");
@@ -299,9 +294,13 @@ async function create(event: ControlIdEvent): Promise<void> {
     const message = `${tag}${pessoaId}@${ipWithPad}@0@0@${dataHora}@1`;
 
     socketServer.broadcast(message);
-
-    await client.deleteEvents({ ids });
   }
+
+  const ids = event.object_changes.map((change) => change.values.id);
+
+  const client = await new ControlidClient().init(ip, equipamento.porta);
+
+  await client.deleteEvents({ ids });
 }
 
 export default {
