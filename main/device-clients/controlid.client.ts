@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosRequestConfig, AxiosResponse } from "axios";
-import { format, parse } from "date-fns";
+import { differenceInSeconds, format, parse, startOfDay } from "date-fns";
 import fs from "fs";
 import ping from "ping";
 import { v4 as uuid } from "uuid";
@@ -160,14 +160,14 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       return session;
     }
 
-    logger.debug(
-      `controlid-client:${this.host}:generate-session current session is not valid session=${session}`
-    );
-
     const params = await this.getLoginAndPassword();
     session = await this.login(params);
 
     this.setSession(session);
+
+    logger.debug(
+      `controlid-client:${this.host}:generate-session new session generated`
+    );
 
     return session;
   }
@@ -201,10 +201,6 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   ): Promise<AxiosResponse> {
     const session = await this.generateSession();
     config.params = config.params ? { ...config.params, session } : { session };
-
-    logger.debug(
-      `controlid-client:${this.host}:fetch-and-log-with-session generated session session=${session}`
-    );
 
     return this.fetchAndLog(config);
   }
@@ -440,11 +436,12 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     });
   }
 
-  private toTimeSpan(day: string, params: SaveUserRightParams): any {
-    if (!params[day]) {
-      return null;
-    }
+  private toSeconds(time: string) {
+    const date = parse(time, "HH:mm:ss", new Date());
+    return differenceInSeconds(date, startOfDay(date));
+  }
 
+  private toTimeSpan(day: string, params: SaveUserRightParams): any {
     let timeSpan = {
       id: this.newId(),
       time_zone_id: Number(params.id),
@@ -458,16 +455,23 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     timeSpan = this.days.reduce((accumulator, current) => {
       const initials = current.slice(0, 3);
 
-      accumulator[initials] = current === day ? 1 : 0;
+      if (current !== day) {
+        return Object.assign(accumulator, { [initials]: 0 });
+      }
 
-      return accumulator;
+      const start = this.toSeconds(params[day].beginTime);
+      const end = this.toSeconds(params[day].endTime);
+
+      return Object.assign(accumulator, { [initials]: 1, start, end });
     }, timeSpan);
 
     return timeSpan;
   }
 
-  private getTimeSpans(params: SaveUserRightParams): any {
-    return this.days.map((day) => this.toTimeSpan(day, params)).filter(Boolean);
+  private toTimeSpans(params: SaveUserRightParams): any {
+    return this.days
+      .filter((day) => Boolean(params[day]))
+      .map((day) => this.toTimeSpan(day, params));
   }
 
   async saveUserRight(params: SaveUserRightParams): Promise<AxiosResponse> {
@@ -530,7 +534,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       throw Error("failed to create access rule to time zone");
     }
 
-    const timeSpans = this.getTimeSpans(params);
+    const timeSpans = this.toTimeSpans(params);
 
     response = await this.fetchAndLogWithSession({
       method: "post",
