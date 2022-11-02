@@ -445,6 +445,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   }
 
   private toSeconds(time: string) {
+    time = time === "24:00:00" ? "23:59:59" : time;
     const date = parse(time, "HH:mm:ss", new Date());
     return differenceInSeconds(date, startOfDay(date));
   }
