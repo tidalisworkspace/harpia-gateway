@@ -94,13 +94,13 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       });
 
       if (!this.isOk(response)) {
-        return;
+        return false;
       }
 
       return response.data.session_is_valid;
     } catch (e) {
       logger.error(`controlid-client:${this.host} ${e.name}:${e.message}`);
-      return;
+      return false;
     }
   }
 
@@ -141,6 +141,10 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
   private async generateSession(): Promise<string> {
     if (!this.hasSession()) {
+      logger.debug(
+        `controlid-client:${this.host}:generate-session session not found`
+      );
+
       const params = await this.getLoginAndPassword();
       const session = await this.login(params);
 
@@ -150,11 +154,15 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     }
 
     let session = this.getSession();
-    const isValid = this.sessionIsValid({ session });
+    const isValid = await this.sessionIsValid({ session });
 
     if (isValid) {
       return session;
     }
+
+    logger.debug(
+      `controlid-client:${this.host}:generate-session current session is not valid session=${session}`
+    );
 
     const params = await this.getLoginAndPassword();
     session = await this.login(params);
@@ -193,6 +201,10 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   ): Promise<AxiosResponse> {
     const session = await this.generateSession();
     config.params = config.params ? { ...config.params, session } : { session };
+
+    logger.debug(
+      `controlid-client:${this.host}:fetch-and-log-with-session generated session session=${session}`
+    );
 
     return this.fetchAndLog(config);
   }
