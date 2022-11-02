@@ -472,6 +472,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
             id: objectId,
             name,
             type: 1,
+            priority: 0,
           },
         ],
       },
