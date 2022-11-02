@@ -395,7 +395,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     }
 
     if (!this.isOk(response)) {
-      throw Error("failed to create user to access rules");
+      throw Error("failed to create access rules to user");
     }
 
     return response;
@@ -504,7 +504,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       method: "post",
       url: "create_objects.fcgi",
       data: {
-        object: "access_rules_time_zones",
+        object: "access_rule_time_zones",
         values: [
           {
             access_rule_id: objectId,
