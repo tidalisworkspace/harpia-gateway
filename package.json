@@ -9,9 +9,9 @@
   "scripts": {
     "dev": "nextron",
     "build": "nextron build --win --x64",
-    "release-major": "npm run build && npm version major",
-    "release-minor": "npm run build && npm version minor",
-    "release-patch": "npm run build && npm version patch",
+    "release-major": "npm version major && npm run build",
+    "release-minor": "npm version minor && npm run build",
+    "release-patch": "npm version patch && npm run build",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
