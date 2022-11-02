@@ -374,7 +374,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     }
 
     if (!this.isOk(response)) {
-      throw Error("failed to create user access rule");
+      throw Error("failed to create user to access rules");
     }
 
     return response;
@@ -439,15 +439,35 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
   async saveUserRight(params: SaveUserRightParams): Promise<AxiosResponse> {
     const { id, name } = params;
+    const objectId = Number(id);
 
     let response = await this.fetchAndLogWithSession({
+      method: "post",
+      url: "create_objects.fcgi",
+      data: {
+        object: "access_rules",
+        values: [
+          {
+            id: objectId,
+            name,
+            type: 1,
+          },
+        ],
+      },
+    });
+
+    if (!this.isOk(response)) {
+      throw Error("failed to create access rule");
+    }
+
+    response = await this.fetchAndLogWithSession({
       method: "post",
       url: "create_objects.fcgi",
       data: {
         object: "time_zones",
         values: [
           {
-            id: Number(id),
+            id: objectId,
             name,
           },
         ],
@@ -458,9 +478,27 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       throw Error("failed to create time zone");
     }
 
+    response = await this.fetchAndLogWithSession({
+      method: "post",
+      url: "create_objects.fcgi",
+      data: {
+        object: "access_rules_time_zones",
+        values: [
+          {
+            access_rule_id: objectId,
+            time_zone_id: objectId,
+          },
+        ],
+      },
+    });
+
+    if (!this.isOk(response)) {
+      throw Error("failed to create access rule to time zone");
+    }
+
     const timeSpans = this.getTimeSpans(params);
 
-    return this.fetchAndLogWithSession({
+    response = await this.fetchAndLogWithSession({
       method: "post",
       url: "create_objects.fcgi",
       data: {
@@ -468,9 +506,23 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
         values: timeSpans,
       },
     });
+
+    if (!this.isOk(response)) {
+      throw Error("failed to create time spans");
+    }
+
+    return response;
   }
 
   async deleteAllUserRight(): Promise<void> {
+    await this.fetchAndLogWithSession({
+      method: "post",
+      url: "/destroy_objects.fcgi",
+      data: {
+        object: "access_rules",
+      },
+    });
+
     await this.fetchAndLogWithSession({
       method: "post",
       url: "/destroy_objects.fcgi",
