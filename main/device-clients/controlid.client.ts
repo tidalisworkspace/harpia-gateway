@@ -492,7 +492,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
           {
             id: objectId,
             name,
-            type: 0,
+            type: 1,
             priority: 0,
           },
         ],
@@ -537,6 +537,24 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
     if (!this.isOk(response)) {
       throw Error("failed to create access rule to time zone");
+    }
+
+    response = await this.fetchAndLogWithSession({
+      method: "post",
+      url: "create_objects.fcgi",
+      data: {
+        object: "portal_access_rules",
+        values: [
+          {
+            portal_id: 1,
+            access_rule_id: objectId,
+          },
+        ],
+      },
+    });
+
+    if (!this.isOk(response)) {
+      throw Error("failed to create access rule to portal");
     }
 
     const timeSpans = this.toTimeSpans(params);
