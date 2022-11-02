@@ -139,16 +139,14 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     }
   }
 
-  private async generateSession(): Promise<string> {
+  private async createSession(): Promise<string> {
     if (!this.hasSession()) {
-      logger.debug(
-        `controlid-client:${this.host}:generate-session session not found`
-      );
-
       const params = await this.getLoginAndPassword();
       const session = await this.login(params);
 
       this.setSession(session);
+
+      logger.debug(`controlid-client:${this.host}:generate-session session created`);
 
       return session;
     }
@@ -165,9 +163,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
     this.setSession(session);
 
-    logger.debug(
-      `controlid-client:${this.host}:generate-session new session generated`
-    );
+    logger.debug(`controlid-client:${this.host}:generate-session sessiion replaced`);
 
     return session;
   }
@@ -207,7 +203,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   private async fetchAndLogWithSession(
     config: AxiosRequestConfig
   ): Promise<AxiosResponse> {
-    const session = await this.generateSession();
+    const session = await this.createSession();
     config.params = config.params ? { ...config.params, session } : { session };
 
     return this.fetchAndLog(config);
@@ -496,7 +492,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
           {
             id: objectId,
             name,
-            type: 1,
+            type: 0,
             priority: 0,
           },
         ],
