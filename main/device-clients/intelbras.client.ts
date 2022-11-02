@@ -247,16 +247,16 @@ export class IntelbrasClient implements DeviceClient<Response> {
   deleteUsers(params: DeleteUsersParams): Promise<Response> {
     const { ids } = params;
 
-    if (ids && ids.length) {
-      const userIdParam = ids
-        .map((id, index) => `UserIDList[${index}]=${id}`)
-        .join("&");
+    const userIdParam = ids
+      .map((id, index) => `UserIDList[${index}]=${id}`)
+      .join("&");
 
-      return this.fetchAndLog(
-        `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeMulti&${userIdParam}`
-      );
-    }
+    return this.fetchAndLog(
+      `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeMulti&${userIdParam}`
+    );
+  }
 
+  deleteAllUsers(): Promise<Response> {
     return this.fetchAndLog(
       `http://${this.host}/cgi-bin/AccessUser.cgi?action=removeAll`
     );

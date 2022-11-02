@@ -266,13 +266,24 @@ export class HikvisionClient implements DeviceClient<Response> {
   deleteUsers(params: DeleteUsersParams): Promise<Response> {
     const { ids } = params;
 
-    const UserInfoDetail =
-      ids && ids.length
-        ? {
-            mode: "byEmployeeNo",
-            EmployeeNoList: ids.map((id) => ({ employeeNo: id.toString() })),
-          }
-        : { mode: "all" };
+    const UserInfoDetail = {
+      mode: "byEmployeeNo",
+      EmployeeNoList: ids.map((id) => ({ employeeNo: id.toString() })),
+    };
+
+    return this.fetchAndLog(
+      `http://${this.host}/ISAPI/AccessControl/UserInfoDetail/Delete?format=json`,
+      {
+        method: "put",
+        body: JSON.stringify({
+          UserInfoDetail,
+        }),
+      }
+    );
+  }
+
+  deleteAllUsers(): Promise<Response> {
+    const UserInfoDetail = { mode: "all" };
 
     return this.fetchAndLog(
       `http://${this.host}/ISAPI/AccessControl/UserInfoDetail/Delete?format=json`,

@@ -397,6 +397,16 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     });
   }
 
+  deleteAllUsers(): Promise<AxiosResponse> {
+    return this.fetchAndLogWithSession({
+      method: "post",
+      url: "/destroy_objects.fcgi",
+      data: {
+        object: "users",
+      },
+    });
+  }
+
   private toTimeSpan(day: string, params: SaveUserRightParams): any {
     if (!params[day]) {
       return null;

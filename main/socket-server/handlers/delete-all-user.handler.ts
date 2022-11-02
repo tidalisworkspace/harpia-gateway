@@ -28,7 +28,7 @@ export class DeleteAllUserHandler implements SocketConnectionHandler {
       }
 
       try {
-        await deviceClient.deleteUsers({ ids: null });
+        await deviceClient.deleteAllUsers();
       } catch (e) {
         logger.error(
           `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`

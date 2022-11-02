@@ -14,6 +14,7 @@ export interface DeviceClient<R> {
   deleteCards(params: DeleteCardsParams): Promise<R>;
   saveUser(params: SaveUserParams): Promise<R>;
   deleteUsers(params: DeleteUsersParams): Promise<R>;
+  deleteAllUsers(): Promise<R>;
   saveUserRight(params: SaveUserRightParams): Promise<R>;
   deleteAllUserRight(): Promise<void>;
   reboot(): Promise<R>;
