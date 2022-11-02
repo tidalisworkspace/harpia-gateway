@@ -61,6 +61,43 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     return response.status >= 200 && response.status <= 299;
   }
 
+  private createObjects(object: string, values: any[]): Promise<AxiosResponse> {
+    return this.fetchAndLogWithSession({
+      method: "post",
+      url: "create_objects.fcgi",
+      data: {
+        object,
+        values,
+      },
+    });
+  }
+
+  private loadObjects(object: string, filter: any): Promise<AxiosResponse> {
+    const where = filter ? { [object]: filter } : null;
+
+    return this.fetchAndLogWithSession({
+      method: "post",
+      url: "/load_objects.fcgi",
+      data: {
+        object,
+        where,
+      },
+    });
+  }
+
+  private destroyObjects(object: string, filter?: any): Promise<AxiosResponse> {
+    const where = filter ? { [object]: filter } : null;
+
+    return this.fetchAndLogWithSession({
+      method: "post",
+      url: "/destroy_objects.fcgi",
+      data: {
+        object,
+        where,
+      },
+    });
+  }
+
   private async login(params: {
     login: string;
     password: string;
@@ -146,7 +183,9 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
       this.setSession(session);
 
-      logger.debug(`controlid-client:${this.host}:generate-session session created`);
+      logger.debug(
+        `controlid-client:${this.host}:generate-session session created`
+      );
 
       return session;
     }
@@ -163,7 +202,9 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
     this.setSession(session);
 
-    logger.debug(`controlid-client:${this.host}:generate-session sessiion replaced`);
+    logger.debug(
+      `controlid-client:${this.host}:generate-session sessiion replaced`
+    );
 
     return session;
   }
@@ -308,31 +349,15 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   saveCard(params: SaveCardParams): Promise<AxiosResponse> {
     const { id, number } = params;
 
-    return this.fetchAndLogWithSession({
-      method: "post",
-      url: "/create_objects.fcgi",
-      data: {
-        object: "cards",
-        values: [
-          { id: this.newId(), value: Number(number), user_id: Number(id) },
-        ],
-      },
-    });
+    const cards = [
+      { id: this.newId(), value: Number(number), user_id: Number(id) },
+    ];
+
+    return this.createObjects("cards", cards);
   }
 
   deleteCards(params: DeleteCardsParams): Promise<AxiosResponse> {
-    return this.fetchAndLogWithSession({
-      method: "post",
-      url: "/destroy_objects.fcgi",
-      data: {
-        object: "cards",
-        where: {
-          cards: {
-            user_id: { IN: params.ids },
-          },
-        },
-      },
-    });
+    return this.destroyObjects("cards", { user_id: { IN: params.ids } });
   }
 
   async saveUser(params: SaveUserParams): Promise<AxiosResponse> {
@@ -347,43 +372,28 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       end_time = this.toUnixTimestamp(this.toDate(expiration.endTime));
     }
 
-    let response = await this.fetchAndLogWithSession({
-      method: "post",
-      url: "/create_objects.fcgi",
-      data: {
-        object: "users",
-        values: [
-          {
-            id: objectId,
-            name,
-            registration: "",
-            password: "",
-            salt: "",
-            begin_time,
-            end_time,
-          },
-        ],
+    const users = [
+      {
+        id: objectId,
+        name,
+        registration: "",
+        password: "",
+        salt: "",
+        begin_time,
+        end_time,
       },
-    });
+    ];
+
+    let response = await this.createObjects("users", users);
 
     if (!this.isOk(response)) {
       throw Error("failed to create user");
     }
 
     if (role === "admin") {
-      response = await this.fetchAndLogWithSession({
-        method: "post",
-        url: "/create_objects.fcgi",
-        data: {
-          object: "user_roles",
-          values: [
-            {
-              user_id: objectId,
-              role: 1,
-            },
-          ],
-        },
-      });
+      const userRoles = [{ user_id: objectId, role: 1 }];
+
+      response = await this.createObjects("user_roles", userRoles);
 
       if (!this.isOk(response)) {
         throw Error("failed to create user role");
@@ -396,18 +406,11 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
         access_rule_id: rightPlan,
       }));
 
-      response = await this.fetchAndLogWithSession({
-        method: "post",
-        url: "/create_objects.fcgi",
-        data: {
-          object: "user_access_rules",
-          values: userAccessRules,
-        },
-      });
-    }
+      response = await this.createObjects("user_access_rules", userAccessRules);
 
-    if (!this.isOk(response)) {
-      throw Error("failed to create access rules to user");
+      if (!this.isOk(response)) {
+        throw Error("failed to create access rules to user");
+      }
     }
 
     return response;
@@ -416,28 +419,11 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   deleteUsers(params: DeleteUsersParams): Promise<AxiosResponse> {
     const ids = params.ids.map((id) => Number(id));
 
-    return this.fetchAndLogWithSession({
-      method: "post",
-      url: "/destroy_objects.fcgi",
-      data: {
-        object: "users",
-        where: {
-          users: {
-            id: { IN: ids },
-          },
-        },
-      },
-    });
+    return this.destroyObjects("users", { id: { IN: ids } });
   }
 
   deleteAllUsers(): Promise<AxiosResponse> {
-    return this.fetchAndLogWithSession({
-      method: "post",
-      url: "/destroy_objects.fcgi",
-      data: {
-        object: "users",
-      },
-    });
+    return this.destroyObjects("users");
   }
 
   private toSeconds(time: string) {
@@ -473,7 +459,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     return timeSpan;
   }
 
-  private toTimeSpans(params: SaveUserRightParams): any {
+  private toTimeSpans(params: SaveUserRightParams): any[] {
     return this.days
       .filter((day) => Boolean(params[day]))
       .map((day) => this.toTimeSpan(day, params));
@@ -483,75 +469,49 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     const { id, name } = params;
     const objectId = Number(id);
 
-    let response = await this.fetchAndLogWithSession({
-      method: "post",
-      url: "create_objects.fcgi",
-      data: {
-        object: "access_rules",
-        values: [
-          {
-            id: objectId,
-            name,
-            type: 1,
-            priority: 0,
-          },
-        ],
-      },
-    });
+    const accessRules = [{ id: objectId, name, type: 1, priority: 0 }];
+
+    let response = await this.createObjects("access_rules", accessRules);
 
     if (!this.isOk(response)) {
       throw Error("failed to create access rule");
     }
 
-    response = await this.fetchAndLogWithSession({
-      method: "post",
-      url: "create_objects.fcgi",
-      data: {
-        object: "time_zones",
-        values: [
-          {
-            id: objectId,
-            name,
-          },
-        ],
-      },
-    });
+    const timeZones = [{ id: objectId, name }];
+
+    response = await this.createObjects("time_zones", timeZones);
 
     if (!this.isOk(response)) {
       throw Error("failed to create time zone");
     }
 
-    response = await this.fetchAndLogWithSession({
-      method: "post",
-      url: "create_objects.fcgi",
-      data: {
-        object: "access_rule_time_zones",
-        values: [
-          {
-            access_rule_id: objectId,
-            time_zone_id: objectId,
-          },
-        ],
+    const accessRuleTimeZones = [
+      {
+        access_rule_id: objectId,
+        time_zone_id: objectId,
       },
-    });
+    ];
+
+    response = await this.createObjects(
+      "access_rule_time_zones",
+      accessRuleTimeZones
+    );
 
     if (!this.isOk(response)) {
       throw Error("failed to create access rule to time zone");
     }
 
-    response = await this.fetchAndLogWithSession({
-      method: "post",
-      url: "create_objects.fcgi",
-      data: {
-        object: "portal_access_rules",
-        values: [
-          {
-            portal_id: 1,
-            access_rule_id: objectId,
-          },
-        ],
+    const portalAccessRules = [
+      {
+        portal_id: 1,
+        access_rule_id: objectId,
       },
-    });
+    ];
+
+    response = await this.createObjects(
+      "portal_access_rules",
+      portalAccessRules
+    );
 
     if (!this.isOk(response)) {
       throw Error("failed to create access rule to portal");
@@ -559,14 +519,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
     const timeSpans = this.toTimeSpans(params);
 
-    response = await this.fetchAndLogWithSession({
-      method: "post",
-      url: "create_objects.fcgi",
-      data: {
-        object: "time_spans",
-        values: timeSpans,
-      },
-    });
+    response = await this.createObjects("time_spans", timeSpans);
 
     if (!this.isOk(response)) {
       throw Error("failed to create time spans");
@@ -576,21 +529,8 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   }
 
   async deleteAllUserRight(): Promise<void> {
-    await this.fetchAndLogWithSession({
-      method: "post",
-      url: "/destroy_objects.fcgi",
-      data: {
-        object: "access_rules",
-      },
-    });
-
-    await this.fetchAndLogWithSession({
-      method: "post",
-      url: "/destroy_objects.fcgi",
-      data: {
-        object: "time_zones",
-      },
-    });
+    await this.destroyObjects("access_rules");
+    await this.destroyObjects("time_zones");
   }
 
   reboot(): Promise<AxiosResponse> {
@@ -640,17 +580,8 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
   async getEvents(): Promise<any[]> {
     try {
-      const response = await this.fetchAndLogWithSession({
-        method: "post",
-        url: "/load_objects.fcgi",
-        data: {
-          object: "access_logs",
-          where: {
-            access_logs: {
-              event: { IN: [3, 7] },
-            },
-          },
-        },
+      const response = await this.loadObjects("access_logs", {
+        event: { IN: [7] },
       });
 
       if (!this.isOk(response)) {
@@ -666,17 +597,6 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   async deleteEvents(params: DeleteEventsParams): Promise<void> {
     const ids = params.ids.map(Number);
 
-    this.fetchAndLogWithSession({
-      method: "post",
-      url: "/destroy_objects.fcgi",
-      data: {
-        object: "access_logs",
-        where: {
-          access_logs: {
-            id: { IN: ids },
-          },
-        },
-      },
-    });
+    this.destroyObjects("access_logs", { id: { IN: ids } });
   }
 }
