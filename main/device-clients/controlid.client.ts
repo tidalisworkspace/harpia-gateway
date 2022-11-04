@@ -490,6 +490,11 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
   async saveUserRight(params: SaveUserRightParams): Promise<AxiosResponse> {
     const { id, name } = params;
+
+    if (id === "1") {
+      return;
+    }
+
     const objectId = Number(id);
 
     await this.createObjects("groups", [{ id: objectId, name }]);
