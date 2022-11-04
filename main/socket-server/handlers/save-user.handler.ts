@@ -1,7 +1,6 @@
 import path from "path";
 import socketServer from "..";
 import logger from "../../../shared/logger";
-import equipamentoModel from "../../database/models/equipamento.model";
 import { deviceClients } from "../../device-clients";
 import {
   RecordPeoplesRequest,
@@ -10,33 +9,6 @@ import {
 
 export class SaveUserHandler implements SocketConnectionHandler {
   name = "record";
-
-  private async deleteUsersFromAllDevices(
-    connectionId: string,
-    ids: string[]
-  ): Promise<void> {
-    const equipamentos = await equipamentoModel().findAll({
-      attributes: ["ip", "porta"],
-    });
-
-    for (const equipamento of equipamentos) {
-      const { ip, porta } = equipamento;
-
-      const deviceClient = await deviceClients.get(ip, porta);
-
-      if (!deviceClient) {
-        continue;
-      }
-
-      try {
-        await deviceClient.deleteUsers({ ids });
-      } catch (e) {
-        logger.error(
-          `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`
-        );
-      }
-    }
-  }
 
   async handle(
     connectionId: string,
@@ -47,8 +19,6 @@ export class SaveUserHandler implements SocketConnectionHandler {
     const errors = [];
 
     const ids = peoples.map((people) => people.id);
-
-    await this.deleteUsersFromAllDevices(connectionId, ids);
 
     for (let i = 0; i < peoples.length; i++) {
       const { id, name, expiration, devices, cards, photo, role } = peoples[i];
@@ -69,7 +39,7 @@ export class SaveUserHandler implements SocketConnectionHandler {
             name,
             rightPlans,
             expiration,
-            role
+            role,
           });
         } catch (e) {
           logger.error(
