@@ -83,17 +83,21 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
   private async loadObjects(
     object: string,
-    filter: any
+    where: any
   ): Promise<AxiosResponse> {
-    const where = filter ? { [object]: filter } : null;
+    const data = where
+      ? {
+          object,
+          where: {
+            [object]: where,
+          },
+        }
+      : { object };
 
     const response = await this.fetchAndLogWithSession({
       method: "post",
       url: "/load_objects.fcgi",
-      data: {
-        object,
-        where,
-      },
+      data,
     });
 
     if (!this.isOk(response)) {
@@ -105,17 +109,21 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
   private async destroyObjects(
     object: string,
-    filter?: any
+    where?: any
   ): Promise<AxiosResponse> {
-    const where = filter ? { [object]: filter } : null;
+    const data = where
+      ? {
+          object,
+          where: {
+            [object]: where,
+          },
+        }
+      : { object };
 
     const response = await this.fetchAndLogWithSession({
       method: "post",
       url: "/destroy_objects.fcgi",
-      data: {
-        object,
-        where,
-      },
+      data,
     });
 
     if (!this.isOk(response)) {
