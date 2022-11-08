@@ -7,7 +7,6 @@ import logger from "../../shared/logger";
 import parametroModel from "../database/models/parametro.model";
 import {
   DeleteCardsParams,
-  DeleteEventsParams,
   DeleteFacesParams,
   DeleteUsersParams,
   DeviceClient,
@@ -627,17 +626,9 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     }
   }
 
-  async deleteEvents(params: DeleteEventsParams): Promise<void> {
+  async deleteAllEvents(): Promise<void> {
     try {
-      const ids = params.ids.map(Number);
-
-      if (ids.length) {
-        await this.destroyObjects("access_logs", { id: { IN: ids } });
-      }
-
-      if (!ids.length) {
-        await this.destroyObjects("access_logs");
-      }
+      await this.destroyObjects("access_logs");
     } catch (e) {
       logger.error(`controlid-client:${this.host} ${e.name}:${e.message}`);
     }

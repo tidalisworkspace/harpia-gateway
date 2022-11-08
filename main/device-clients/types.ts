@@ -21,7 +21,7 @@ export interface DeviceClient<R> {
   setEventsServer(params: SetEventsServerParams): Promise<void>;
   testConnection(): Promise<string>;
   getEvents(): Promise<any[]>;
-  deleteEvents(params: DeleteEventsParams): Promise<void>;
+  deleteAllEvents(): Promise<void>;
 }
 
 export interface Boundary {
@@ -80,8 +80,4 @@ export interface SaveUserRightParams {
 export interface SetEventsServerParams {
   ip: string;
   port: number;
-}
-
-export interface DeleteEventsParams {
-  ids: string[];
 }

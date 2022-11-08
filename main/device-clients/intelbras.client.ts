@@ -357,7 +357,7 @@ export class IntelbrasClient implements DeviceClient<Response> {
     throw new Error("method not implemented");
   }
 
-  async deleteEvents(): Promise<void> {
+  async deleteAllEvents(): Promise<void> {
     throw new Error("method not implemented");
   }
 }
