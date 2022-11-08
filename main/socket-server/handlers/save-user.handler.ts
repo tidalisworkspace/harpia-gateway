@@ -18,10 +18,9 @@ export class SaveUserHandler implements SocketConnectionHandler {
 
     const errors = [];
 
-    const ids = peoples.map((people) => people.id);
-
     for (let i = 0; i < peoples.length; i++) {
-      const { id, name, expiration, devices, cards, photo, role, password } = peoples[i];
+      const { id, name, expiration, devices, cards, photo, role, password } =
+        peoples[i];
 
       for (let j = 0; j < devices.length; j++) {
         const { ip, port, rightPlans } = devices[j];
@@ -62,6 +61,10 @@ export class SaveUserHandler implements SocketConnectionHandler {
               `socket:handler:${this.name}:${connectionId} error ${e.name}:${e.message}`
             );
           }
+        }
+
+        if (!faceDirectory || !photo) {
+          continue;
         }
 
         const picture = path.join(faceDirectory, photo);
