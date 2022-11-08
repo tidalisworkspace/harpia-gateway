@@ -46,6 +46,7 @@ export interface People {
   expiration: TimeRange;
   photo: string;
   role?: string;
+  password?: string;
 }
 
 export interface RecordPeoplesPayload extends Payload {
@@ -83,13 +84,13 @@ export interface UserRightRequest extends Request {
   payload: UserRightPayload;
 }
 
-export interface People {
+export interface PeopleToDelete {
   id: string;
   devices: Device[];
 }
 
 export interface DeleteUserPayload extends Payload {
-  peoples: People[];
+  peoples: PeopleToDelete[];
 }
 
 export interface DeleteUserRequest extends Request {

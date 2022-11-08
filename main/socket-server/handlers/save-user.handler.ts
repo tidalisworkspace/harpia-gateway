@@ -21,7 +21,7 @@ export class SaveUserHandler implements SocketConnectionHandler {
     const ids = peoples.map((people) => people.id);
 
     for (let i = 0; i < peoples.length; i++) {
-      const { id, name, expiration, devices, cards, photo, role } = peoples[i];
+      const { id, name, expiration, devices, cards, photo, role, password } = peoples[i];
 
       for (let j = 0; j < devices.length; j++) {
         const { ip, port, rightPlans } = devices[j];
@@ -40,6 +40,7 @@ export class SaveUserHandler implements SocketConnectionHandler {
             rightPlans,
             expiration,
             role,
+            password,
           });
         } catch (e) {
           logger.error(

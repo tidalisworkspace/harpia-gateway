@@ -53,6 +53,7 @@ export interface SaveUserParams {
   rightPlans?: number[];
   expiration?: TimeRange;
   role?: string;
+  password?: string;
 }
 
 export interface DeleteUsersParams {

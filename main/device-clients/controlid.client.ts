@@ -396,7 +396,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
   }
 
   async saveUser(params: SaveUserParams): Promise<AxiosResponse> {
-    const { id, name, rightPlans, expiration, role } = params;
+    const { id, name, rightPlans, expiration, role, password } = params;
     const objectId = Number(id);
 
     let begin_time = null;
@@ -412,7 +412,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
         id: objectId,
         name,
         registration: "",
-        password: "",
+        password: password || "",
         salt: "",
         begin_time,
         end_time,
