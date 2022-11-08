@@ -51,10 +51,18 @@ async function processEvents() {
       object_changes: objectChanges,
     };
 
+    const eventString = JSON.stringify(event);
+
     try {
+      logger.debug(
+        `job:load-controlid-events:${ip}:${logId} creating event ${eventString}`
+      );
+
       await service.create(event);
     } catch (e) {
-      logger.error(`job:load-controlid-events:${ip} ${e.name}:${e.message}`);
+      logger.error(
+        `job:load-controlid-events:${ip}:${logId} ${e.name}:${e.message}`
+      );
     }
   }
 }
