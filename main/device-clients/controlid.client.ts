@@ -217,6 +217,10 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       const params = await this.getLoginAndPassword();
       const session = await this.login(params);
 
+      if (!session) {
+        return session;
+      }
+
       this.setSession(session);
 
       logger.debug(
@@ -235,6 +239,10 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
 
     const params = await this.getLoginAndPassword();
     session = await this.login(params);
+
+    if (!session) {
+      return session;
+    }
 
     this.setSession(session);
 
