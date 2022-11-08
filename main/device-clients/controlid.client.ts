@@ -17,6 +17,7 @@ import {
   SaveUserParams,
   SaveUserRightParams,
   SetEventsServerParams,
+  UserCredentials,
 } from "./types";
 
 const sessions = {};
@@ -395,6 +396,29 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     return this.destroyObjects("cards", { user_id: { IN: params.ids } });
   }
 
+  async userHashPassword(password?: string): Promise<UserCredentials> {
+    const emptyCredentials = {
+      password: "",
+      salt: "",
+    };
+
+    if (!Boolean(password)) {
+      return emptyCredentials;
+    }
+
+    const response = await this.fetchAndLogWithSession({
+      method: "post",
+      url: "/user_hash_password.fcgi",
+      data: { password },
+    });
+
+    if (!this.isOk(response)) {
+      return emptyCredentials;
+    }
+
+    return response.data;
+  }
+
   async saveUser(params: SaveUserParams): Promise<AxiosResponse> {
     const { id, name, rightPlans, expiration, role, password } = params;
     const objectId = Number(id);
@@ -407,13 +431,14 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
       end_time = this.toUnixTimestamp(this.toDate(expiration.endTime));
     }
 
+    const userCredentials = await this.userHashPassword(password);
+
     const users = [
       {
         id: objectId,
         name,
         registration: "",
-        password: password || "",
-        salt: "",
+        ...userCredentials,
         begin_time,
         end_time,
       },

@@ -47,6 +47,11 @@ export interface DeleteCardsParams {
   ids: number[];
 }
 
+export interface UserCredentials {
+  password: string;
+  salt: string;
+}
+
 export interface SaveUserParams {
   id: string;
   name: string;
