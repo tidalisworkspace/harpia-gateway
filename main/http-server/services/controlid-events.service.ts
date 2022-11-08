@@ -302,10 +302,6 @@ async function create(event: ControlIdEvent): Promise<void> {
 
   const client = await new ControlidClient().init(ip, equipamento.porta);
 
-  if (!ids.length) {
-    return;
-  }
-
   await client.deleteEvents({ ids });
 }
 

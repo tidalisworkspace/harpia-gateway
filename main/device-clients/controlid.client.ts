@@ -631,7 +631,13 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     try {
       const ids = params.ids.map(Number);
 
-      await this.destroyObjects("access_logs", { id: { IN: ids } });
+      if (ids.length) {
+        await this.destroyObjects("access_logs", { id: { IN: ids } });
+      }
+
+      if (!ids.length) {
+        await this.destroyObjects("access_logs");
+      }
     } catch (e) {
       logger.error(`controlid-client:${this.host} ${e.name}:${e.message}`);
     }
