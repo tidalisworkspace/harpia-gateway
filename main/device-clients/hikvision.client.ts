@@ -459,7 +459,7 @@ export class HikvisionClient implements DeviceClient<Response> {
     throw new Error("method not implemented");
   }
 
-  async deleteAllEvents(): Promise<void> {
+  async deleteEvents(): Promise<void> {
     throw new Error("method not implemented");
   }
 }

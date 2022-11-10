@@ -296,9 +296,17 @@ async function create(event: ControlIdEvent): Promise<void> {
     socketServer.broadcast(message);
   }
 
+  const ids = event.object_changes
+    .filter((change) => Boolean(change.values?.id))
+    .map((change) => change.values.id);
+
+  if (!ids.length) {
+    return;
+  }
+
   const client = await new ControlidClient().init(ip, equipamento.porta);
 
-  await client.deleteAllEvents();
+  await client.deleteEvents({ ids });
 }
 
 export default {
