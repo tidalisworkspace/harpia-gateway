@@ -86,6 +86,18 @@ function getDeleteWhiteListResponse(requestBody: any): any {
   return defaultResponseBody;
 }
 
+function getAlarmInfoPlateResponse(requestBody: any): any {
+  const { logId } = requestBody;
+
+  const plateInfo = JSON.stringify(requestBody.AlarmInfoPlate);
+
+  logger.debug(
+    `http-server:alphadigi-heartbeat-service:heartbeat:${logId} plate info ${plateInfo}`
+  );
+
+  return defaultResponseBody;
+}
+
 async function getResponseBody(requestBody: any): Promise<any> {
   const { logId, ip } = requestBody;
 
@@ -110,6 +122,10 @@ async function getResponseBody(requestBody: any): Promise<any> {
 
   if (requestBody.Heartbeat) {
     return getHeartbeatResponse(requestBody);
+  }
+
+  if (requestBody.AlarmInfoPlate) {
+    return getAlarmInfoPlateResponse(requestBody);
   }
 
   if (requestBody.Response_AddWhiteList) {
