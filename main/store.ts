@@ -37,6 +37,11 @@ class Store extends ElectronStore {
     super.set(`hardware.${key}.connection`, connection);
   }
 
+  setWhiteList(ip: string, whitelist: string[]): void {
+    const key = this.normalize(ip);
+    super.set(`whitelist.${key}`, whitelist.join(","));
+  }
+
   getWhiteList(ip: string): string[] {
     const key = this.normalize(ip);
     const value = super.get(`whitelist.${key}`) as string;

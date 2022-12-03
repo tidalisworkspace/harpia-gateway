@@ -7,6 +7,7 @@ import HandlerManager from "./handler-manager";
 import { RebootHandler } from "./reboot.handler";
 import { SaveUserRightHandler } from "./save-user-right.handler";
 import { SaveUserHandler } from "./save-user.handler";
+import { SaveWhiteListHandler } from "./save-white-list.handler";
 import { TriggerRelayHandler } from "./trigger-relay.handler";
 
 const handlers: SocketConnectionHandler[] = [
@@ -17,6 +18,7 @@ const handlers: SocketConnectionHandler[] = [
   new RebootHandler(),
   new SaveUserRightHandler(),
   new SaveUserHandler(),
+  new SaveWhiteListHandler(),
   new TriggerRelayHandler(),
 ];
 

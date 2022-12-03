@@ -36,6 +36,7 @@ export interface Device {
   ip: string;
   port: number;
   rightPlans?: number[];
+  plates?: string[];
 }
 
 export interface People {
@@ -119,4 +120,12 @@ export interface DeleteAllUserPayload extends Payload {
 
 export interface DeleteAllUserRequest extends Request {
   payload: DeleteAllUserPayload;
+}
+
+export interface SaveWhiteListPayload extends Payload {
+  devices: Device[]
+}
+
+export interface SaveWhiteListRequest extends Request {
+  payload: SaveWhiteListPayload;
 }
