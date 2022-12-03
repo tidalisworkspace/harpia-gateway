@@ -5,6 +5,7 @@ import parametroModel from "../database/models/parametro.model";
 import hikvisionEventsRoute from "./routes/hikvision-events.route";
 import intelbrasEventsRoute from "./routes/intelbras-events.route";
 import controlidEventsRoute from "./routes/controlid-events.route";
+import alphadigiHeartbeatRoute from "./routes/alphadigi-heartbeat.route";
 
 export default class HttpServer {
   private ip: string = "0.0.0.0";
@@ -73,6 +74,7 @@ export default class HttpServer {
     app.use("/hikvision/events", hikvisionEventsRoute);
     app.use("/intelbras/events", intelbrasEventsRoute);
     app.use("/controlid/events", controlidEventsRoute);
+    app.use("/alphadigi/heartbeat", alphadigiHeartbeatRoute);
     return app;
   }
 
