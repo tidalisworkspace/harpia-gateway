@@ -9,6 +9,10 @@ class Store extends ElectronStore {
     this.cypher = new Cypher();
   }
 
+  private normalize(value: string) {
+    return value.replaceAll(".", "");
+  }
+
   getSecret(key: string, defaultValue?: any): string {
     const value = super.get(key);
 
@@ -24,13 +28,24 @@ class Store extends ElectronStore {
   }
 
   getHardwareConnection(ip: string) {
-    const key = ip.replaceAll(".", "");
+    const key = this.normalize(ip);
     return super.get(`hardware.${key}.connection`);
   }
 
   setHardwareConnection(ip: string, connection: string) {
-    const key = ip.replaceAll(".", "");
+    const key = this.normalize(ip);
     super.set(`hardware.${key}.connection`, connection);
+  }
+
+  getWhiteList(ip: string): string[] {
+    const key = this.normalize(ip);
+    const value = super.get(`whitelist.${key}`) as string;
+    return value.split(",");
+  }
+
+  deleteWhiteList(ip: string): void {
+    const key = this.normalize(ip);
+    super.set(`whitelist.${key}`, "");
   }
 }
 
