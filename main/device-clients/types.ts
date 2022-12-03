@@ -1,6 +1,6 @@
 import { TimeRange } from "../socket-server/types/handler.types";
 
-export type Manufacturer = "<HIKV>" | "<ITBF>" | "<CIBM>";
+export type Manufacturer = "<HIKV>" | "<ITBF>" | "<CIBM>" | "<LPRA>";
 
 export interface DeviceClient<R> {
   getManufacturer(): Manufacturer;

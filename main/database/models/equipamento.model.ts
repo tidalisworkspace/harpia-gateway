@@ -29,7 +29,13 @@ const codigos: { manufacturer: Manufacturer; sigla: string }[] = [
     manufacturer: "<CIBM>",
     sigla: "CI",
   },
+  {
+    manufacturer: "<LPRA>",
+    sigla: "LP",
+  },
 ];
+
+const modelNames = ["HIKV 671", "ITB FACE1", "ID FACE G", "LPR ALPHA1"];
 
 function getCodigo(manufacturer: string): string {
   const codigo = codigos.find((codigo) => codigo.manufacturer === manufacturer);
@@ -115,17 +121,7 @@ export default function equipamentoModel() {
       defaultScope: {
         where: {
           habilitado: "S",
-          [Op.or]: [
-            {
-              modelo: "HIKV 671",
-            },
-            {
-              modelo: "ITB FACE1",
-            },
-            {
-              modelo: "ID FACE G",
-            },
-          ],
+          [Op.or]: modelNames.map((modelName) => ({ modelo: modelName })),
         },
       },
     }
