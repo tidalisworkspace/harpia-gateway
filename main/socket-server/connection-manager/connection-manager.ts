@@ -4,15 +4,21 @@ import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
 import ipcMain from "../../ipc-main";
+import CameraHandlerManager from "../camera-handlers/camera-handler-manager";
 import HandlerManager from "../handlers/handler-manager";
 import storage from "./storage";
 import validator, { socketMessageSchema } from "./validator";
 
 export default class ConnectionManager {
   private handlerManager: HandlerManager;
+  private cameraHandlerManager: CameraHandlerManager;
 
-  constructor(handlerManager: HandlerManager) {
+  constructor(
+    handlerManager: HandlerManager,
+    cameraHandlerManager: CameraHandlerManager
+  ) {
     this.handlerManager = handlerManager;
+    this.cameraHandlerManager = cameraHandlerManager;
   }
 
   handleError(connectionId: string, e: Error) {
@@ -77,10 +83,11 @@ export default class ConnectionManager {
   }
 
   handleCameraData(connectionId: string, data: Buffer) {
-    // TODO add logic to read data and deal with it
     logger.debug(
       `socket:camera:${connectionId} received ${data.toString("hex")}`
     );
+
+    this.cameraHandlerManager.resolve(connectionId, data);
   }
 
   private async isCamera(connection: Socket): Promise<boolean> {
