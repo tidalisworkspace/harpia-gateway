@@ -9,7 +9,10 @@ export default class SocketConnectionsAmountHandler implements IpcHandler {
   async handle(): Promise<IpcResponse> {
     return {
       status: "success",
-      data: storage.count(),
+      data: {
+        connectionsAmount: storage.count("unknow"),
+        camerasAmount: storage.count("camera")
+      }
     };
   }
 }

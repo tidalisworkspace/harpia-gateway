@@ -92,9 +92,9 @@ export default class SocketServer {
     message: string,
     mode: SendMode = "LOG_AND_SEND"
   ) {
-    const connection = storage.get(connectionId);
+    const item = storage.get(connectionId);
 
-    if (!connection) {
+    if (!item || item.type === "camera") {
       return;
     }
 
@@ -103,7 +103,7 @@ export default class SocketServer {
     }
 
     try {
-      connection.write(message, "utf-8");
+      item.connection.write(message, "utf-8");
     } catch (e) {
       logger.error(
         `socket:server:${connectionId} error ${e.name}:${e.message}`

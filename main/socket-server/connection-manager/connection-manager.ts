@@ -2,8 +2,8 @@ import { Socket } from "net";
 import { SOCKET_CONNECTIONS_CHANGE } from "../../../shared/constants/ipc-renderer-channels.constants";
 import { IpcResponse } from "../../../shared/ipc/types";
 import logger from "../../../shared/logger";
+import equipamentoModel from "../../database/models/equipamento.model";
 import ipcMain from "../../ipc-main";
-import Handler from "../handlers";
 import HandlerManager from "../handlers/handler-manager";
 import storage from "./storage";
 import validator, { socketMessageSchema } from "./validator";
@@ -20,9 +20,9 @@ export default class ConnectionManager {
       `socket:connection-manager:${connectionId} ${e.name}:${e.message}`
     );
 
-    const connection = storage.get(connectionId);
+    const item = storage.get(connectionId);
 
-    connection.destroy();
+    item.connection.destroy();
   }
 
   handleClose(connectionId: string) {
@@ -32,7 +32,10 @@ export default class ConnectionManager {
 
     const response: IpcResponse = {
       status: "success",
-      data: storage.count(),
+      data: {
+        connectionsAmount: storage.count("unknow"),
+        camerasAmount: storage.count("camera"),
+      },
     };
 
     ipcMain.sendToRenderer(SOCKET_CONNECTIONS_CHANGE, response);
@@ -73,20 +76,52 @@ export default class ConnectionManager {
     this.handlerManager.resolve(connectionId, JSON.parse(message));
   }
 
-  handleConnection(connection: Socket) {
-    const connectionId = storage.add(connection);
+  handleCameraData(connectionId: string, data: Buffer) {
+    // TODO add logic to read data and deal with it
+    logger.debug(`socket:camera:${connectionId} received ${data.toString("hex")}`);
+  }
+
+  private async isCamera(connection: Socket): Promise<boolean> {
+    const ip = connection.remoteAddress;
+
+    if (!ip) {
+      return false;
+    }
+
+    const equipamento = await equipamentoModel().findOne({
+      attributes: ["id"],
+      where: { ip },
+    });
+
+    if (!equipamento || equipamento.modelo !== "LPR ALPHA1") {
+      return false;
+    }
+
+    return true;
+  }
+
+  async handleConnection(connection: Socket) {
+    const isCamera = await this.isCamera(connection);
+    const connectionType = isCamera ? "camera" : "unknow";
+
+    const connectionId = storage.add(connection, connectionType);
+    const useDataHandler = isCamera ? this.handleCameraData : this.handleData;
 
     connection.on("error", (e: Error) => this.handleError(connectionId, e));
     connection.on("close", () => this.handleClose(connectionId));
-    connection.on("data", (data) => this.handleData(connectionId, data));
+    connection.on("data", (data) => useDataHandler(connectionId, data));
 
     const response: IpcResponse = {
       status: "success",
-      data: storage.count(),
+      data: {
+        connectionsAmount: storage.count("unknow"),
+        camerasAmount: storage.count("camera"),
+      },
     };
 
     ipcMain.sendToRenderer(SOCKET_CONNECTIONS_CHANGE, response);
 
-    logger.info(`socket:connection-manager:${connectionId} connected`);
+    const message = isCamera ? "camera connected" : "connected";
+    logger.info(`socket:connection-manager:${connectionId} ${message}`);
   }
 }

@@ -2,12 +2,17 @@ import { Socket } from "net";
 import { v4 as uuid } from "uuid";
 import logger from "../../../shared/logger";
 
-const connections = {};
+interface Connection {
+  connection: Socket;
+  type: string;
+}
 
-function add(connection: Socket) {
+const connections: { [key: string]: Connection } = {};
+
+function add(connection: Socket, type: string) {
   const id = uuid();
 
-  Object.assign(connections, { [id]: connection });
+  Object.assign(connections, { [id]: { connection, type } });
 
   return id;
 }
@@ -18,11 +23,29 @@ function remove(id: string) {
   }
 }
 
-function count(): number {
-  return Object.keys(connections).length;
+type Counter = () => number;
+
+const countStrategy: { [key: string]: Counter } = {
+  camera: () =>
+    Object.keys(connections).filter((id) => connections[id].type === "camera")
+      .length,
+  unknow: () => Object.keys(connections).length,
+};
+
+function count(type: string): number {
+  const strategy = countStrategy[type];
+
+  if (!strategy) {
+    logger.warn(
+      `socket:connection-manager:storage no strategt found for type ${type}`
+    );
+    return 0;
+  }
+
+  return strategy();
 }
 
-function get(connectionId: string): Socket {
+function get(connectionId: string): { connection: Socket; type: string } {
   const connection = connections[connectionId];
 
   if (!connection) {
