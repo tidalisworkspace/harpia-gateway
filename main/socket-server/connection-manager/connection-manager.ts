@@ -78,7 +78,9 @@ export default class ConnectionManager {
 
   handleCameraData(connectionId: string, data: Buffer) {
     // TODO add logic to read data and deal with it
-    logger.debug(`socket:camera:${connectionId} received ${data.toString("hex")}`);
+    logger.debug(
+      `socket:camera:${connectionId} received ${data.toString("hex")}`
+    );
   }
 
   private async isCamera(connection: Socket): Promise<boolean> {
@@ -89,7 +91,7 @@ export default class ConnectionManager {
     }
 
     const equipamento = await equipamentoModel().findOne({
-      attributes: ["id"],
+      attributes: ["id", "modelo"],
       where: { ip },
     });
 
