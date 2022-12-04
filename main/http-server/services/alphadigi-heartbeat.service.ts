@@ -140,6 +140,10 @@ async function getResponseBody(requestBody: any): Promise<any> {
     return getDeleteWhiteListResponse(requestBody);
   }
 
+  logger.warn(
+    `http-server:alphadigi-heartbeat-service:get-response-body:${logId} using default response body`
+  );
+
   return defaultResponseBody;
 }
 
