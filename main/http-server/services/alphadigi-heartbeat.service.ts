@@ -4,7 +4,7 @@ import equipamentoModel from "../../database/models/equipamento.model";
 import store from "../../store";
 
 function toTimestamp(date: Date): number {
-  return Number(format(date, "YYYYMMddHHmmss"));
+  return Number(format(date, "yyyyMMddHHmmss"));
 }
 
 function getStarTime(): number {
@@ -120,7 +120,7 @@ async function getResponseBody(requestBody: any): Promise<any> {
     return defaultResponseBody;
   }
 
-  if (requestBody.Heartbeat) {
+  if (requestBody.heartbeat) {
     return getHeartbeatResponse(requestBody);
   }
 
