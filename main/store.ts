@@ -1,5 +1,17 @@
 import ElectronStore from "electron-store";
+import logger from "../shared/logger";
 import Cypher, { CypherData } from "./helpers/cypher";
+
+const templates = {
+  database: {
+    username: "database.username",
+    password: "database.password",
+  },
+  hardware: {
+    connection: "hardware.{0}.connection",
+  },
+  whitelist: "whitelist.{0}",
+};
 
 class Store extends ElectronStore {
   private cypher: Cypher;
@@ -9,8 +21,20 @@ class Store extends ElectronStore {
     this.cypher = new Cypher();
   }
 
-  private toKey(value: string) {
-    return value.replaceAll(".", "");
+  private toKey(template: string, ...values: string[]) {
+    const key = values.reduce(
+      (accumulator, current, index) =>
+        accumulator.replace(`{${index}}`, current.replaceAll(".", "")),
+      template
+    );
+
+    logger.debug(
+      `store:to-key generated key ${key} from template ${template} values=${values.join(
+        ","
+      )}`
+    );
+
+    return key;
   }
 
   private fromWhiteList(whiteList: string[]): string {
@@ -29,7 +53,7 @@ class Store extends ElectronStore {
       .filter(Boolean);
   }
 
-  getSecret(key: string, defaultValue?: any): string {
+  private getSecret(key: string, defaultValue?: any): string {
     const value = super.get(key);
 
     if (!value) {
@@ -39,34 +63,50 @@ class Store extends ElectronStore {
     return this.cypher.decrypt(value as CypherData);
   }
 
-  setSecret(key: string, value?: string) {
+  private setSecret(key: string, value?: string) {
     super.set(key, this.cypher.encrypt(value));
   }
 
+  getDatabaseUsername(): string {
+    return this.getSecret(templates.database.username);
+  }
+
+  setDatabaseUsername(username: string) {
+    this.setSecret(templates.database.username, username);
+  }
+
+  getDatabasePassword(): string {
+    return this.getSecret(templates.database.password);
+  }
+
+  setDatabasePassword(password: string) {
+    this.setSecret(templates.database.password, password);
+  }
+
   getHardwareConnection(ip: string) {
-    const key = this.toKey(ip);
-    return super.get(`hardware.${key}.connection`);
+    const key = this.toKey(templates.hardware.connection, ip);
+    return super.get(key);
   }
 
   setHardwareConnection(ip: string, connection: string) {
-    const key = this.toKey(ip);
-    super.set(`hardware.${key}.connection`, connection);
+    const key = this.toKey(templates.hardware.connection, ip);
+    super.set(key, connection);
   }
 
   setWhiteList(ip: string, whiteList: string[]): void {
-    const key = this.toKey(ip);
-    super.set(`whitelist.${key}`, this.fromWhiteList(whiteList));
+    const key = this.toKey(templates.whitelist, ip);
+    super.set(key, this.fromWhiteList(whiteList));
   }
 
   getWhiteList(ip: string): string[] {
-    const key = this.toKey(ip);
-    const value = super.get(`whitelist.${key}`) as string;
+    const key = this.toKey(templates.whitelist, ip);
+    const value = super.get(key) as string;
     return this.toWhiteList(value);
   }
 
   deleteWhiteList(ip: string): void {
-    const key = this.toKey(ip);
-    super.delete(`whitelist.${key}`);
+    const key = this.toKey(templates.whitelist, ip);
+    super.delete(key);
   }
 }
 
