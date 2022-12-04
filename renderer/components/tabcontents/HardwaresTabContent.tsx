@@ -39,6 +39,7 @@ const manufacturers = {
   "<HIKV>": "Hikvision",
   "<ITBF>": "Intelbras",
   "<CIBM>": "Control iD",
+  "<LPRA>": "Alphadigi"
 };
 
 function getManufacturerName(manufacturer) {
