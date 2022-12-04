@@ -21,8 +21,8 @@ export class DatabaseConnectionUpdateHandler implements IpcHandler {
     const { host, port, username, password, dialect } = request.params;
 
     store.set("database", { host, port, dialect });
-    store.setSecret("database.username", username);
-    store.setSecret("database.password", password);
+    store.setDatabaseUsername(username)
+    store.setDatabasePassword(password)
 
     try {
       await database.start();
