@@ -18,7 +18,7 @@ async function heartbeat(
     const ip = getIp(req);
 
     const requestBody = JSON.parse(req.body.toString());
-    Object.assign(requestBody, { ip });
+    Object.assign(requestBody, { ip, logId });
     const requestBodyString = JSON.stringify(requestBody);
 
     logger.debug(
