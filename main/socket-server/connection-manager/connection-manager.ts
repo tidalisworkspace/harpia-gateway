@@ -21,25 +21,23 @@ export default class ConnectionManager {
     this.cameraHandlerManager = cameraHandlerManager;
   }
 
-  handleError(connectionId: string, e: Error) {
-    logger.error(
-      `socket:connection-manager:${connectionId} ${e.name}:${e.message}`
-    );
+  handleError(id: string, e: Error) {
+    logger.error(`socket:connection-manager:${id} ${e.name}:${e.message}`);
 
-    const item = storage.get(connectionId);
+    const item = storage.get(id);
 
     item.connection.destroy();
   }
 
-  handleClose(connectionId: string) {
-    logger.info(`socket:connection-manager:${connectionId} closed`);
+  handleClose(id: string) {
+    logger.info(`socket:connection-manager:${id} closed`);
 
-    storage.remove(connectionId);
+    storage.remove(id);
 
     const response: IpcResponse = {
       status: "success",
       data: {
-        connectionsAmount: storage.count("unknow"),
+        connectionsAmount: storage.count("cda"),
         camerasAmount: storage.count("camera"),
       },
     };
@@ -83,10 +81,6 @@ export default class ConnectionManager {
   }
 
   handleCameraData(connectionId: string, data: Buffer) {
-    logger.debug(
-      `socket:camera:${connectionId} received ${data.toString("hex")}`
-    );
-
     this.cameraHandlerManager.resolve(connectionId, data);
   }
 
@@ -109,21 +103,29 @@ export default class ConnectionManager {
     return true;
   }
 
+  private addDataHandler(id: string, connection: Socket, type: string) {
+    if (type === "camera") {
+      connection.on("data", (data) => this.handleCameraData(id, data));
+      return;
+    }
+
+    connection.on("data", (data) => this.handleData(id, data));
+  }
+
   async handleConnection(connection: Socket) {
     const isCamera = await this.isCamera(connection);
-    const connectionType = isCamera ? "camera" : "unknow";
+    const type = isCamera ? "camera" : "cda";
 
-    const connectionId = storage.add(connection, connectionType);
-    const useDataHandler = isCamera ? this.handleCameraData : this.handleData;
+    const id = storage.add(connection, type);
 
-    connection.on("error", (e: Error) => this.handleError(connectionId, e));
-    connection.on("close", () => this.handleClose(connectionId));
-    connection.on("data", (data) => useDataHandler(connectionId, data));
+    connection.on("error", (e: Error) => this.handleError(id, e));
+    connection.on("close", () => this.handleClose(id));
+    this.addDataHandler(id, connection, type);
 
     const response: IpcResponse = {
       status: "success",
       data: {
-        connectionsAmount: storage.count("unknow"),
+        connectionsAmount: storage.count("cda"),
         camerasAmount: storage.count("camera"),
       },
     };
@@ -131,6 +133,6 @@ export default class ConnectionManager {
     ipcMain.sendToRenderer(SOCKET_CONNECTIONS_CHANGE, response);
 
     const message = isCamera ? "camera connected" : "connected";
-    logger.info(`socket:connection-manager:${connectionId} ${message}`);
+    logger.info(`socket:connection-manager:${id} ${message}`);
   }
 }

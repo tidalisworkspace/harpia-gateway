@@ -10,7 +10,7 @@ export default class SocketConnectionsAmountHandler implements IpcHandler {
     return {
       status: "success",
       data: {
-        connectionsAmount: storage.count("unknow"),
+        connectionsAmount: storage.count("cda"),
         camerasAmount: storage.count("camera")
       }
     };
