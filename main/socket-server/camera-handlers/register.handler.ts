@@ -37,6 +37,6 @@ export class RegisterHandler implements SocketCameraConnectionHandler {
 
     const headerBuffer = this.headerWritter.write(responseHeader);
 
-    socketServer.sendToamera(connectionId, headerBuffer, responseBody);
+    socketServer.sendToCamera(connectionId, headerBuffer, responseBody);
   }
 }
