@@ -29,7 +29,7 @@ const countStrategy: { [key: string]: Counter } = {
   camera: () =>
     Object.keys(connections).filter((id) => connections[id].type === "camera")
       .length,
-  unknow: () => Object.keys(connections).length,
+  cda: () => Object.keys(connections).length,
 };
 
 function count(type: string): number {
@@ -37,7 +37,7 @@ function count(type: string): number {
 
   if (!strategy) {
     logger.warn(
-      `socket:connection-manager:storage no strategt found for type ${type}`
+      `socket:connection-manager:storage no strategy found for type ${type}`
     );
     return 0;
   }
