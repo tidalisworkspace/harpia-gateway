@@ -89,21 +89,26 @@ export default class SocketServer {
 
   private send(
     connectionId: string,
-    message: string,
-    mode: SendMode = "LOG_AND_SEND"
+    message: string | Buffer,
+    mode: SendMode = "LOG_AND_SEND",
+    encoding: BufferEncoding = "utf-8"
   ) {
     const item = storage.get(connectionId);
 
-    if (!item || item.type === "camera") {
+    if (!item) {
       return;
     }
 
     if (mode === "LOG_AND_SEND") {
-      logger.debug(`socket:server:${connectionId} sending message ${message}`);
+      logger.debug(
+        `socket:server:${connectionId} sending message ${Buffer.from(
+          message
+        ).toString(encoding)}`
+      );
     }
 
     try {
-      item.connection.write(message, "utf-8");
+      item.connection.write(message);
     } catch (e) {
       logger.error(
         `socket:server:${connectionId} error ${e.name}:${e.message}`
@@ -155,5 +160,13 @@ export default class SocketServer {
   sendAliveMessage() {
     const message = "<HKVI>@ESTOU VIVO@";
     this.broadcast(message, "JUST_SEND");
+  }
+
+  sendToCamera(connectionId: string, header: Buffer, body: string) {
+    const bodyBuffer = Buffer.alloc(body.length);
+    bodyBuffer.write(body);
+
+    const message = Buffer.concat([header, bodyBuffer]);
+    this.send(connectionId, message, "LOG_AND_SEND", "hex");
   }
 }
