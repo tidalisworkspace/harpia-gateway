@@ -5,6 +5,8 @@ import headerValueDefinitions from "./header-value-definitions";
 import headerValueReaders from "./header-value-readers";
 import headerValueWritters from "./header-value-writters";
 import { HeaderWritter } from "./header-writter";
+import { HeartbeatHandler } from "./heartbeat.handler";
+import { LoginHandler } from "./login.handler";
 import { RegisterHandler } from "./register.handler";
 import { SocketCameraConnectionHandler } from "./types";
 
@@ -22,6 +24,8 @@ const bodyReader = new BodyReader();
 
 const handlers: SocketCameraConnectionHandler[] = [
   new RegisterHandler(headerWritter),
+  new LoginHandler(headerWritter),
+  new HeartbeatHandler(headerWritter),
 ];
 
 const cameraHandlerManager = new CameraHandlerManager(

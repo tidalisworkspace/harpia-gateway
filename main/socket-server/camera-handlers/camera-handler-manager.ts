@@ -23,21 +23,41 @@ export default class CameraHandlerManager {
     this.handlers = handlers;
   }
 
+  private byMessageTypeAndName(messageType: number, name: string) {
+    return (handler: SocketCameraConnectionHandler) =>
+      handler.messageType === messageType && handler.name === name;
+  }
+
+  private heartbeatHandler() {
+    return (handler: SocketCameraConnectionHandler) =>
+      handler.messageType === MessageType.HEARTBEAT;
+  }
+
   private getHandler(header: MessageHeader, body: any): any {
+    if (header.msgtype === MessageType.HEARTBEAT) {
+      return this.handlers.find(this.heartbeatHandler());
+    }
+
+    if (!body) {
+      logger.warn(`socket:camera-handler body is required to find handler`);
+      return null;
+    }
+
     const handler = this.handlers.find(
-      (handler) =>
-        handler.messageType === header.msgtype && handler.name === body.message
+      this.byMessageTypeAndName(header.msgtype, body?.message)
     );
 
     if (!handler) {
-      const messageTypeName = getEnumNameByValue(header.msgtype, MessageType)
-      logger.warn(`socket:camera-handler no handler found for message type ${messageTypeName}=${header.msgtype} and name ${body.message}`)
+      const messageTypeName = getEnumNameByValue(header.msgtype, MessageType);
+      logger.warn(
+        `socket:camera-handler no handler found for message type ${messageTypeName}=${header.msgtype} and name ${body.message}`
+      );
     }
 
     return handler;
   }
 
-  resolve(connectionId: string, data: Buffer): void {
+  async resolve(connectionId: string, data: Buffer): Promise<void> {
     logger.debug(
       `socket:camera-handler:${connectionId} resolving ${data.toString("hex")}`
     );
@@ -48,15 +68,7 @@ export default class CameraHandlerManager {
       return;
     }
 
-    if (header.msgtype === MessageType.HEARTBEAT) {
-      return;
-    }
-
     const body = this.bodyReader.read(data);
-
-    if (!body) {
-      return;
-    }
 
     const handler = this.getHandler(header, body);
 
@@ -65,7 +77,7 @@ export default class CameraHandlerManager {
     }
 
     try {
-      handler.handle(connectionId, header, body);
+      await handler.handle(connectionId, header, body);
     } catch (e) {
       logger.warn(
         `socket:camera-handler:${connectionId} unexpected error on handler ${handler.name} ${e.message}`,
