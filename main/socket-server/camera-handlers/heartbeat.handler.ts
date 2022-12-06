@@ -15,6 +15,6 @@ export class HeartbeatHandler implements SocketCameraConnectionHandler {
   }
 
   async handle(connectionId: string, header: MessageHeader): Promise<void> {
-    throw new Error("heartbeat not implemented");
+    throw new Error("handler not implemented");
   }
 }
