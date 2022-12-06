@@ -1,4 +1,5 @@
 import logger from "../../../shared/logger";
+import getEnumNameByValue from "../../helpers/get-enum-name-by-value";
 import { BodyReader } from "./body-reader";
 import { HeaderReader } from "./header-reader";
 import {
@@ -29,7 +30,8 @@ export default class CameraHandlerManager {
     );
 
     if (!handler) {
-      logger.warn(`socket:camera-handler no handler found for message type ${header.msgtype} and name ${body.message}`)
+      const messageTypeName = getEnumNameByValue(header.msgtype, MessageType)
+      logger.warn(`socket:camera-handler no handler found for message type ${messageTypeName}=${header.msgtype} and name ${body.message}`)
     }
 
     return handler;
