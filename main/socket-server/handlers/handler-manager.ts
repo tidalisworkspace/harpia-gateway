@@ -49,7 +49,7 @@ export default class HandlerManager {
     return handler;
   }
 
-  resolve(connectionId: string, json: any): void {
+  async resolve(connectionId: string, json: any): Promise<void> {
     logger.debug(
       `socket:handler:${connectionId} resolving ${JSON.stringify(json)}`
     );
@@ -69,7 +69,7 @@ export default class HandlerManager {
     }
 
     try {
-      handler.handle(connectionId, request);
+      await handler.handle(connectionId, request);
     } catch (e) {
       logger.warn(
         `socket:handler:${connectionId} unexpected error on handler ${handler.name} ${e.message}`,
