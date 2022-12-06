@@ -72,7 +72,7 @@ export default class HandlerManager {
       await handler.handle(connectionId, request);
     } catch (e) {
       logger.warn(
-        `socket:handler:${connectionId} unexpected error on handler ${handler.name} ${e.message}`,
+        `socket:handler:${connectionId} unexpected error on handler ${handler.name} ${e.name}:${e.message}`,
         e
       );
 

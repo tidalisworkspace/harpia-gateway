@@ -80,7 +80,7 @@ export default class CameraHandlerManager {
       await handler.handle(connectionId, header, body);
     } catch (e) {
       logger.warn(
-        `socket:camera-handler:${connectionId} unexpected error on handler ${handler.name} ${e.message}`,
+        `socket:camera-handler:${connectionId} unexpected error on handler ${handler.name} ${e.name}:${e.message}`,
         e
       );
     }
