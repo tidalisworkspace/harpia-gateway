@@ -1,3 +1,4 @@
+import logger from "../../../shared/logger";
 import { HeaderWritter } from "./header-writter";
 import {
   MessageHeader,
@@ -15,6 +16,8 @@ export class HeartbeatHandler implements SocketCameraConnectionHandler {
   }
 
   async handle(connectionId: string, header: MessageHeader): Promise<void> {
-    throw new Error("handler not implemented");
+    logger.warn(
+      `socket:camera-handler:${this.name}:${connectionId} handle not implemented`
+    );
   }
 }
