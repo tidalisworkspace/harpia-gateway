@@ -39,17 +39,12 @@ class Store extends ElectronStore {
     return key;
   }
 
-  private fromWhiteList(whiteList: string[]): string {
-    return whiteList
-      .filter(Boolean)
-      .map((item) => item.trim())
-      .filter(Boolean)
-      .join(",");
-  }
+  private toWhiteList(whiteList: string[]): string[] {
+    if (!whiteList || !whiteList.length) {
+      return [];
+    }
 
-  private toWhiteList(value: string): string[] {
-    return (value || "")
-      .split(",")
+    return whiteList
       .filter(Boolean)
       .map((item) => item.trim())
       .filter(Boolean);
@@ -95,15 +90,17 @@ class Store extends ElectronStore {
     super.set(key, connection);
   }
 
-  setCameraWhiteList(ip: string, whiteList: string[]): void {
+  setCameraWhiteList(ip: string, values: string[]): void {
     const key = this.toKey(templates.camera.whitelist, ip);
-    super.set(key, this.fromWhiteList(whiteList));
+    const whiteList = this.toWhiteList(values);
+    super.set(key, whiteList);
   }
 
   getCameraWhiteList(ip: string): string[] {
     const key = this.toKey(templates.camera.whitelist, ip);
-    const value = super.get(key) as string;
-    return this.toWhiteList(value);
+    const values = super.get(key) as string[];
+
+    return this.toWhiteList(values);
   }
 
   deleteCameraWhiteList(ip: string): void {
