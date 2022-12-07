@@ -3,7 +3,8 @@ import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
 import store from "../../store";
 import {
-  SaveWhiteListRequest, SocketConnectionHandler
+  SaveWhiteListRequest,
+  SocketConnectionHandler,
 } from "../types/handler.types";
 
 export class SaveWhiteListHandler implements SocketConnectionHandler {
@@ -35,7 +36,7 @@ export class SaveWhiteListHandler implements SocketConnectionHandler {
       }
 
       try {
-        store.setWhiteList(ip, plates);
+        store.setCameraWhiteList(ip, plates);
       } catch (e) {
         logger.info(
           `socket:handler:${this.name}:${connectionId} error ${e.message}`,

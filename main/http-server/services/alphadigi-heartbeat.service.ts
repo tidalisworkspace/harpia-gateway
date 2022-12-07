@@ -26,7 +26,7 @@ const defaultResponseBody = {
 function getHeartbeatResponse(requestBody: any): any {
   const { logId, ip } = requestBody;
 
-  const whiteList = store.getWhiteList(ip);
+  const whiteList = store.getCameraWhiteList(ip);
 
   if (!whiteList.length) {
     return defaultResponseBody;
@@ -51,7 +51,7 @@ function getHeartbeatResponse(requestBody: any): any {
     `http-server:alphadigi-heartbeat-service:heartbeat:${logId} creating whitelist with ${whiteList.length} values`
   );
 
-  store.deleteWhiteList(ip);
+  store.deleteCameraWhiteList(ip);
 
   return responseBody;
 }

@@ -10,7 +10,9 @@ const templates = {
   hardware: {
     connection: "hardware.{0}.connection",
   },
-  whitelist: "whitelist.{0}",
+  camera: {
+    whitelist: "camera.whitelist.{0}",
+  },
 };
 
 class Store extends ElectronStore {
@@ -93,19 +95,19 @@ class Store extends ElectronStore {
     super.set(key, connection);
   }
 
-  setWhiteList(ip: string, whiteList: string[]): void {
-    const key = this.toKey(templates.whitelist, ip);
+  setCameraWhiteList(ip: string, whiteList: string[]): void {
+    const key = this.toKey(templates.camera.whitelist, ip);
     super.set(key, this.fromWhiteList(whiteList));
   }
 
-  getWhiteList(ip: string): string[] {
-    const key = this.toKey(templates.whitelist, ip);
+  getCameraWhiteList(ip: string): string[] {
+    const key = this.toKey(templates.camera.whitelist, ip);
     const value = super.get(key) as string;
     return this.toWhiteList(value);
   }
 
-  deleteWhiteList(ip: string): void {
-    const key = this.toKey(templates.whitelist, ip);
+  deleteCameraWhiteList(ip: string): void {
+    const key = this.toKey(templates.camera.whitelist, ip);
     super.delete(key);
   }
 }
