@@ -85,3 +85,9 @@ export interface SetEventsServerParams {
 export interface DeleteEventsParams {
   ids: string[];
 }
+
+export class FunctionNotImplementedError extends Error {
+  constructor() {
+    super("function not implemented")
+  }
+}
