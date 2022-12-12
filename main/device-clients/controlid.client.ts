@@ -404,7 +404,7 @@ export class ControlidClient implements DeviceClient<AxiosResponse> {
     return this.destroyObjects("cards", { user_id: { IN: params.ids } });
   }
 
-  async userHashPassword(password?: string): Promise<UserCredentials> {
+  private async userHashPassword(password?: string): Promise<UserCredentials> {
     const emptyCredentials = {
       password: "",
       salt: "",
