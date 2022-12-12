@@ -12,8 +12,8 @@ const templates = {
     connection: "hardware.{0}.connection",
   },
   camera: {
-    whitelist: "camera.whitelist.{0}",
-    queue: "camera.queue.{0}",
+    whitelist: "camera.{0}.whitelist",
+    queue: "camera.{0}.queue",
   },
 };
 
@@ -115,7 +115,10 @@ class Store extends ElectronStore {
     return super.get(key, []) as CameraQueueMessage[];
   }
 
-  private setCameraQueueMessages(ip: string, messages: CameraQueueMessage[]): void {
+  private setCameraQueueMessages(
+    ip: string,
+    messages: CameraQueueMessage[]
+  ): void {
     const key = this.toKey(templates.camera.queue, ip);
     super.set(key, messages);
   }
@@ -127,7 +130,7 @@ class Store extends ElectronStore {
     this.setCameraQueueMessages(ip, messages);
   }
 
-  getNextCameraQueueMessage(ip: string): CameraQueueMessage {
+  getFirstCameraQueueMessage(ip: string): CameraQueueMessage {
     const messages = this.getCameraQueueMessages(ip);
     const message = messages.shift();
 
