@@ -121,7 +121,7 @@ export default class SocketServer {
       logger.debug(`socket:server sending message to all ${message}`);
     }
 
-    const connectionIds = storage.getIds();
+    const connectionIds = storage.getIds("cda");
 
     for (const connectionId of connectionIds) {
       this.send(connectionId, message, "JUST_SEND");

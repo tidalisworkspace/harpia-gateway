@@ -56,8 +56,8 @@ function get(connectionId: string): { connection: Socket; type: string } {
   return connection;
 }
 
-function getIds(): string[] {
-  return Object.keys(connections);
+function getIds(type: string): string[] {
+  return Object.keys(connections).filter((id) => connections[id].type === type);
 }
 
 export default {
