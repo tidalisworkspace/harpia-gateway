@@ -48,3 +48,8 @@ export interface SocketCameraConnectionHandler {
   readonly messageType: MessageType;
   handle(connectionId: string, header: MessageHeader): Promise<void>;
 }
+
+export interface CameraQueueMessage {
+  messageType: MessageType;
+  body: any;
+}

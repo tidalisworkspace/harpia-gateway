@@ -1,6 +1,7 @@
 import ElectronStore from "electron-store";
 import logger from "../shared/logger";
 import Cypher, { CypherData } from "./helpers/cypher";
+import { CameraQueueMessage } from "./socket-server/camera-handlers/types";
 
 const templates = {
   database: {
@@ -12,6 +13,7 @@ const templates = {
   },
   camera: {
     whitelist: "camera.whitelist.{0}",
+    queue: "camera.queue.{0}",
   },
 };
 
@@ -106,6 +108,32 @@ class Store extends ElectronStore {
   deleteCameraWhiteList(ip: string): void {
     const key = this.toKey(templates.camera.whitelist, ip);
     super.delete(key);
+  }
+
+  private getCameraQueueMessages(ip: string): CameraQueueMessage[] {
+    const key = this.toKey(templates.camera.queue, ip);
+    return super.get(key, []) as CameraQueueMessage[];
+  }
+
+  private setCameraQueueMessages(ip: string, messages: CameraQueueMessage[]): void {
+    const key = this.toKey(templates.camera.queue, ip);
+    super.set(key, messages);
+  }
+
+  addCameraQueueMessage(ip: string, message: CameraQueueMessage): void {
+    const messages = this.getCameraQueueMessages(ip);
+    messages.push(message);
+
+    this.setCameraQueueMessages(ip, messages);
+  }
+
+  getNextCameraQueueMessage(ip: string): CameraQueueMessage {
+    const messages = this.getCameraQueueMessages(ip);
+    const message = messages.shift();
+
+    this.setCameraQueueMessages(ip, messages);
+
+    return message;
   }
 }
 
