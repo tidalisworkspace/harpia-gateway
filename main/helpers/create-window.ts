@@ -1,10 +1,9 @@
 import { Menu } from "electron";
 import { Menubar, menubar } from "menubar";
 import path from "path";
-import { getIOCounters } from "process";
 import logger from "../../shared/logger";
 
-import { isLinux, isWindows, windowIndex } from "./environment";
+import { isDev, isLinux, isWindows, windowIndex } from "./environment";
 
 let mainMenubar: Menubar;
 
@@ -38,6 +37,8 @@ export default function (): void {
     icon,
     tooltip: "Harpia Gateway",
     browserWindow: {
+      show: isDev,
+      frame: isDev,
       width: 450,
       height: 700,
       title: "Harpia Gateway",
