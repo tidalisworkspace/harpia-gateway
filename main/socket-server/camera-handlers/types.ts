@@ -5,6 +5,13 @@ export enum MessageType {
   RESPONSE = 4,
 }
 
+export enum CameraCommand {
+  OPEN_DOOR = "open_door",
+  UPDATE_TIME = "update_time",
+  CONFIGURE_EVENTS_SERVER = "configure_events_server",
+  REBOOT = "reboot",
+}
+
 export interface MessageHeader {
   magic: string;
   version: number;
@@ -50,6 +57,6 @@ export interface SocketCameraConnectionHandler {
 }
 
 export interface CameraQueueMessage {
-  messageType: MessageType;
-  body: any;
+  command: CameraCommand;
+  params?: any;
 }
