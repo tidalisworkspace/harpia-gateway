@@ -8,6 +8,7 @@ import { HeaderWritter } from "./header-writter";
 import { HeartbeatHandler } from "./heartbeat.handler";
 import { LoginHandler } from "./login.handler";
 import { RegisterHandler } from "./register.handler";
+import { ResponseHandler } from "./repsponse.handler";
 import { SocketCameraConnectionHandler } from "./types";
 
 const headerWritter = new HeaderWritter(
@@ -26,6 +27,7 @@ const handlers: SocketCameraConnectionHandler[] = [
   new RegisterHandler(headerWritter),
   new LoginHandler(headerWritter),
   new HeartbeatHandler(headerWritter),
+  new ResponseHandler(headerWritter)
 ];
 
 const cameraHandlerManager = new CameraHandlerManager(

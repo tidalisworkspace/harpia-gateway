@@ -33,9 +33,18 @@ export default class CameraHandlerManager {
       handler.messageType === MessageType.HEARTBEAT;
   }
 
+  private responseHandler() {
+    return (handler: SocketCameraConnectionHandler) =>
+      handler.messageType === MessageType.RESPONSE;
+  }
+
   private getHandler(header: MessageHeader, body: any): any {
     if (header.msgtype === MessageType.HEARTBEAT) {
       return this.handlers.find(this.heartbeatHandler());
+    }
+
+    if (header.msgtype === MessageType.RESPONSE) {
+      return this.handlers.find(this.responseHandler());
     }
 
     if (!body) {
@@ -50,7 +59,7 @@ export default class CameraHandlerManager {
     if (!handler) {
       const messageTypeName = getEnumNameByValue(header.msgtype, MessageType);
       logger.warn(
-        `socket:camera-handler no handler found for message type ${messageTypeName}=${header.msgtype} and name ${body.message}`
+        `socket:camera-handler no handler found for message type ${messageTypeName}=${header.msgtype} and name "${body.message}"`
       );
     }
 
