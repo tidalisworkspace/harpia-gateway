@@ -1,7 +1,11 @@
 import ElectronStore from "electron-store";
-import logger from "../shared/logger";
 import Cypher, { CypherData } from "./helpers/cypher";
-import { CameraQueueMessage } from "./socket-server/camera-handlers/types";
+import {
+  CameraCommand,
+  CameraQueueMessage,
+  CameraQueueName,
+  CameraQueues,
+} from "./socket-server/camera-handlers/types";
 
 const templates = {
   database: {
@@ -12,8 +16,10 @@ const templates = {
     connection: "hardware.{0}.connection",
   },
   camera: {
-    whitelist: "camera.{0}.whitelist",
-    queue: "camera.{0}.queue",
+    queue: {
+      http: "camera.{0}.queue.http",
+      socket: "camera.{0}.queue.socket",
+    },
   },
 };
 
@@ -32,23 +38,17 @@ class Store extends ElectronStore {
       template
     );
 
-    logger.debug(
-      `store:to-key generated key ${key} from template ${template} values=${values.join(
-        ","
-      )}`
-    );
-
     return key;
   }
 
-  private toWhiteList(whiteList: string[]): string[] {
-    if (!whiteList || !whiteList.length) {
+  private formatPlates(plates: string[]): string[] {
+    if (!plates || !plates.length) {
       return [];
     }
 
-    return whiteList
+    return plates
       .filter(Boolean)
-      .map((item) => item.trim())
+      .map((plate) => plate.trim())
       .filter(Boolean);
   }
 
@@ -92,51 +92,70 @@ class Store extends ElectronStore {
     super.set(key, connection);
   }
 
-  setCameraWhiteList(ip: string, values: string[]): void {
-    const key = this.toKey(templates.camera.whitelist, ip);
-    const whiteList = this.toWhiteList(values);
-    super.set(key, whiteList);
-  }
-
-  getCameraWhiteList(ip: string): string[] {
-    const key = this.toKey(templates.camera.whitelist, ip);
-    const values = super.get(key) as string[];
-
-    return this.toWhiteList(values);
-  }
-
-  deleteCameraWhiteList(ip: string): void {
-    const key = this.toKey(templates.camera.whitelist, ip);
-    super.delete(key);
-  }
-
-  private getCameraQueueMessages(ip: string): CameraQueueMessage[] {
-    const key = this.toKey(templates.camera.queue, ip);
+  private getCameraQueue(
+    ip: string,
+    queueName: CameraQueueName
+  ): CameraQueueMessage[] {
+    const key = this.toKey(templates.camera.queue[queueName], ip);
     return super.get(key, []) as CameraQueueMessage[];
   }
 
-  private setCameraQueueMessages(
+  private setCameraQueue(
     ip: string,
+    queueName: CameraQueueName,
     messages: CameraQueueMessage[]
-  ): void {
-    const key = this.toKey(templates.camera.queue, ip);
+  ) {
+    const key = this.toKey(templates.camera.queue[queueName], ip);
     super.set(key, messages);
   }
 
-  addCameraQueueMessage(ip: string, message: CameraQueueMessage): void {
-    const messages = this.getCameraQueueMessages(ip);
+  private addCameraQueue(
+    ip: string,
+    queueName: CameraQueueName,
+    message: CameraQueueMessage
+  ): void {
+    const messages = this.getCameraQueue(ip, queueName);
     messages.push(message);
-
-    this.setCameraQueueMessages(ip, messages);
+    this.setCameraQueue(ip, queueName, messages);
   }
 
-  getFirstCameraQueueMessage(ip: string): CameraQueueMessage {
-    const messages = this.getCameraQueueMessages(ip);
+  private getFirstCameraQueue(
+    ip: string,
+    queueName: CameraQueueName
+  ): CameraQueueMessage {
+    const messages = this.getCameraQueue(ip, queueName);
     const message = messages.shift();
 
-    this.setCameraQueueMessages(ip, messages);
+    this.setCameraQueue(ip, queueName, messages);
 
     return message;
+  }
+
+  getFirstCameraQueueHttp(ip: string): CameraQueueMessage {
+    const message = this.getFirstCameraQueue(ip, CameraQueues.HTTP);
+
+    if (!message) {
+      return message;
+    }
+
+    if (message.command === CameraCommand.ADD_WHITE_LIST) {
+      message.params = this.formatPlates(message.params);
+      return message;
+    }
+
+    return message;
+  }
+
+  addCameraQueueHttp(ip: string, message: CameraQueueMessage): void {
+    if (message.command === CameraCommand.ADD_WHITE_LIST) {
+      message.params = this.formatPlates(message.params);
+    }
+
+    this.addCameraQueue(ip, CameraQueues.HTTP, message);
+  }
+
+  getFirstCameraQueueSocket(ip: string): CameraQueueMessage {
+    return this.getFirstCameraQueue(ip, CameraQueues.SOCKET);
   }
 }
 

@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
 import store from "../../store";
@@ -15,7 +15,7 @@ function getEndTime(): string {
   return "20371010162030";
 }
 
-const defaultResponseBody = {
+const defaultHeartbeatResponseBody = {
   Response_Heartbeat: {
     info: "no",
     shutoff: "no",
@@ -23,20 +23,16 @@ const defaultResponseBody = {
   },
 };
 
-function getHeartbeatResponse(requestBody: any): any {
-  const { logId, ip } = requestBody;
+type ResponseBodyCreator = (params?: any) => any;
 
-  const whiteList = store.getCameraWhiteList(ip);
-
-  if (!whiteList.length) {
-    return defaultResponseBody;
-  }
-
+const addWhiteListResponseBodyCreator: ResponseBodyCreator = (
+  plates: string[]
+): any => {
   const startTime = getStarTime();
   const endTime = getEndTime();
 
-  const data = whiteList.map((item) => ({
-    carnum: item,
+  const data = plates.map((plate) => ({
+    carnum: plate,
     startime: startTime,
     endtime: endTime,
   }));
@@ -47,13 +43,43 @@ function getHeartbeatResponse(requestBody: any): any {
     },
   };
 
-  logger.debug(
-    `http-server:alphadigi-heartbeat-service:heartbeat:${logId} creating whitelist with ${
-      whiteList.length
-    } values ${JSON.stringify(responseBody)}`
-  );
+  return responseBody;
+};
 
-  store.deleteCameraWhiteList(ip);
+const openDoorResponseBodyCreator: ResponseBodyCreator = (): any => {
+  return {
+    Response_Heartbeat: {
+      info: "ok",
+      shutoff: "no",
+      snapnow: "no",
+    },
+  };
+};
+
+const responseBodyCreators: { [key: string]: ResponseBodyCreator } = {
+  add_white_list: addWhiteListResponseBodyCreator,
+  open_door: openDoorResponseBodyCreator,
+};
+
+function getHeartbeatResponse(requestBody: any): any {
+  const { logId, ip } = requestBody;
+
+  const message = store.getFirstCameraQueueHttp(ip);
+
+  if (!message) {
+    return defaultHeartbeatResponseBody;
+  }
+
+  const responseBodyCreator = responseBodyCreators[message.command];
+
+  if (!responseBodyCreator) {
+    logger.warn(
+      `http-server:alphadigi-heartbeat-service:heartbeat:${logId} no response body creator for command ${message.command}`
+    );
+    return defaultHeartbeatResponseBody;
+  }
+
+  const responseBody = responseBodyCreator(message.params);
 
   return responseBody;
 }
@@ -65,7 +91,7 @@ function getAddWhiteListResponse(requestBody: any): any {
     `http-server:alphadigi-heartbeat-service:heartbeat:${logId} add whitelist response result=${requestBody.Response_AddWhiteList}`
   );
 
-  return defaultResponseBody;
+  return defaultHeartbeatResponseBody;
 }
 
 function getDeleteAllWhiteListResponse(requestBody: any): any {
@@ -75,7 +101,7 @@ function getDeleteAllWhiteListResponse(requestBody: any): any {
     `http-server:alphadigi-heartbeat-service:heartbeat:${logId} delete all whitelist response result=${requestBody.Response_DelWhiteListAll}`
   );
 
-  return defaultResponseBody;
+  return defaultHeartbeatResponseBody;
 }
 
 function getDeleteWhiteListResponse(requestBody: any): any {
@@ -85,7 +111,7 @@ function getDeleteWhiteListResponse(requestBody: any): any {
     `http-server:alphadigi-heartbeat-service:heartbeat:${logId} delete whitelist response result=${requestBody.Response_DeleteWhiteList.response}`
   );
 
-  return defaultResponseBody;
+  return defaultHeartbeatResponseBody;
 }
 
 function getAlarmInfoPlateResponse(requestBody: any): any {
@@ -138,7 +164,7 @@ function getAlarmInfoPlateResponse(requestBody: any): any {
     `http-server:alphadigi-heartbeat-service:heartbeat:${logId} plate info ${plateInfo}`
   );
 
-  return defaultResponseBody;
+  return defaultHeartbeatResponseBody;
 }
 
 async function getResponseBody(requestBody: any): Promise<any> {
@@ -153,14 +179,14 @@ async function getResponseBody(requestBody: any): Promise<any> {
     logger.warn(
       `http-server:alphadigi-heartbeat-service:heartbeat:${logId} device not found ip=${ip}`
     );
-    return defaultResponseBody;
+    return defaultHeartbeatResponseBody;
   }
 
   if (equipamento.ignorarEvento) {
     logger.warn(
       `http-server:alphadigi-heartbeat-service:heartbeat:${logId} device ignoring events ip=${ip}`
     );
-    return defaultResponseBody;
+    return defaultHeartbeatResponseBody;
   }
 
   if (requestBody.heartbeat) {
@@ -187,7 +213,7 @@ async function getResponseBody(requestBody: any): Promise<any> {
     `http-server:alphadigi-heartbeat-service:get-response-body:${logId} using default response body`
   );
 
-  return defaultResponseBody;
+  return defaultHeartbeatResponseBody;
 }
 
 export default {

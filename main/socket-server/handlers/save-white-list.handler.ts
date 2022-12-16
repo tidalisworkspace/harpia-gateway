@@ -2,6 +2,7 @@ import socketServer from "..";
 import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
 import store from "../../store";
+import { CameraCommand, CameraQueueMessage } from "../camera-handlers/types";
 import {
   SaveWhiteListRequest,
   SocketConnectionHandler,
@@ -36,7 +37,12 @@ export class SaveWhiteListHandler implements SocketConnectionHandler {
       }
 
       try {
-        store.setCameraWhiteList(ip, plates);
+        const message: CameraQueueMessage = {
+          command: CameraCommand.ADD_WHITE_LIST,
+          params: plates,
+        };
+
+        store.addCameraQueueHttp(ip, message);
       } catch (e) {
         logger.info(
           `socket:handler:${this.name}:${connectionId} error ${e.message}`,

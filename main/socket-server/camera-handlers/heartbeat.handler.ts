@@ -24,7 +24,6 @@ function getTimestamp(): string {
 }
 
 const requestBodyCreators: { [key: string]: RequestBodyCreator } = {
-  open_door: () => ({ message: "open_door", data: {} }),
   reboot: () => ({ message: "restart" }),
   update_time: () => ({
     message: "config_system",
@@ -87,32 +86,31 @@ export class HeartbeatHandler implements SocketCameraConnectionHandler {
       );
     }
 
-    const cameraQueueMessage = store.getFirstCameraQueueMessage(ip);
+    const message = store.getFirstCameraQueueSocket(ip);
 
-    if (!cameraQueueMessage) {
+    if (!message) {
       return;
     }
 
     logger.info(
-      `socket:camera-handler:${this.name}:${connectionId} executing ${cameraQueueMessage.command} command`
+      `socket:camera-handler:${this.name}:${connectionId} executing ${message.command} command`
     );
 
-    const requestBodyCreator = requestBodyCreators[cameraQueueMessage.command];
+    const requestBodyCreator = requestBodyCreators[message.command];
 
     if (!requestBodyCreator) {
       logger.warn(
-        `socket:camera-handler:${this.name}:${connectionId} no request body creator found for ${cameraQueueMessage.command} command`
+        `socket:camera-handler:${this.name}:${connectionId} no request body creator found for ${message.command} command`
       );
     }
 
-    const requestBody = requestBodyCreator(cameraQueueMessage.params);
+    const requestBody = requestBodyCreator(message.params);
     const requestBodyString = JSON.stringify(requestBody);
 
     const requestHeader = Object.assign(header, {
       version: 2,
       msgtype: MessageType.REQUEST,
       datatype: 1,
-      resv: "",
       timestamp: getUnixTime(new Date()),
       seq: getSequence(),
       datasize: requestBodyString.length,
