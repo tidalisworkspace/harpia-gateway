@@ -8,7 +8,7 @@ import { HeaderWritter } from "./header-writter";
 import {
   MessageHeader,
   MessageType,
-  SocketCameraConnectionHandler
+  SocketCameraConnectionHandler,
 } from "./types";
 
 let sequence = 0;
@@ -17,57 +17,55 @@ function getSequence() {
   return sequence;
 }
 
-type RequestBodyCreator = (params?: any) => string;
+type RequestBodyCreator = (params?: any) => any;
 
 function getTimestamp(): string {
   return format(new Date(), "yyyy-MM-dd HH:mm:ss");
 }
 
 const requestBodyCreators: { [key: string]: RequestBodyCreator } = {
-  open_door: () => JSON.stringify({ message: "open_door" }),
-  reboot: () => JSON.stringify({ message: "restart" }),
-  update_time: () =>
-    JSON.stringify({
-      message: "config_system",
-      data: {
-        time_sync: {
-          ntp_enable: 0,
-          system_time: getTimestamp(),
-          ntp_server_address: "",
-          ntp_server_port: 0,
-          time_zone: -3,
-        },
+  open_door: () => ({ message: "open_door", data: {} }),
+  reboot: () => ({ message: "restart" }),
+  update_time: () => ({
+    message: "config_system",
+    data: {
+      time_sync: {
+        ntp_enable: 0,
+        system_time: getTimestamp(),
+        ntp_server_address: "",
+        ntp_server_port: 0,
+        time_zone: -3,
       },
-    }),
-  configure_events_server: (params: SetEventsServerParams) =>
-    JSON.stringify({
-      message: "config_system",
-      data: {
-        httppush: {
-          pushenable: "5",
-          webaddr: params.ip,
-          viceaddr: "",
-          port: params.port.toString(),
-          timeout: "5",
-          planeenable: "1",
-          platepushaddr: "/alphadigi/plate",
-          bigpic: "0",
-          smallpic: "0",
-          gpioenable: "0",
-          gpiopushaddr: "",
-          serialenable: "0",
-          serialpushadd: "",
-          charcode: "0",
-          heartenable: "1",
-          heartpushaddr: "/alphadigi/heartbeart",
-          heartinterval: "10",
-          privatemode: "0",
-          sslenable: "0",
-          sslport: "443",
-          authtype: "0",
-        },
+    },
+  }),
+  configure_events_server: (params: SetEventsServerParams) => ({
+    message: "config_system",
+    data: {
+      http_push_setup: {
+        enable: 1,
+        ip_address: params.ip,
+        port: params.port,
+        plate_address: "/alphadigi/push",
+        backup_ip_address: "",
+        palate_enable: 1,
+        big_picture_enable: 0,
+        small_picture_enable: 0,
+        character_encoding: 1,
+        timeout: 30,
+        ssl_enable: 0,
+        private_protocol: 0,
+        verify_way: 0,
+        ssl_port: 443,
+        gpio_push_enable: 0,
+        gpio_address: "",
+        serial_push_enable: 0,
+        serial_address: "",
+        heartbeat_enable: 1,
+        heartbeat_address: "/alphadigi/heartbeat",
+        heartbeat_interval: 10,
       },
-    }),
+    },
+  }),
 };
 
 export class HeartbeatHandler implements SocketCameraConnectionHandler {
@@ -108,19 +106,20 @@ export class HeartbeatHandler implements SocketCameraConnectionHandler {
     }
 
     const requestBody = requestBodyCreator(cameraQueueMessage.params);
+    const requestBodyString = JSON.stringify(requestBody);
 
     const requestHeader = Object.assign(header, {
       version: 2,
       msgtype: MessageType.REQUEST,
-      datatype: 0,
+      datatype: 1,
       resv: "",
       timestamp: getUnixTime(new Date()),
       seq: getSequence(),
-      datasize: requestBody.length,
+      datasize: requestBodyString.length,
     } as MessageHeader);
 
     const headerBuffer = this.headerWritter.write(requestHeader);
 
-    socketServer.sendToCamera(connectionId, headerBuffer, requestBody);
+    socketServer.sendToCamera(connectionId, headerBuffer, requestBodyString);
   }
 }
