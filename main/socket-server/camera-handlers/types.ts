@@ -10,6 +10,7 @@ export enum CameraCommand {
   UPDATE_TIME = "update_time",
   CONFIGURE_EVENTS_SERVER = "configure_events_server",
   REBOOT = "reboot",
+  ADD_WHITE_LIST = "add_white_list",
 }
 
 export interface MessageHeader {
@@ -59,4 +60,11 @@ export interface SocketCameraConnectionHandler {
 export interface CameraQueueMessage {
   command: CameraCommand;
   params?: any;
+}
+
+export type CameraQueueName = "http" | "socket";
+
+export enum CameraQueues {
+  HTTP = "http",
+  SOCKET = "socket",
 }
