@@ -1,4 +1,5 @@
 import logger from "../../../shared/logger";
+import { isDev } from "../../helpers/environment";
 import getEnumNameByValue from "../../helpers/get-enum-name-by-value";
 import { BodyReader } from "./body-reader";
 import { HeaderReader } from "./header-reader";
@@ -67,9 +68,13 @@ export default class CameraHandlerManager {
   }
 
   async resolve(connectionId: string, data: Buffer): Promise<void> {
-    logger.debug(
-      `socket:camera-handler:${connectionId} resolving ${data.toString("hex")}`
-    );
+    if (isDev) {
+      logger.debug(
+        `socket:camera-handler:${connectionId} resolving ${data.toString(
+          "hex"
+        )}`
+      );
+    }
 
     const header = this.headerReader.read(data);
 
