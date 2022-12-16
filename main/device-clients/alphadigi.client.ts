@@ -81,7 +81,7 @@ export class AlphadigiClient implements DeviceClient<void> {
       command: CameraCommand.OPEN_DOOR,
     };
 
-    store.addCameraQueueMessage(this.ip, message);
+    store.addCameraQueueSocket(this.ip, message);
 
     return;
   }
@@ -91,7 +91,7 @@ export class AlphadigiClient implements DeviceClient<void> {
       command: CameraCommand.UPDATE_TIME,
     };
 
-    store.addCameraQueueMessage(this.ip, message);
+    store.addCameraQueueSocket(this.ip, message);
 
     return;
   }
@@ -141,7 +141,7 @@ export class AlphadigiClient implements DeviceClient<void> {
       command: CameraCommand.REBOOT,
     };
 
-    store.addCameraQueueMessage(this.ip, message);
+    store.addCameraQueueSocket(this.ip, message);
 
     return;
   }
@@ -152,7 +152,7 @@ export class AlphadigiClient implements DeviceClient<void> {
       params,
     };
 
-    store.addCameraQueueMessage(this.ip, message);
+    store.addCameraQueueSocket(this.ip, message);
 
     return;
   }

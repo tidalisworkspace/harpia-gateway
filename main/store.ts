@@ -157,6 +157,10 @@ class Store extends ElectronStore {
   getFirstCameraQueueSocket(ip: string): CameraQueueMessage {
     return this.getFirstCameraQueue(ip, CameraQueues.SOCKET);
   }
+
+  addCameraQueueSocket(ip: string, message: CameraQueueMessage): void {
+    this.addCameraQueue(ip, CameraQueues.SOCKET, message);
+  }
 }
 
 const store = new Store();
