@@ -116,6 +116,8 @@ export default class SocketServer {
     }
   }
 
+  // TODO turn broadcast private and add specific function to broadcast each type of message (like on send function)
+
   broadcast(message: string, mode: SendMode = "LOG_AND_SEND") {
     if (mode === "LOG_AND_SEND") {
       logger.debug(`socket:server sending message to all ${message}`);
