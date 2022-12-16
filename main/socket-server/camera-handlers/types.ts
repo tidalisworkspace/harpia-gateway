@@ -11,6 +11,8 @@ export enum CameraCommand {
   CONFIGURE_EVENTS_SERVER = "configure_events_server",
   REBOOT = "reboot",
   ADD_WHITE_LIST = "add_white_list",
+  DELETE_ALL_WHITE_LIST = "delete_all_white_list",
+  DELETE_WHITE_LIST = "delete_white_list",
 }
 
 export interface MessageHeader {
