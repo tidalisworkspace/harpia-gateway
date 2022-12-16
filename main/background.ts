@@ -4,9 +4,9 @@ import logger from "../shared/logger";
 import database from "./database";
 import { createWindow } from "./helpers";
 import { isProd } from "./helpers/environment";
+import httpServer from "./http-server";
 import ipcMain from "./ipc-main";
 import job from "./job";
-import httpServer from "./http-server";
 import socketServer from "./socket-server";
 
 if (isProd) {
