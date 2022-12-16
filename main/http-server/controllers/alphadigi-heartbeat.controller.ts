@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { v4 as uuid } from "uuid";
 import logger from "../../../shared/logger";
+import { isDev } from "../../helpers/environment";
 import service from "../services/alphadigi-heartbeat.service";
 
 function getIp(req: Request) {
@@ -23,6 +24,11 @@ async function heartbeat(
 
     const responseBody = await service.getResponseBody(requestBody);
     const responseBodyString = JSON.stringify(responseBody);
+
+    if (!isDev) {
+      res.send(responseBody).status(200).end();
+      return;
+    }
 
     logger.debug(
       `http-server:alphadigi-heartbeat-controller:heartbeat:${logId} request=${requestBodyString} response=${responseBodyString}`
