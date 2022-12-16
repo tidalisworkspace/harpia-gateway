@@ -19,6 +19,16 @@ async function push(
     logger.debug(
       `http-server:alphadigi-push-controller:push:${logId} ${req.body}`
     );
+
+    const responseBody = {
+      Response_AlarmInfoPlate: {
+        info: "no",
+        content: "retransfer_stop",
+        is_pay: true,
+      },
+    };
+
+    res.send(responseBody).status(200).end();
   } catch (e) {
     logger.error(
       `http-server:alphadigi-push-controller:push:${logId} ${e.name}:${e.message}`
