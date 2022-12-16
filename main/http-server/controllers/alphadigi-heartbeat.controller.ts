@@ -21,11 +21,12 @@ async function heartbeat(
     Object.assign(requestBody, { ip, logId });
     const requestBodyString = JSON.stringify(requestBody);
 
-    logger.debug(
-      `http-server:alphadigi-heartbeat-controller:heartbeat:${logId} ${requestBodyString}`
-    );
+    const responseBody = await service.getResponseBody(requestBody);
+    const responseBodyString = JSON.stringify(responseBody);
 
-    const responseBody = service.getResponseBody(requestBody);
+    logger.debug(
+      `http-server:alphadigi-heartbeat-controller:heartbeat:${logId} request=${requestBodyString} response=${responseBodyString}`
+    );
 
     res.send(responseBody).status(200).end();
   } catch (e) {
