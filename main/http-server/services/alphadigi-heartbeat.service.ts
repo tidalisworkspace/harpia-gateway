@@ -3,23 +3,23 @@ import logger from "../../../shared/logger";
 import equipamentoModel from "../../database/models/equipamento.model";
 import store from "../../store";
 
-function toTimestamp(date: Date): number {
-  return Number(format(date, "yyyyMMddHHmmss"));
+function toTimestamp(date: Date): string {
+  return format(date, "yyyyMMddHHmmss");
 }
 
-function getStarTime(): number {
+function getStarTime(): string {
   return toTimestamp(new Date());
 }
 
-function getEndTime(): number {
-  return 20371010162030;
+function getEndTime(): string {
+  return "20371010162030";
 }
 
 const defaultResponseBody = {
   Response_Heartbeat: {
-    info: "ok",
+    info: "no",
     shutoff: "no",
-    snaphow: "no",
+    snapnow: "yes",
   },
 };
 
@@ -37,7 +37,7 @@ function getHeartbeatResponse(requestBody: any): any {
 
   const data = whiteList.map((item) => ({
     carnum: item,
-    starttime: startTime,
+    startime: startTime,
     endtime: endTime,
   }));
 
@@ -48,7 +48,9 @@ function getHeartbeatResponse(requestBody: any): any {
   };
 
   logger.debug(
-    `http-server:alphadigi-heartbeat-service:heartbeat:${logId} creating whitelist with ${whiteList.length} values`
+    `http-server:alphadigi-heartbeat-service:heartbeat:${logId} creating whitelist with ${
+      whiteList.length
+    } values ${JSON.stringify(responseBody)}`
   );
 
   store.deleteCameraWhiteList(ip);
@@ -60,7 +62,7 @@ function getAddWhiteListResponse(requestBody: any): any {
   const { logId } = requestBody;
 
   logger.debug(
-    `http-server:alphadigi-heartbeat-service:heartbeat:${logId} add whitelist response result=${requestBody.Response_AddWhiteList.response}`
+    `http-server:alphadigi-heartbeat-service:heartbeat:${logId} add whitelist response result=${requestBody.Response_AddWhiteList}`
   );
 
   return defaultResponseBody;
@@ -70,7 +72,7 @@ function getDeleteAllWhiteListResponse(requestBody: any): any {
   const { logId } = requestBody;
 
   logger.debug(
-    `http-server:alphadigi-heartbeat-service:heartbeat:${logId} delete all whitelist response result=${requestBody.Response_DelWhiteListAll.response}`
+    `http-server:alphadigi-heartbeat-service:heartbeat:${logId} delete all whitelist response result=${requestBody.Response_DelWhiteListAll}`
   );
 
   return defaultResponseBody;
@@ -90,6 +92,47 @@ function getAlarmInfoPlateResponse(requestBody: any): any {
   const { logId } = requestBody;
 
   const plateInfo = JSON.stringify(requestBody.AlarmInfoPlate);
+
+  /**
+   * {
+  "AlarmInfoPlate": {
+    "channel": 0,
+    "deviceName": "ParkingCam",
+    "ipaddr": "192.168.1.10",
+    "result": {
+      "PlateResult": {
+        "bright": 0,
+        "carBright": 0,
+        "carColor": 0,
+        "colorType": 3,
+        "colorValue": 0,
+        "confidence": 96,
+        "direction": 1,
+        "imagePath": "",
+        "license": "OTM2022",
+        "location": {
+          "RECT": {
+            "top": 904,
+            "left": 556,
+            "right": 1376,
+            "bottom": 700
+          }
+        },
+        "timeStamp": {
+          "Timeval": {
+            "sec": 1670976550,
+            "usec": 0
+          }
+        },
+        "timeUsed": 0,
+        "triggerType": 2,
+        "type": 1
+      }
+    },
+    "serialno": "fd495d6ee960dbec"
+  }
+}
+   */
 
   logger.debug(
     `http-server:alphadigi-heartbeat-service:heartbeat:${logId} plate info ${plateInfo}`
