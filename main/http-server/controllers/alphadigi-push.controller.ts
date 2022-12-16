@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { v4 as uuid } from "uuid";
 import logger from "../../../shared/logger";
-
-function getIp(req: Request) {
-  return req.socket.remoteAddress.split(":")[3];
-}
+import socketServer from "../../socket-server";
 
 async function push(
   req: Request,
@@ -13,9 +10,9 @@ async function push(
 ): Promise<void> {
   const logId = uuid();
 
-  try {
-    const ip = getIp(req);
+  // TODO implementar logica para criar evento e enviar placa para cda
 
+  try {
     logger.debug(
       `http-server:alphadigi-push-controller:push:${logId} ${req.body}`
     );
@@ -27,6 +24,10 @@ async function push(
         is_pay: "true",
       },
     };
+
+    socketServer.broadcastPlate(
+      req.body.AlarmInfoPlate.result.PlateResult.license
+    );
 
     res.send(responseBody).status(200).end();
   } catch (e) {
