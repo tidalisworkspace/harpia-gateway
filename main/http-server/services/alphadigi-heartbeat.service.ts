@@ -19,7 +19,7 @@ const defaultResponseBody = {
   Response_Heartbeat: {
     info: "no",
     shutoff: "no",
-    snapnow: "yes",
+    snapnow: "no",
   },
 };
 
