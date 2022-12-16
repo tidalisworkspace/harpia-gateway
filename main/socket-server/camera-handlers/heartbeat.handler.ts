@@ -61,7 +61,7 @@ const requestBodyCreators: { [key: string]: RequestBodyCreator } = {
         serial_address: "",
         heartbeat_enable: 1,
         heartbeat_address: "/alphadigi/heartbeat",
-        heartbeat_interval: 10,
+        heartbeat_interval: 3,
       },
     },
   }),
