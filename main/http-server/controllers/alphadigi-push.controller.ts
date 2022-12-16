@@ -24,7 +24,7 @@ async function push(
       Response_AlarmInfoPlate: {
         info: "no",
         content: "retransfer_stop",
-        is_pay: true,
+        is_pay: "true",
       },
     };
 

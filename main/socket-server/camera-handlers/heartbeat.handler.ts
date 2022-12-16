@@ -63,9 +63,6 @@ const requestBodyCreators: { [key: string]: RequestBodyCreator } = {
         heartbeat_address: "/alphadigi/heartbeat",
         heartbeat_interval: 3,
       },
-      offline: {
-        offline_mode: 1,
-      },
     },
   }),
 };
