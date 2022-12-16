@@ -54,14 +54,14 @@ export default class Config {
       dialect: options.dialect,
     });
 
-    store.setDatabaseUsername(options.username)
-    store.setDatabasePassword(options.password)
+    store.setDatabaseUsername(options.username);
+    store.setDatabasePassword(options.password);
   }
 
   private getDatabaseOptions(envname: string): Options {
     const options = this.optionsByEnv[envname];
-    options.username = store.getDatabaseUsername() || options.username
-    options.password = store.getDatabasePassword() || options.password
+    options.username = store.getDatabaseUsername() || options.username;
+    options.password = store.getDatabasePassword() || options.password;
     options.host = store.get("database.host", options.host) as string;
     options.port = store.get("database.port", options.port) as number;
     options.dialect = store.get("database.dialect", options.dialect) as Dialect;
