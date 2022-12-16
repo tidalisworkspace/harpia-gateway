@@ -135,7 +135,7 @@ class Store extends ElectronStore {
     const message = this.getFirstCameraQueue(ip, CameraQueues.HTTP);
 
     if (!message) {
-      return message;
+      return null;
     }
 
     if (message.command === CameraCommand.ADD_WHITE_LIST) {
