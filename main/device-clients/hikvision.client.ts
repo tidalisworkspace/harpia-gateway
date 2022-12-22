@@ -51,7 +51,7 @@ export class HikvisionClient implements DeviceClient<Response> {
         attributes: ["usuarioHikvision", "senhaIntelbras"],
       });
       const username = parametro?.usuarioHikvision || "admin";
-      const password = parametro?.senhaIntelbras || "admin";
+      const password = parametro?.senhaHikvision || "admin";
 
       this.httpClient = new DigestFetch(username, password);
     } catch (e) {
