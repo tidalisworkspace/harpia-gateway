@@ -14,7 +14,7 @@ import socketServer from "../../socket-server";
 import ControlIdEvent, {
   ObjectChange,
   ObjectChangeValues,
-} from "../types/ControlIdEvents";
+} from "../types/ControlIdEvent";
 import { TipoEvento } from "../types/TipoEvento";
 
 function isIrrelevantChange(logId: string, objectChange: ObjectChange) {

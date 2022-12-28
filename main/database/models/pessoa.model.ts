@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import database from "..";
+import veiculoModel, { Veiculo } from "./veiculo.model";
 
 export interface Pessoa extends Model {
   id: string;
@@ -7,10 +8,13 @@ export interface Pessoa extends Model {
   departamento: string;
   nomeGrupoHorario: string;
   tipoCadastro: string;
+  veiculo: Veiculo;
 }
 
+let veiculo;
+
 export default function pessoaModel() {
-  return database.getConnection().define<Pessoa>("pessoa", {
+  const model = database.getConnection().define<Pessoa>("pessoa", {
     id: {
       primaryKey: true,
       type: DataTypes.STRING(15),
@@ -37,4 +41,12 @@ export default function pessoaModel() {
       field: "ic_cadastro_pes",
     },
   });
+
+  if (!veiculo) {
+    veiculo = veiculoModel();
+  }
+
+  model.hasMany(veiculo);
+
+  return model;
 }

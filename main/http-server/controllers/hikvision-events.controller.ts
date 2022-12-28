@@ -9,7 +9,6 @@ async function create(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  logger.debug(JSON.stringify(req.headers));
   const logId = uuid();
 
   try {

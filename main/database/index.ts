@@ -7,6 +7,7 @@ import equipamentoModel from "./models/equipamento.model";
 import eventoModel from "./models/evento.model";
 import parametroModel from "./models/parametro.model";
 import pessoaModel from "./models/pessoa.model";
+import veiculoModel from "./models/veiculo.model";
 
 class Database {
   private config: Config;
@@ -50,6 +51,7 @@ class Database {
         eventoModel().sync(),
         parametroModel().sync(),
         pessoaModel().sync(),
+        veiculoModel().sync(),
       ]);
     } catch (e) {
       logger.error(`database:start disconnected ${e.name}:${e.message}`);

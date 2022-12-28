@@ -149,8 +149,13 @@ export default class SocketServer {
     this.send(connectionId, `<HKOK>${message}`);
   }
 
-  broadcastPlate(plate: string) {
+  broadcastMessageAndPlate(message: string, plate: string) {
+    this.broadcast(message);
     this.broadcast(`<PLEV>${plate}`);
+  }
+
+  broadcastPlateError(plate: string) {
+    this.broadcast(`<ERMR>${plate}`);
   }
 
   sendFailureMessage(

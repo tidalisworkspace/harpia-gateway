@@ -6,7 +6,7 @@ import { ControlidClient } from "../device-clients/controlid.client";
 import service from "../http-server/services/controlid-events.service";
 import ControlIdEvent, {
   ObjectChange,
-} from "../http-server/types/ControlIdEvents";
+} from "../http-server/types/ControlIdEvent";
 import defaultJobOptions from "./default-job-options";
 
 async function processEvents() {
