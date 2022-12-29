@@ -1,9 +1,9 @@
 import { SOCKET_STATE } from "../../../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../../../shared/ipc/types";
 import socketServer from "../../../socket-server";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export default class SocketStateHandler implements IpcHandler {
+export default class SocketStateHandler implements IpcMainHandler {
   channel = SOCKET_STATE;
 
   async handle(): Promise<IpcResponse> {

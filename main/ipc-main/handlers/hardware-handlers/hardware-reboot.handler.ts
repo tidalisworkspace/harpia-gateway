@@ -6,9 +6,9 @@ import {
 } from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
 import { deviceClients } from "../../../device-clients";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export default class HardwareRebootHandler implements IpcHandler {
+export default class HardwareRebootHandler implements IpcMainHandler {
   channel = HARDWARE_REBOOT;
 
   async handle(

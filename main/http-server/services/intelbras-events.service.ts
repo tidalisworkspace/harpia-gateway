@@ -107,12 +107,7 @@ async function create(event: IntelbrasEvent): Promise<void> {
         code: parseInt(cardNumber, 16),
       };
 
-      const response: IpcResponse = {
-        status: "success",
-        data,
-      };
-
-      ipcMain.sendToRenderer(CARDS_CONTENT_ADD, response);
+      ipcMain.send(CARDS_CONTENT_ADD, data);
     }
 
     if (isIrrelevant(logId, eventInfo)) {

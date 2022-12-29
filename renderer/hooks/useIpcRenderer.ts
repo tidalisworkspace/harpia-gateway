@@ -1,25 +1,62 @@
 import electron from "electron";
-import { IpcRequest, IpcResponse } from "../../shared/ipc/types";
+import { IpcMessage, IpcRequest, IpcResponse } from "../../shared/ipc/types";
 import logger from "../../shared/logger";
-import { IpcRendererListener } from "../types";
+import { IpcRendererHandle, IpcRendererHandler } from "../types";
+
+const requestError: IpcResponse = {
+  status: "error",
+  message: "Não foi possível enviar comando",
+};
 
 export class IpcRenderer {
-  async request(channel: string, input?: IpcRequest): Promise<IpcResponse> {
+  private handlers: IpcRendererHandler[] = [];
+
+  async request(request: IpcRequest): Promise<IpcResponse> {
+    const channel = request.channel;
+
     try {
-      const response = await electron.ipcRenderer.invoke(channel, input);
+      const response = await electron.ipcRenderer.invoke("main", request);
       return response;
     } catch (e) {
       logger.error(`ipcRenderer:request:${channel} ${e.name}:${e.message}`);
-      return { status: "error" };
+      return requestError;
     }
   }
 
-  listen(channel: string, listener: IpcRendererListener): void {
-    electron.ipcRenderer?.removeAllListeners(channel);
+  private handlerByChannel(
+    channel: string
+  ): (handler: IpcRendererHandler) => boolean {
+    return (handler: IpcRendererHandler) => channel === handler.channel;
+  }
 
-    electron.ipcRenderer?.on(channel, (event, args) => {
-      listener(args);
-    });
+  private handle(message: IpcMessage) {
+    const handler = this.handlers.find(this.handlerByChannel(message.channel));
+
+    if (!handler) {
+      logger.error("ipc-renderer:handle handler not found");
+      return;
+    }
+
+    handler.handle(message);
+  }
+
+  private refreshHandlers() {
+    electron.ipcRenderer?.removeAllListeners("renderer");
+
+    electron.ipcRenderer?.on("renderer", (event, message: IpcMessage) =>
+      this.handle(message)
+    );
+  }
+
+  addHandler(channel: string, handle: IpcRendererHandle): void {
+    const handler: IpcRendererHandler = {
+      channel,
+      handle,
+    };
+
+    this.handlers.push(handler);
+
+    this.refreshHandlers();
   }
 }
 

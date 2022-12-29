@@ -6,9 +6,9 @@ import {
 } from "../../../../shared/ipc/types";
 import { deviceClients } from "../../../device-clients";
 import store from "../../../store";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export default class HardwareConnectionTestHandler implements IpcHandler {
+export default class HardwareConnectionTestHandler implements IpcMainHandler {
   channel = HARDWARE_CONNECTION_TEST;
 
   async handle(

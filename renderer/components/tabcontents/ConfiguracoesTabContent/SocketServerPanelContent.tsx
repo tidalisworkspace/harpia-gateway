@@ -6,6 +6,7 @@ import {
   SOCKET_STATE,
 } from "../../../../shared/constants/ipc-main-channels.constants";
 import { SOCKET_CONNECTIONS_CHANGE } from "../../../../shared/constants/ipc-renderer-channels.constants";
+import { IpcMessage, IpcRequest } from "../../../../shared/ipc/types";
 import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 import Status from "../../Status";
 
@@ -24,7 +25,8 @@ function State() {
   };
 
   async function loadState() {
-    const response = await ipcRenderer.request(SOCKET_STATE);
+    const request: IpcRequest = { channel: SOCKET_STATE };
+    const response = await ipcRenderer.request(request);
     setType(response.data || types.error);
   }
 
@@ -42,20 +44,24 @@ export default function SocketServerPanelContent() {
   const [port, setPort] = useState(0);
 
   async function loadConnectionsAmount() {
-    const response = await ipcRenderer.request(SOCKET_CONNECTIONS_AMOUNT);
+    const request: IpcRequest = { channel: SOCKET_CONNECTIONS_AMOUNT };
+    const response = await ipcRenderer.request(request);
     setConnectionsAmout(response.data.connectionsAmount);
-    setCamerasAmount(response.data.camerasAmount)
+    setCamerasAmount(response.data.camerasAmount);
   }
 
   async function loadPort() {
-    const response = await ipcRenderer.request(SOCKET_PORT);
+    const request: IpcRequest = { channel: SOCKET_PORT };
+    const response = await ipcRenderer.request(request);
     setPort(response.data || port);
   }
 
-  ipcRenderer.listen(SOCKET_CONNECTIONS_CHANGE, (response) => {
-    setConnectionsAmout(response.data.connectionsAmount);
-    setCamerasAmount(response.data.camerasAmount);
-  });
+  function amountListener(message: IpcMessage) {
+    setConnectionsAmout(message.data.connectionsAmount);
+    setCamerasAmount(message.data.camerasAmount);
+  }
+
+  ipcRenderer.addHandler(SOCKET_CONNECTIONS_CHANGE, amountListener);
 
   useEffect(() => {
     loadPort();

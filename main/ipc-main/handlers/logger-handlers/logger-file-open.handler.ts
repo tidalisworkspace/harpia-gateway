@@ -2,9 +2,9 @@ import { shell } from "electron";
 import { LOGGER_FILE_OPEN } from "../../../../shared/constants/ipc-main-channels.constants";
 import { IpcResponse } from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export class LoggerFileOpenHandler implements IpcHandler {
+export class LoggerFileOpenHandler implements IpcMainHandler {
   channel = LOGGER_FILE_OPEN;
 
   async handle(): Promise<IpcResponse> {

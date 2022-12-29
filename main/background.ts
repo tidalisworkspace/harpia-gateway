@@ -1,5 +1,6 @@
 import { app } from "electron";
 import serve from "electron-serve";
+import { SOCKET_CONNECTIONS_CHANGE } from "../shared/constants/ipc-renderer-channels.constants";
 import logger from "../shared/logger";
 import database from "./database";
 import { createWindow } from "./helpers";

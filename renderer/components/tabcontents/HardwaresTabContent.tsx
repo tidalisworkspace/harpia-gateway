@@ -30,7 +30,7 @@ import {
   HARDWARE_FIND_ALL,
   HARDWARE_REBOOT,
 } from "../../../shared/constants/ipc-main-channels.constants";
-import { IpcRequest, IpcResponse } from "../../../shared/ipc/types";
+import { HardwareCommandIpcRequest, IpcRequest, IpcResponse } from "../../../shared/ipc/types";
 import { useIpcRenderer } from "../../hooks/useIpcRenderer";
 
 const { Text } = Typography;
@@ -39,7 +39,7 @@ const manufacturers = {
   "<HIKV>": "Hikvision",
   "<ITBF>": "Intelbras",
   "<CIBM>": "Control iD",
-  "<LPRA>": "Alphadigi"
+  "<LPRA>": "Alphadigi",
 };
 
 function getManufacturerName(manufacturer) {
@@ -158,7 +158,9 @@ export default function HardwaresTabContent() {
   }
 
   async function loadHardwares(): Promise<IpcResponse> {
-    const response = await ipcRenderer.request(HARDWARE_FIND_ALL);
+    const request: IpcRequest = { channel: HARDWARE_FIND_ALL };
+
+    const response = await ipcRenderer.request(request);
 
     setHardwares(response.data || hardwares);
 
@@ -168,9 +170,9 @@ export default function HardwaresTabContent() {
   async function rebootHardwares(): Promise<IpcResponse> {
     const params = getSelected();
 
-    const request: IpcRequest = { params };
+    const request: IpcRequest = { channel: HARDWARE_REBOOT, params };
 
-    const response = await ipcRenderer.request(HARDWARE_REBOOT, request);
+    const response = await ipcRenderer.request(request);
 
     return response;
   }
@@ -183,12 +185,9 @@ export default function HardwaresTabContent() {
   async function updateDateTime(): Promise<IpcResponse> {
     const params = getSelected();
 
-    const request: IpcRequest = { params };
+    const request: IpcRequest = { channel: HARDWARE_DATETIME_UPDATE, params };
 
-    const response = await ipcRenderer.request(
-      HARDWARE_DATETIME_UPDATE,
-      request
-    );
+    const response = await ipcRenderer.request(request);
 
     return response;
   }
@@ -196,12 +195,12 @@ export default function HardwaresTabContent() {
   async function configureEventsServer(): Promise<IpcResponse> {
     const params = getSelected();
 
-    const request: IpcRequest = { params };
+    const request: HardwareCommandIpcRequest = {
+      channel: HARDWARE_EVENTS_SERVER_UPDATE,
+      params,
+    };
 
-    const response = await ipcRenderer.request(
-      HARDWARE_EVENTS_SERVER_UPDATE,
-      request
-    );
+    const response = await ipcRenderer.request(request);
 
     return response;
   }
@@ -209,12 +208,9 @@ export default function HardwaresTabContent() {
   async function testConnection(): Promise<IpcResponse> {
     const params = getSelected();
 
-    const request: IpcRequest = { params };
+    const request: IpcRequest = { channel: HARDWARE_CONNECTION_TEST, params };
 
-    const response = await ipcRenderer.request(
-      HARDWARE_CONNECTION_TEST,
-      request
-    );
+    const response = await ipcRenderer.request(request);
 
     return response;
   }

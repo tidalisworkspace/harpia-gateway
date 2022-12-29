@@ -1,4 +1,3 @@
-import log from "electron-log";
 import { ConnectionError, Dialect, Options, Sequelize } from "sequelize";
 import logger from "../../shared/logger";
 import { envname } from "../helpers/environment";
@@ -36,7 +35,7 @@ class Database {
   }
 
   async start(): Promise<void> {
-    log.info(`database:start ${this.env} environment`);
+    logger.info(`database:start ${this.env} environment`);
     const options = this.getOptions();
 
     const connection = new Sequelize(options);

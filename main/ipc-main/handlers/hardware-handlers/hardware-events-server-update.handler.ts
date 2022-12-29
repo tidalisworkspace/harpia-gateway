@@ -7,9 +7,11 @@ import {
 import logger from "../../../../shared/logger";
 import { deviceClients } from "../../../device-clients";
 import httpServer from "../../../http-server";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export default class HardwareEventsServerUpdateHandler implements IpcHandler {
+export default class HardwareEventsServerUpdateHandler
+  implements IpcMainHandler
+{
   channel = HARDWARE_EVENTS_SERVER_UPDATE;
 
   async handle(

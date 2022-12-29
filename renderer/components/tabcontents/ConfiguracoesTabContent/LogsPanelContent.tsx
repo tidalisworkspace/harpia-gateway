@@ -6,7 +6,7 @@ import {
   LOGGER_FILE_OPEN,
   LOGGER_FILE_SIZE,
 } from "../../../../shared/constants/ipc-main-channels.constants";
-import { IpcResponse } from "../../../../shared/ipc/types";
+import { IpcRequest, IpcResponse } from "../../../../shared/ipc/types";
 import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
 
 const { Text } = Typography;
@@ -24,7 +24,9 @@ export default function LogsPanelContent() {
   const ipcRenderer = useIpcRenderer();
 
   async function loadFileSize(): Promise<IpcResponse> {
-    const response = await ipcRenderer.request(LOGGER_FILE_SIZE);
+    const request: IpcRequest = { channel: LOGGER_FILE_SIZE };
+
+    const response = await ipcRenderer.request(request);
 
     setFileSize(response.data || fileSize);
 
@@ -32,20 +34,27 @@ export default function LogsPanelContent() {
   }
 
   function handleReload() {
-    message.loading("Atualizando informações de log").then(loadFileSize).then(showMessage);
+    message
+      .loading("Atualizando informações de log")
+      .then(loadFileSize)
+      .then(showMessage);
   }
 
   function handleOpenLogs() {
+    const request: IpcRequest = { channel: LOGGER_FILE_OPEN };
+
     message
       .loading("Abrindo logs")
-      .then(() => ipcRenderer.request(LOGGER_FILE_OPEN))
+      .then(() => ipcRenderer.request(request))
       .then(showMessage);
   }
 
   function handleCleanLogs() {
+    const request: IpcRequest = { channel: LOGGER_FILE_CLEAN };
+
     message
       .loading("Limpando logs")
-      .then(() => ipcRenderer.request(LOGGER_FILE_CLEAN))
+      .then(() => ipcRenderer.request(request))
       .then(loadFileSize)
       .then(showMessage);
   }

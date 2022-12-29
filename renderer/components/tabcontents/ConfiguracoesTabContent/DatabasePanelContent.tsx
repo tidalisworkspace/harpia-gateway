@@ -17,15 +17,20 @@ import {
   DATABASE_CONNECTION_UPDATE,
 } from "../../../../shared/constants/ipc-main-channels.constants";
 import { DATABASE_CONNECTION_CHANGE } from "../../../../shared/constants/ipc-renderer-channels.constants";
-import { IpcResponse } from "../../../../shared/ipc/types";
+import {
+  IpcMessage,
+  IpcRequest,
+  IpcResponse,
+} from "../../../../shared/ipc/types";
 import { useIpcRenderer } from "../../../hooks/useIpcRenderer";
+import { IpcRendererHandler } from "../../../types";
 import Status from "../../Status";
 
 function ConnectionStatus() {
   const ipcRenderer = useIpcRenderer();
   const [type, setType] = useState("loading");
 
-  ipcRenderer.listen(DATABASE_CONNECTION_CHANGE, (response) =>
+  ipcRenderer.addHandler(DATABASE_CONNECTION_CHANGE, (response) =>
     setType(response.data)
   );
 
@@ -36,7 +41,8 @@ function ConnectionStatus() {
   };
 
   async function loadStatus() {
-    const response = await ipcRenderer.request(DATABASE_CONNECTION_STATUS);
+    const request: IpcRequest = { channel: DATABASE_CONNECTION_STATUS };
+    const response = await ipcRenderer.request(request);
     setType(response.status);
   }
 
@@ -62,11 +68,13 @@ export default function DatabasePanelContent() {
   const [form] = Form.useForm();
 
   function testDatabaseConnection(params: any): Promise<IpcResponse> {
-    return ipcRenderer.request(DATABASE_CONNECTION_TEST, { params });
+    const request: IpcRequest = { channel: DATABASE_CONNECTION_TEST, params };
+    return ipcRenderer.request(request);
   }
 
   function updateDatabaseConnection(params: any): Promise<IpcResponse> {
-    return ipcRenderer.request(DATABASE_CONNECTION_UPDATE, { params });
+    const request: IpcRequest = { channel: DATABASE_CONNECTION_UPDATE, params };
+    return ipcRenderer.request(request);
   }
 
   async function handleSubmit() {

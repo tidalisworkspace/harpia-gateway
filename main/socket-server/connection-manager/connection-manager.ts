@@ -34,15 +34,12 @@ export default class ConnectionManager {
 
     storage.remove(id);
 
-    const response: IpcResponse = {
-      status: "success",
-      data: {
-        connectionsAmount: storage.count("cda"),
-        camerasAmount: storage.count("camera"),
-      },
+    const data = {
+      connectionsAmount: storage.count("cda"),
+      camerasAmount: storage.count("camera"),
     };
 
-    ipcMain.sendToRenderer(SOCKET_CONNECTIONS_CHANGE, response);
+    ipcMain.send(SOCKET_CONNECTIONS_CHANGE, data);
   }
 
   private toMessage(data: Buffer) {
@@ -122,15 +119,12 @@ export default class ConnectionManager {
     connection.on("close", () => this.handleClose(id));
     this.addDataHandler(id, connection, type);
 
-    const response: IpcResponse = {
-      status: "success",
-      data: {
-        connectionsAmount: storage.count("cda"),
-        camerasAmount: storage.count("camera"),
-      },
+    const data = {
+      connectionsAmount: storage.count("cda"),
+      camerasAmount: storage.count("camera"),
     };
 
-    ipcMain.sendToRenderer(SOCKET_CONNECTIONS_CHANGE, response);
+    ipcMain.send(SOCKET_CONNECTIONS_CHANGE, data);
 
     const message = isCamera ? "camera connected" : "connected";
     logger.info(`socket:connection-manager:${id} ${message}`);

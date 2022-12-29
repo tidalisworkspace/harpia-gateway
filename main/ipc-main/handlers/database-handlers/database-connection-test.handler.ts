@@ -3,9 +3,9 @@ import { Sequelize } from "sequelize";
 import { DATABASE_CONNECTION_TEST } from "../../../../shared/constants/ipc-main-channels.constants";
 import { IpcRequest, IpcResponse } from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export class DatabaseConnectionTestHandler implements IpcHandler {
+export class DatabaseConnectionTestHandler implements IpcMainHandler {
   channel = DATABASE_CONNECTION_TEST;
 
   async handle(
@@ -18,7 +18,7 @@ export class DatabaseConnectionTestHandler implements IpcHandler {
       host,
       port,
       dialect,
-      logging: false
+      logging: false,
     });
 
     try {

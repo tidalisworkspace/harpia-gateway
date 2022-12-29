@@ -2,9 +2,9 @@ import { LOGGER_FILE_SIZE } from "../../../../shared/constants/ipc-main-channels
 import { IpcResponse } from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
 import formatFileSize from "../../../helpers/format-file-size";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export class LoggerFileSizeHandler implements IpcHandler {
+export class LoggerFileSizeHandler implements IpcMainHandler {
   channel = LOGGER_FILE_SIZE;
 
   async handle(): Promise<IpcResponse> {

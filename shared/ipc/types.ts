@@ -7,7 +7,13 @@ export interface IpcResponse {
 }
 
 export interface IpcRequest {
+  channel: string;
   params?: any;
+}
+
+export interface IpcMessage {
+  channel: string;
+  data: any;
 }
 
 export interface HardwareAddress {

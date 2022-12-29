@@ -5,9 +5,9 @@ import equipamentoModel, {
   Equipamento,
 } from "../../../database/models/equipamento.model";
 import store from "../../../store";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export default class HardwareFindAllHandler implements IpcHandler {
+export default class HardwareFindAllHandler implements IpcMainHandler {
   channel = HARDWARE_FIND_ALL;
 
   private toHardware(equipamento: Equipamento) {

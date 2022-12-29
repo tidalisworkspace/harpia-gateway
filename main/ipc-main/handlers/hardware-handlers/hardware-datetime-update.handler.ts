@@ -6,9 +6,9 @@ import {
 } from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
 import { deviceClients } from "../../../device-clients";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export default class HardwareDatetimeUpdateHandler implements IpcHandler {
+export default class HardwareDatetimeUpdateHandler implements IpcMainHandler {
   channel = HARDWARE_DATETIME_UPDATE;
 
   async handle(

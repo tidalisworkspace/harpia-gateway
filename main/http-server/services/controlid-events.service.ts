@@ -221,12 +221,7 @@ async function create(event: ControlIdEvent): Promise<void> {
         code: cardNumber,
       };
 
-      const response: IpcResponse = {
-        status: "success",
-        data,
-      };
-
-      ipcMain.sendToRenderer(CARDS_CONTENT_ADD, response);
+      ipcMain.send(CARDS_CONTENT_ADD, data);
     }
 
     if (isIrrelevantChange(logId, objectChange)) {

@@ -9,9 +9,9 @@ import { IpcRequest, IpcResponse } from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
 import database from "../../../database";
 import store from "../../../store";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export class DatabaseConnectionUpdateHandler implements IpcHandler {
+export class DatabaseConnectionUpdateHandler implements IpcMainHandler {
   channel = DATABASE_CONNECTION_UPDATE;
 
   async handle(
@@ -21,19 +21,17 @@ export class DatabaseConnectionUpdateHandler implements IpcHandler {
     const { host, port, username, password, dialect } = request.params;
 
     store.set("database", { host, port, dialect });
-    store.setDatabaseUsername(username)
-    store.setDatabasePassword(password)
+    store.setDatabaseUsername(username);
+    store.setDatabasePassword(password);
 
     try {
       await database.start();
 
-      ipcMain.sendToRenderer(SETTINGS_TAB_DOT, {
-        status: "success",
+      ipcMain.send(SETTINGS_TAB_DOT, {
         data: "hide",
       });
 
-      ipcMain.sendToRenderer(DATABASE_CONNECTION_CHANGE, {
-        status: "success",
+      ipcMain.send(DATABASE_CONNECTION_CHANGE, {
         data: "connected",
       });
 
@@ -44,13 +42,11 @@ export class DatabaseConnectionUpdateHandler implements IpcHandler {
     } catch (e) {
       logger.error(`ipc-main:${this.channel} ${e.name}:${e.message}`);
 
-      ipcMain.sendToRenderer(SETTINGS_TAB_DOT, {
-        status: "error",
+      ipcMain.send(SETTINGS_TAB_DOT, {
         data: "show",
       });
 
-      ipcMain.sendToRenderer(DATABASE_CONNECTION_CHANGE, {
-        status: "error",
+      ipcMain.send(DATABASE_CONNECTION_CHANGE, {
         data: "disconnected",
       });
 

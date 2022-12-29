@@ -2,9 +2,9 @@ import { LOGGER_FILE_CLEAN } from "../../../../shared/constants/ipc-main-channel
 import { IpcResponse, IpcResponseStatus } from "../../../../shared/ipc/types";
 import logger from "../../../../shared/logger";
 import formatFileSize from "../../../helpers/format-file-size";
-import { IpcHandler } from "../../types";
+import { IpcMainHandler } from "../../types";
 
-export class LoggerFileCleanHandler implements IpcHandler {
+export class LoggerFileCleanHandler implements IpcMainHandler {
   channel = LOGGER_FILE_CLEAN;
 
   async handle(): Promise<IpcResponse> {

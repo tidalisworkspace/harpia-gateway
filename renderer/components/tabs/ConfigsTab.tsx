@@ -3,21 +3,22 @@ import { Badge } from "antd";
 import { useEffect, useState } from "react";
 import { DATABASE_CONNECTION_STATUS } from "../../../shared/constants/ipc-main-channels.constants";
 import { SETTINGS_TAB_DOT } from "../../../shared/constants/ipc-renderer-channels.constants";
-import { IpcResponse } from "../../../shared/ipc/types";
+import { IpcMessage, IpcRequest } from "../../../shared/ipc/types";
 import { useIpcRenderer } from "../../hooks/useIpcRenderer";
 
 export default function ConfigsTab() {
   const ipcRenderer = useIpcRenderer();
   const [showDot, setShowDot] = useState(false);
 
-  function dotListener(response: IpcResponse) {
-    setShowDot(response.data === "show");
+  function dotListener(message: IpcMessage) {
+    setShowDot(message.data === "show");
   }
 
-  ipcRenderer.listen(SETTINGS_TAB_DOT, dotListener);
+  ipcRenderer.addHandler(SETTINGS_TAB_DOT, dotListener);
 
   async function loadDatabaseConnectionStatus() {
-    const response = await ipcRenderer.request(DATABASE_CONNECTION_STATUS);
+    const request: IpcRequest = { channel: DATABASE_CONNECTION_STATUS };
+    const response = await ipcRenderer.request(request);
     setShowDot(response.status !== "success");
   }
 

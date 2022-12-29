@@ -1,3 +1,8 @@
-import { IpcResponse } from "../shared/ipc/types";
+import { IpcMessage } from "../shared/ipc/types";
 
-export type IpcRendererListener = (response: IpcResponse) => void;
+export type IpcRendererHandle = (message: IpcMessage) => void;
+
+export interface IpcRendererHandler {
+  channel: string;
+  handle: IpcRendererHandle;
+}
