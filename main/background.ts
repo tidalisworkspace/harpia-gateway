@@ -1,20 +1,27 @@
 import { app } from "electron";
 import serve from "electron-serve";
+import path from "path";
 import logger from "../shared/logger";
 import database from "./database";
 import { createWindow } from "./helpers";
 import { isProd } from "./helpers/environment";
+import http from "./http";
 import ipc from "./ipc";
 import job from "./job";
-import http from "./http";
 import socket from "./socket";
 
-if (isProd) {
-  serve({ directory: "app" });
-} else {
-  app.setPath("userData", `${app.getPath("userData")} (development)`);
+let directory
+
+if (!isProd) {
+  directory = path.resolve(app.getPath("home"), 'Harpia Gateway Files (development)')
 }
 
+if (isProd) {
+  directory = path.resolve(app.getPath("home"), "Harpia Gateway Files")
+  serve({ directory: "app" });
+}
+
+app.setPath("userData", directory)
 logger.info(`app:main user data path ${app.getPath("userData")}`);
 
 (async () => {
